@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 15 - Motores de Turbina (EASA B1/B2)</title>
+    <style>
+        /* --- ESTILO GERAL E LIMPEZA --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* --- BARRA DE FERRAMENTAS FIXA E VISÍVEL --- */
+        .toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10000;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* --- CONTROLES DE NAVEGAÇÃO --- */
+        .navigation-controls {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        #page-indicator {
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        /* --- BOTOES CONFIGURADOS --- */
+        .btn {
+            cursor: pointer;
+            padding: 8px 14px;
+            border: 1px solid #ced4da;
+            background-color: #ffffff;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .btn:active {
+            background-color: #dee2e6;
+        }
+        
+        .btn-active {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+
+        /* --- CONTAINER E ESTRUTURA DE PÁGINAS --- */
+        .book-container {
+            max-width: 85%;
+            margin: 140px auto 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            min-height: 500px;
+            box-sizing: border-box;
+        }
+
+        /* Cada página começa oculta e o JS gerencia a visibilidade */
+        .page-slide {
+            display: none; 
+            width: 100%;
+        }
+
+        /* Quando tem imagem, divide a tela: texto na esquerda, espaço na direita */
+        .page-slide.has-image {
+            display: none;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .content-text {
+            flex: 1;
+        }
+
+        .image-placeholder {
+            width: 35%;
+            min-width: 250px;
+            background-color: #eaedf1;
+            border: 2px dashed #b2bac2;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #5a6578;
+            font-weight: bold;
+        }
+
+        /* --- DESTAQUE DE LEITURA (APENAS SENTENÇA/PARÁGRAFO) --- */
+        .highlight-sentence {
+            background-color: rgba(255, 204, 0, 0.4) !important;
+            border-radius: 4px;
+            padding: 2px 4px;
+            transition: background-color 0.15s ease;
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 768px) {
+            .page-slide.has-image {
+                flex-direction: column;
+            }
+            .image-placeholder {
+                width: 100%;
+            }
+            .book-container {
+                margin-top: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PAINEL DE FERRAMENTAS FIXO -->
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button id="btn-font-minus" class="btn">A−</button>
+            <button id="btn-font-plus" class="btn">A+</button>
+            <button id="btn-fullscreen" class="btn">⛶ Tela Cheia</button>
+        </div>
+        
+        <div class="toolbar-group">
+            <button id="btn-read" class="btn">🔊 Ler</button>
+            <button id="btn-pause" class="btn" disabled>⏸️ Pausar</button>
+            <button id="btn-female" class="btn">👩 Voz Feminina</button>
+            <button class="btn speed-btn" data-speed="0.75">0.75x</button>
+            <button class="btn speed-btn" data-speed="1">1x</button>
+            <button class="btn speed-btn" data-speed="1.25">1.25x</button>
+            <button class="btn speed-btn" data-speed="1.5">1.5x</button>
+            <button class="btn speed-btn" data-speed="2">2x</button>
+        </div>
+    </div>
+
+    <!-- CONTROLES DE NAVEGAÇÃO -->
+    <div class="navigation-controls">
+        <button id="btn-prev" class="btn">◀ Anterior</button>
+        <span id="page-indicator">Carregando...</span>
+        <button id="btn-next" class="btn">Próxima ▶</button>
+    </div>
+
+    <!-- CONTAINER DAS PÁGINAS -->
+    <div class="book-container">
+
+        <!-- ==================== PÁGINA 1 (MANTIDA) ==================== -->
+        <div class="page-slide" data-page="1">
+            <div class="content-text">
+                <h1>Módulo 15 - Motores de Turbina</h1>
+                <p><strong>Habilitação:</strong> (TMA B1.1)</p>
+                <p><strong>Submódulo:</strong> M15.9 Lubrificantes e Combustíveis</p>
+                <p><strong>Data:</strong> Março 2024</p>
+                <p><strong>Autor:</strong> António Freixedas (Antoniofreixedas3@gmail.com)</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 2 ==================== -->
+        <div class="page-slide" data-page="2">
+            <div class="content-text">
+                <h2>M15.9 Lubrificantes e Combustíveis</h2>
+                <h3>Objectivos</h3>
+                <ul>
+                    <li>Propriedades e especificações de óleos e lubrificantes.</li>
+                    <li>Aditivos de combustível.</li>
+                    <li>Precauções de segurança.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 3 ==================== -->
+        <div class="page-slide" data-page="3">
+            <div class="content-text">
+                <h3>Óleos motores Turbina</h3>
+                <p>Os tipos de lubrificantes usados nos motores hoje são diferentes dos lubrificantes usados no passado.</p>
+                <p>Com a evolução foram produzidos motores (turbinas) com maior capacidade, para que as aeronaves ter melhor desempenho.</p>
+                <p>A operação de motores de turbinas em altitudes mais elevadas, mais frias e com temperaturas internas do motor maiores, gerou maiores pedidos de lubrificação e consequentemente novos tipos de óleos.</p>
+                <p>Os óleos sintéticos são um bom exemplo dessa evolução por conseguirem resistir a temperaturas bem mais elevadas.</p>
+                <p>Os óleos da especificação militar MIL-PRF-7808 foram os primeiros óleos sintéticos desenvolvidos para atender aos requisitos necessários.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 4 ==================== -->
+        <div class="page-slide" data-page="4">
+            <div class="content-text">
+                <p>Hoje, a maioria dos motores turbina usam óleos sintéticos, baseado na especificação MIL-PRF-23699.</p>
+                <p>Óleos sintéticos estão baseados em ácidos e outras substâncias químicas, logo não são compatíveis com os óleos de base mineral ou óleos a base de petróleo, e mesmo entre os óleos sintéticos deve-se ter cuidado na mistura, pois existem óleos que não são totalmente compatíveis devido aos aditivos adicionados aos mesmos.</p>
+                <h3>Exemplo Técnico: Turbonycoil 600 (NATO CODE O-156 MIL-PRF-23699 Type 2)</h3>
+                <p>Óleo lubrificante baseado na alta estabilidade dos ésteres de poliol (éster de poliol é um lubrificante sintético muito utilizado para refrigeração, com a função de proteger contra a corrosão. com aditivos antioxidantes, de antidesgaste e anticorrosivos.)</p>
+                <p>Apresenta uma volatilidade muito baixa em alta temperatura e um alto ponto de inflamação.</p>
+                <p>Tem também um alto poder anti-espuma (capacidade que o óleo tem de se manter com o ar com contém.)</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 5 ==================== -->
+        <div class="page-slide" data-page="5">
+            <div class="content-text">
+                <h2>Lubrificantes</h2>
+                <p><strong>Função</strong> - Melhorar o rendimento mecânico (o atrito) evitando temperaturas altas localizadas e reduzindo o desgaste das peças.</p>
+                <h3>Origem:</h3>
+                <ul>
+                    <li>Mineral – Petróleo.</li>
+                    <li>Vegetal – Plantas.</li>
+                    <li>Animal - Sebo – Gordura.</li>
+                    <li>Sintético - Produtos Betuminosos (betume + cré).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 6 ==================== -->
+        <div class="page-slide" data-page="6">
+            <div class="content-text">
+                <p>Nos primeiros motores de reacção era usado o mesmo óleo que era utilizado nos motores alternativos (óleo de origem mineral).</p>
+                <p>Este óleo perdia rapidamente as suas características de lubrificação devido ás elevadas temperaturas desenvolvidas nos motores.</p>
+                <p>Passaram então a ser utilizados óleos sintéticos (96% ácidos inorgânicos e álcool e 4% de aditivos) com as seguintes características:</p>
+                <ul>
+                    <li>Baixa volatilidade - a fim de evitar a evaporação a altas altitudes.</li>
+                    <li>Alto ponto de ignição.</li>
+                    <li>Elevada gama de temperatura de operação (entre -45 0C e 1150C).</li>
+                    <li>Baixa viscosidade (facilita a fluidez a baixas temperaturas).</li>
+                    <li>Alto índice de viscosidade (manutenção da viscosidade com o aumento da temperatura).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 7 ==================== -->
+        <div class="page-slide" data-page="7">
+            <div class="content-text">
+                <p><strong>Elevada facilidade de manutenção de uma película de lubrificação</strong></p>
+                <p>Facilidade com que as moléculas de óleo permanecem aderentes umas ás outras quando sujeitas a cargas de compressão e facilidade com que aderem às superfícies quando sujeitas a forças.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 8 ==================== -->
+        <div class="page-slide" data-page="8">
+            <div class="content-text">
+                <h3>Viscosidade</h3>
+                <p>A viscosidade do óleo é uma das características mais importantes do óleo.</p>
+                <p>Representa a fluidez que o óleo apresenta sob determinada temperatura.</p>
+                <p>Nesse sentido os óleos mais viscosos são mais grossos, enquanto os menos viscosos são mais fluidos.</p>
+                <p>Na prática, a viscosidade funciona como uma faca de dois gumes: o óleo tem que ser viscoso o suficiente para criar uma película protetora entre as partes do motor, mas não pode ser tão grosso a ponto de oferecer muita resistência ao movimento das peças.</p>
+                <p>A questão é que óleos lubrificantes mais viscosos exigem mais força para serem bombeados e fluem mais lentamente pelo motor.</p>
+                <p>Os menos viscosos circulam com mais facilidade, permitindo uma lubrificação mais rápida e que alcança cada centímetro das peças.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 9 ==================== -->
+        <div class="page-slide" data-page="9">
+            <div class="content-text">
+                <p>Essa excelente fluidez faz com que nenhuma parte se desgaste mais do que outra, diminuindo a necessidade de pequenas manutenções.</p>
+                <p>Em motores de turbina os óleos apresentam todos uma baixa viscosidade.</p>
+                <p>A viscosidade é geralmente medida em centistokes (cS).</p>
+                <p>Os óleos usados para motores de turbina são obrigados a operar durante uma ampla gama de temperaturas.</p>
+                <p>Temperaturas de -40 ° C a mais de 250 ° C para temperaturas máximas são possíveis.</p>
+                <p>De acordo com a geração de desenvolvimento, os óleos são designados como óleos Tipo 2, Tipo 3 ou Tipo 4.</p>
+                <p>Óleos tipo 2 estão ainda disponíveis e em uso embora neste momento o óleo tipo 3 seja o óleo sintético mais usado.</p>
+                <p>Presentemente, o óleo da quarta geração de óleos sintéticos já está disponível para uso.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 10 (COM FIGURA) ==================== -->
+        <div class="page-slide has-image" data-page="10">
+            <div class="content-text">
+                <p>A viscosidade de um fluido pode ser determinada de diferentes formas, uma delas é pelo viscosímetro de Stokes, que se baseia na velocidade e tempo de queda de uma esfera num determinado fluido.</p>
+                <p>O viscosímetro de Stokes, é um tubo de vidro contendo o líquido que desejamos determinar sua viscosidade.</p>
+                <p>Nesse tubo, marca-se uma altura pré-determinada, e deixa-se cair uma esfera, de diâmetro conhecido, no interior do fluido.</p>
+                <p>Tendo a distância percorrida pela esfera e seu tempo de queda, é possível determinar sua velocidade.</p>
+            </div>
+            <div class="image-placeholder">
+                <span class="placeholder-text">Espaço reservado para Figura: Esquema do Viscosímetro de Stokes (tubo de vidro com esfera em queda)</span>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 11 (COM FIGURA) ==================== -->
+        <div class="page-slide has-image" data-page="11">
+            <div class="content-text">
+                <p>Segundo as normas britânicas a viscosidade ideal para os óleos de motores a turbina será 7,5 mm/segundo.</p>
+            </div>
+            <div class="image-placeholder">
+                <span class="placeholder-text">Espaço reservado para Figura: Detalhe do Viscosímetro e medição do tempo de queda</span>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 12 (COM FIGURA) ==================== -->
+        <div class="page-slide has-image" data-page="12">
+            <div class="content-text">
+                <h3>Índice de Viscosidade</h3>
+                <p>O índice de viscosidade (IV) mede a variação da viscosidade com a temperatura.</p>
+                <p>Quanto maior o IV menor será a variação de viscosidade do óleo lubrificante quando submetido a diferentes temperaturas.</p>
+                <p>No fundo o IV permite indicar qual a resistência de variação da sua viscosidade em relação à variação da sua temperatura.</p>
+                <p>No caso dos motores de turbina são necessários sempre altos índices de viscosidade, porque se pretende ter uma viscosidade relativamente constante a todas as temperaturas de funcionamento do motor.</p>
+            </div>
+            <div class="image-placeholder">
+                <span class="placeholder-text">Espaço reservado para Figura: Gráfico da Variação da Viscosidade com a Temperatura (Curvas de Alto e Baixo IV)</span>
+            </div>
+        </div>
+        <!-- ==================== PÁGINA 13 ==================== -->
+        <div class="page-slide" data-page="13">
+            <div class="content-text">
+                <p>Para facilitar a comparação, a escala às vezes é dividida em várias categorias amplas, com os óleos com pontuação:</p>
+                <ul>
+                    <li>abaixo de 35 classificados como 'VI baixo';</li>
+                    <li>aqueles que pontuam entre 35 e 80 como 'Médio VI;</li>
+                    <li>óleos entre 80 e 110 classificados como 'High VI;'</li>
+                    <li>e aqueles acima de 110 classificados como 'VI Muito Alto.'</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 14 ==================== -->
+        <div class="page-slide" data-page="14">
+            <div class="content-text">
+                <h3>Ponto de fluidez</h3>
+                <p>O ponto de fluidez do óleo é alcançado se ele for arrefecido a uma temperatura na qual o óleo se torna tão espesso que para de fluir.</p>
+                <h3>Resistência à pressão</h3>
+                <p>A resistência à pressão ou capacidade de carga do óleo é um fator importante na formação de um filme de óleo entre as partes móveis.</p>
+                <p>Este filme resiste às cargas nas superfícies móveis de rolamentos e engrenagens e evita o contato entre as superfícies.</p>
+                <p>Se as cargas forem maiores do que a capacidade de resistência à pressão do óleo, as superfícies entram em contato e vão acontecer desgastes.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 15 ==================== -->
+        <div class="page-slide" data-page="15">
+            <div class="content-text">
+                <h3>Resistência à oxidação</h3>
+                <p>A oxidação é a reação entre o óleo e o oxigênio.</p>
+                <p>Quando o óleo reage com o oxigênio torna-se mais espesso e aumenta a sua viscosidade devido á formação de ácidos e lamas.</p>
+                <p>Esta reação reduz a capacidade de lubrificação do óleo.</p>
+                <p>A taxa de reação com o oxigênio aumenta quando a temperatura e a extensão da contaminação aumentam.</p>
+                <p>Portanto, a resistência à oxidação é uma importante característica do óleo porque influencia a durabilidade do óleo.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 16 (modificada pelo usuário) ==================== -->
+        <div class="page-slide" data-page="16">
+            <div class="content-text">
+                <h3>Estabilidade térmica</h3>
+                <p>O termo estabilidade térmica descreve a resistência do óleo á decomposição dos compostos do óleo em altas temperaturas.</p>
+                <p>As moléculas de óleo são feitas de vários compostos individuais.</p>
+                <p>Nas altas temperaturas, essas moléculas podem quebrar e a composição química e capacidade de lubrificação do óleo vai-se alterar.</p>
+                <p>Essa decomposição geralmente ocorre em temperaturas muito altas, bem acima das temperaturas normais de operação do óleo do motor.</p>
+                <h3>Ponto de inflamação (Flash Point)</h3>
+                <p>O ponto de inflamação de um líquido inflamável (aqui óleo de motor) é a temperatura mais baixa na qual pode formar uma mistura inflamável com o ar.</p>
+                <p>Deve ser o mais alto possível para evitar fogos no sistema.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 17 ==================== -->
+        <div class="page-slide" data-page="17">
+            <div class="content-text">
+                <h3>Propriedades dos lubrificantes:</h3>
+                <ul>
+                    <li>Boas características de antifricção.</li>
+                    <li>Pouca variação da viscosidade com a temperatura.</li>
+                    <li>Manter boa fluidez a baixas temperaturas.</li>
+                    <li>Boa capacidade de refrigeração.</li>
+                    <li>Resistência à oxidação.</li>
+                    <li>Não ter propriedades corrosivas, nem formar depósitos.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 18 ==================== -->
+        <div class="page-slide" data-page="18">
+            <div class="content-text">
+                <p>Os óleos Lubrificantes devem executar três funções básicas num motor de turbina:</p>
+                <ul>
+                    <li>Lubrificação</li>
+                    <li>Arrefecimento</li>
+                    <li>Limpeza.</li>
+                </ul>
+                <h3>Lubrificação</h3>
+                <p>O óleo deve ter baixa viscosidade, suficiente para fluir rapidamente entre as partes, mas também viscosidade alta o suficiente para prevenir contato de metal com metal (Alto índice Viscosidade).</p>
+                <p>Não deve "quebrar" sob altas temperaturas e pressões. (Elevada facilidade de manutenção de uma película de lubrificação)</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 19 ==================== -->
+        <div class="page-slide" data-page="19">
+            <div class="content-text">
+                <p>Tem que ter ponto de fluidez suficiente para arrancar sob temperaturas extremamente baixas. (Baixa viscosidade)</p>
+                <p>Deve ter um alto ponto de fulgor, assim não queima ou vaporiza sob calor intenso;</p>
+                <p>Não deve formar e/ou depositar carbono, verniz ou gordura em quantidades excessivas.</p>
+                <h3>Arrefecimento</h3>
+                <p>Óleo lubrificante têm que arrefecer partes móveis, como engrenagens e rolamentos.</p>
+                <p>Esta é uma função importante pois as turbinas possuem muitas partes localizadas próximas ás câmeras de combustão ou discos de turbina onde as temperaturas são maiores que 900°C.</p>
+                <p>Os óleos arrefecem os rolamentos e caixas de engrenagens absorvendo o calor e depois dissipando-o nos radiadores.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 20 ==================== -->
+        <div class="page-slide" data-page="20">
+            <div class="content-text">
+                <h3>Limpeza</h3>
+                <p>Outra função principal do óleo lubrificante é a limpeza.</p>
+                <p>Leva a sujidade, carbonização, pequenas partículas de metal, gordura e verniz aos filtros.</p>
+                <p>Esta função tem adquirido crescentemente importância com taxas de compressão mais altas, condições mais exigentes de aceleração do motor, temperaturas operacionais mais elevadas e tolerâncias menores entre peças das turbinas.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 21 ==================== -->
+        <div class="page-slide" data-page="21">
+            <div class="content-text">
+                <h3>Aditivos de óleo</h3>
+                <p>Em geral alguns ou todos os seguintes aditivos podem ser adicionados em pequenas quantidades ao óleo para dar a esse óleo alguma propriedade desejável:</p>
+                <ul>
+                    <li>aditivo de extrema pressão;</li>
+                    <li>aditivo anticorrosivo;</li>
+                    <li>aditivo detergente; e / ou</li>
+                    <li>inibidores.</li>
+                </ul>
+                <p><strong>Aditivos de extrema pressão</strong> - Estes aditivos seriam adicionados a um óleo que é usado num motor onde há trens de engrenagens pesadamente carregados. Exemplo, um turbo-prop.</p>
+                <p><strong>Aditivos anticorrosivos</strong> - Estes aditivos são usados para reduzir os efeitos corrosivos de vários ácidos existentes no óleo.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 22 ==================== -->
+        <div class="page-slide" data-page="22">
+            <div class="content-text">
+                <p><strong>Aditivos detergentes</strong> - Estes aditivos permitem que o óleo retenha lodo ou detritos em suspensão, o que vai evitar que se acumulem dentro do motor.</p>
+                <p>São assim transportados no óleo até serem passarm pelos filtros.</p>
+                <p><strong>Aditivos Inibidores</strong> - Estes aditivos são usados para retardar a formação de produtos de oxidação.</p>
+                <h3>Precauções e procedimentos gerais</h3>
+                <p>Em geral, os óleos sintéticos de turbina são apenas ligeiramente irritantes em contato com a pele, no entanto, o contato prolongado pode causar dermatite.</p>
+                <p>Medidas de precaução devem ser tomadas para evitar o contato e observar boas práticas de higiene.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 23 ==================== -->
+        <div class="page-slide" data-page="23">
+            <div class="content-text">
+                <p>Se o óleo entrar em contato com os olhos, lavar com água e obter orientação médica.</p>
+                <p>No caso de ingestão, beba água e não induzir o vômito.</p>
+                <p>Consultar um médico imediatamente.</p>
+                <p>Ter sempre presente que o óleo sintético ataca pinturas e revestimentos e vedantes que não sejam apropriados.</p>
+                <p>Óleo sintético para motores de turbina comerciais geralmente é fornecido em recipientes de tamanho:</p>
+                <p>1 quarto americano - 1 litro - 1 galão</p>
+                <p>Esses recipientes de tamanho pequeno reduzem a possibilidade de contaminação no sistema de lubrificação e também reduzem custos operacionais, reduzindo o desperdício.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 24 ==================== -->
+        <div class="page-slide" data-page="24">
+            <div class="content-text">
+                <p>As seguintes precauções devem ser observadas durante a manutenção de um sistema de lubrificação de turbina a gás, a fim de manter a integridade desse sistema:</p>
+                <ul>
+                    <li>A limpeza absoluta de todos os equipamentos de manutenção é essencial,</li>
+                    <li>Usar apenas equipamentos de manutenção para um tipo de óleo, certifique-se que equipamento é marcado para o tipo de óleo a ser usado,</li>
+                    <li>Certifique-se de que o tipo correto de óleo seja usado para fazer a manutenção do sistema,</li>
+                    <li>Use apenas óleo de latas não abertas, limpas e claramente marcadas,</li>
+                    <li>A manutenção de um sistema deve ser realizada de acordo com as instruções do manual de manutenção.</li>
+                </ul>
+            </div>
+        </div>
+        <!-- ==================== PÁGINA 25 ==================== -->
+        <div class="page-slide" data-page="25">
+            <div class="content-text">
+                <h3>Contaminação de óleo</h3>
+                <p>Os principais contaminantes que podem ser inadvertidamente introduzidos em um sistema de lubrificação são a humidade e outros fluidos.</p>
+                <p>Água ou humidade podem causar qualquer um ou todos os seguintes problemas:</p>
+                <ul>
+                    <li>Falha da lubrificação em superfícies muito carregadas;</li>
+                    <li>Falha de lubrificação como resultado da formação da emulsão de água e óleo;</li>
+                    <li>Quebra dos aditivos no óleo, o que aumenta a tendência do óleo a emulsionar.</li>
+                    <li>espuma excessiva de óleo com subsequente perda de óleo através do sistema de ventilação.</li>
+                </ul>
+                <p>A presença de água no óleo lubrificante pode ser visível como glóbulos ou como uma camada separada no fundo do depósito.</p>
+                <p>Se a água é estiver presente em partículas muito finas, pode ser mantida em suspensão e pode fazer com que o óleo pareça enevoado em vez de brilhante e límpido.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 26 ==================== -->
+        <div class="page-slide" data-page="26">
+            <div class="content-text">
+                <p>A introdução de outros fluidos, como querosene, outros lubrificantes, fluidos hidráulicos ou fluidos anticongelantes causarão qualquer ou todos os seguintes problemas:</p>
+                <ul>
+                    <li>uma mudança na viscosidade e um aumento no risco de incêndio;</li>
+                    <li>decomposição dos aditivos com a possibilidade de formação de borras ou de verniz;</li>
+                    <li>possível quebra de vedações no sistema de lubrificação</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 27 ==================== -->
+        <div class="page-slide" data-page="27">
+            <div class="content-text">
+                <p>Um método rápido de teste para a presença de água em suspensão pode ser realizado aquecendo uma pequena quantidade de óleo num recepiente totalmente seco a uma temperatura de 200 ° C.</p>
+                <p>Se o óleo estalar enquanto está a ser aquecido, então a água está presente.</p>
+                <p>A contaminação por outros fluidos é mais difícil de detectar.</p>
+                <p>A acção correctiva dependeria de:</p>
+                <ul>
+                    <li>a quantidade e o tipo de contaminação por fluido suspeita;</li>
+                    <li>as instruções publicadas pelo fabricante do motor ou listados nos procedimentos da rectificação de contaminação.</li>
+                </ul>
+                <p>Na ausência de instruções, a orientação quanto aos procedimentos que podem ser adotados em parte ou na íntegra pelo operador é a seguinte:</p>
+                <ul>
+                    <li>retirar uma amostra do óleo e enviar para análise;</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 28 ==================== -->
+        <div class="page-slide" data-page="28">
+            <div class="content-text">
+                <ul>
+                    <li>drenar todo o sistema;</li>
+                    <li>verificar todos os filtros de pressão e bujões magnéticos quanto a contaminação;</li>
+                    <li>substituir os filtros;</li>
+                    <li>lavar o sistema com óleo lubrificante limpo;</li>
+                    <li>reabastecer o sistema;</li>
+                    <li>operar o motor no solo por um período de tempo para permitir que o óleo para atinja sua temperatura normal de operação; monitorizar a temperatura do óleo do motor, a pressão, a quantidade, e todos os outros parâmetros do motor para quaisquer indicações anormais;</li>
+                    <li>desligar o motor e verificar sinais de fugas;</li>
+                    <li>reabasteçer o sistema e substituir os filtros;</li>
+                    <li>verificar ou monitorar o sistema a cada 10 horas nas próximas 100 horas de funcionamento</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 29 ==================== -->
+        <div class="page-slide" data-page="29">
+            <div class="content-text">
+                <h2>Combustíveis</h2>
+                <h3>Origem no petróleo:</h3>
+                <ul>
+                    <li>Obtido por processo de destilação.</li>
+                    <li>No início ainda utilizou-se a gasolina.</li>
+                    <li>Era muito volátil e provocava muita corrosão na turbina.</li>
+                    <li>A primeira especificação Britânica do combustível para motores a reacção foi o kerosene.</li>
+                    <li>A primeira especificação Americana do combustível para motores a reacção foi o (Jet-Propulsor) JP-I emitida em 1944 e em 1950 teve uma nova especificação MIL-J-5616.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 30 ==================== -->
+        <div class="page-slide" data-page="30">
+            <div class="content-text">
+                <h3>Requisitos do Combustivel</h3>
+                <p>Em geral, um combustível para turbina a gás deve ter as seguintes qualidades:</p>
+                <ul>
+                    <li>Seja 'bombeável' e flua facilmente em todas as condições de funcionamento.</li>
+                    <li>Permitir o arranque motor em todas as situações, permitir boas condições de vôo e permitir o reacendimento em vôo.</li>
+                    <li>Dar uma combustão eficiente em todas as condições.</li>
+                    <li>Possuir o máximo poder calorífico possível.</li>
+                    <li>Produzir efeitos prejudiciais mínimos sobre o sistema de combustão ou as lâminas da turbina.</li>
+                    <li>Produzir efeitos corrosivos mínimos sobre os componentes do sistema de combustível.</li>
+                    <li>Fornecer lubrificação adequada para o movimento das partes do sistema de combustível e reduzir os riscos de incêndio ao mínimo.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 31 ==================== -->
+        <div class="page-slide" data-page="31">
+            <div class="content-text">
+                <p>As qualidades do envio de combustível á pressão dependem da sua viscosidade ou espessura, que está relacionada com a temperatura.</p>
+                <p>O combustível deve manter os requisitos até aproximadamente -50 graus C.</p>
+                <p>Com a queda da temperatura do combustível, cristais de gelo podem causar bloqueio do filtro de combustível ou dos orifícios no sistema de combustível.</p>
+                <p>Aditivos de aquecimento e anti-gelo estão disponíveis para minorizar esse problema.</p>
+                <p>Para facilitar o arranque, o motor da turbina a gás depende da ignição satisfatória da pulverização atomizada de combustível dos bicos de pulverização de combustível assumindo que o motor está sendo operado na velocidade necessária.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 32 ==================== -->
+        <div class="page-slide" data-page="32">
+            <div class="content-text">
+                <p>A ignição satisfatória depende da qualidade do combustível de duas maneiras:</p>
+                <ul>
+                    <li>A volatilidade do combustível; isto é, a sua capacidade de vaporizar facilmente, especialmente a baixas temperaturas.</li>
+                    <li>O grau de atomização, que depende da viscosidade do combustível, da pressão no sistema, e do desenho do atomizador.</li>
+                </ul>
+                <p>O valor calorífico de um combustível é uma expressão do teor de calor ou energia por libra ou galão que é libertado durante a combustão.</p>
+                <p>Este valor, que geralmente é expresso em termos de unidade térmica, (BTU) influência o alcance de uma aeronave.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 33 ==================== -->
+        <div class="page-slide" data-page="33">
+            <div class="content-text">
+                <p>O JP (Jet Propellant) á a designação americana para combustíveis para motores a turbina.</p>
+                <p>Ao longo do tempo foram desenvolvidos vários tipos (alguns para fins específicos sendo que presentemente está apenas em uso o JP-8)</p>
+                <p>É similar á classificação civil Jet A1 difererindo apenas nos aditivos anti-congelantes e anti-corrosão.</p>
+                <p>É classificado tipo Nafta ou querosene.</p>
+                <p>Querosene de aviação (Jet A1/JP-8) é um derivado de petróleo obtido por destilação atmosférica com faixa de temperatura de 150 a 300ºC, seguido de tratamento de acabamento cáustico regenerativo ou hidrotratamento.</p>
+                <p>É constituído por hidrocarbonetos com número de átomos de carbono variando de 9 a 15, com a estrutura dos compostos orgânicos classificados como parafínicos e aromáticos.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 34 ==================== -->
+        <div class="page-slide" data-page="34">
+            <div class="content-text">
+                <p>JP-2 e JP-3 - Foram desenvolvidos durante a segunda Guerra Mundial.</p>
+                <p>O JP-2 - Tinha um ponto de congelação mais elevado, mas nunca foi amplamente utilizado.</p>
+                <p>JP-3 - Era mais volátil do que a JP-2 Destinava-se a melhorar a produção, mas a sua volatilidade conduziu a uma elevada perda por evaporação em serviço</p>
+                <p>JP-4 - era uma mistura de 50-50 querosene/gasolina: Tinha ponto de inflamação inferior a JP-1, mas foi preferido devido à sua maior disponibilidade.</p>
+                <p>Foi o principal combustível de aviação entre 1951 e 1995.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 35 ==================== -->
+        <div class="page-slide" data-page="35">
+            <div class="content-text">
+                <p>JP-5 - É um querosene amarelo, combustível desenvolvido em 1952.</p>
+                <p>Para uso em aviões estacionados a bordo de porta-aviões, onde o risco de incêndio é particularmente grande.</p>
+                <p>É uma mistura complexa de hidrocarbonetos, contendo alcanos, naftalenos, e os hidrocarbonetos aromáticos e tem um elevado ponto de inflamação (min. 60ºC ou 140ºF).</p>
+                <p>JP-6 - É um combustível desenvolvido para o motor a jato General Electric YJ93 do XB-70, aviões supersônicos.</p>
+                <p>JP-6 era similar ao JP-5, mas com um ponto de congelamento mais baixo e estabilidade térmica melhorada.</p>
+                <p>O programa de XB-70 foi cancelado, a especificação JP-6, também foi cancelada.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 36 ==================== -->
+        <div class="page-slide" data-page="36">
+            <div class="content-text">
+                <p>JP-7 - foi desenvolvido para os motores turbo / ramjet gêmeo Pratt & Whitney J58 do SR-71 Blackbird.</p>
+                <p>Tinha um alto ponto de inflamação para lidar melhor com o calor e o vôo supersônico de alta velocidade.</p>
+                <p>JP-8 - é um combustível à base de querosene, deverá manter-se em uso pelo menos até 2025:</p>
+                <ul>
+                    <li>Jet A-1 é semelhante ao JP-8.</li>
+                    <li>São classificados como querosene ou do tipo de nafta.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 37 ==================== -->
+        <div class="page-slide" data-page="37">
+            <div class="content-text">
+                <h3>Combustível sintético</h3>
+                <p>É um esforço significativo que está em curso para certificar Fischer-Tropsch (FT), sintetizado Parafínico Querosene (SPK).</p>
+                <p>Combustíveis sintéticos para uso nos Estados Unidos e frotas de aviação internacional.</p>
+                <p>Combustíveis de jato sintéticos mostram uma redução na concentração de poluentes, tais como SOx, NOx, partículas em suspensão, e as emissões de hidrocarbonetos.</p>
+            </div>
+        </div>
+        <!-- ==================== PÁGINA 38 ==================== -->
+        <div class="page-slide" data-page="38">
+            <div class="content-text">
+                <h3>Propriedades básicas dos combustíveis.</h3>
+                <p><strong>Físicas:</strong></p>
+                <ul>
+                    <li>A volatilidade.</li>
+                    <li>Grau de atomização.</li>
+                    <li>Viscosidade.</li>
+                </ul>
+                <p><strong>Químicas:</strong></p>
+                <ul>
+                    <li>Estabilidade.</li>
+                    <li>Acção corrosiva.</li>
+                    <li>Formação de resíduos.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 39 ==================== -->
+        <div class="page-slide" data-page="39">
+            <div class="content-text">
+                <h3>Flash Point (Ponto de fulgor)</h3>
+                <p>Corresponde à menor temperatura à qual um combustível liberta vapor em quantidade suficiente para formar uma mistura inflamável por uma fonte externa de calor.</p>
+                <p>Não é suficiente para que a combustão seja mantida.</p>
+                <p><strong>*Não confundir com Fire Point (ponto de combustão)</strong> que é a menor temperatura à qual o vapor de um combustível continuará a queimar durante pelo menos 5 segundos após ignição por uma chama aberta.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 40 ==================== -->
+        <div class="page-slide" data-page="40">
+            <div class="content-text">
+                <h3>Aditivos de combustível.</h3>
+                <p>Todos os combustíveis contêm alguns aditivos:</p>
+                <ul>
+                    <li>Antioxidantes, produzidos a partir de fenóis alcalinos que impedem que o combustível "cole".</li>
+                    <li>Agentes anti estáticos, para dissipar a electricidade estática e prevenir faíscas.</li>
+                    <li>Inibidores de corrosão.</li>
+                    <li>Inibidor de congelamento de combustível.</li>
+                    <li>Desativadores de metal.</li>
+                    <li>Aditivos microbiologicos.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 41 ==================== -->
+        <div class="page-slide" data-page="41">
+            <div class="content-text">
+                <p><strong>Anti-oxidantes</strong> - evitam a formação de depósitos de goma nos componentes do sistema de combustível causados pela oxidação do combustível em armazenamento e também para inibir a formação de compostos de peróxido em certos combustíveis.</p>
+                <p><strong>Dissipadores de estática</strong> – elimina os efeitos perigosos da eletricidade estática gerada pelo movimento de combustível através dos sistemas de transferência de alta vazão.</p>
+                <p>Não reduz o requisito para as ligação de componentes (Bonding).</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 42 ==================== -->
+        <div class="page-slide" data-page="42">
+            <div class="content-text">
+                <p><strong>Inibidores de corrosão</strong> - protegem os metais no sistema de combustível e também podem melhorar as propriedades de lubrificação dos combustíveis.</p>
+                <p><strong>Inibidores de congelamento do sistema de combustível</strong> - reduzem o ponto de congelamento da água precipitada pelo combustível à medida que ele arrefece, reduzindo assim o risco de gelo restringir o fluxo de combustível para o motor.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 43 ==================== -->
+        <div class="page-slide" data-page="43">
+            <div class="content-text">
+                <p><strong>Desativadores de metal</strong> - suprime o efeito catalítico que alguns metais, principalmente o cobre, têm sobre a oxidação do combustível.</p>
+                <p><strong>Aditivos microbiologicos</strong> - reduzem o risco de crescimentos microbiológicos nos sistemas de combustível.</p>
+                <p>Biopor é um aditivo antifúngico bem conhecido.</p>
+                <p><strong>Nota:</strong> os aditivos podem ser obrigatórios ou opcionais, muitas vezes depende se o combustível é usado para fins militares ou civis ou o país em questão.</p>
+                <p>Concentrações mínimas e maximas são especificadas e não devem ser ultrapassadas.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 44 ==================== -->
+        <div class="page-slide" data-page="44">
+            <div class="content-text">
+                <h3>Problemas Comuns com Combustivel</h3>
+                <p>Os combustíveis de turbina tendem a corroer os componentes dos sistemas de combustível e combustão, principalmente como resultado do teor de enxofre e água do combustível.</p>
+                <p>Enxofre, quando queimado no ar, forma dióxido de enxofre; quando misturado com água, forma um ácido sulfuroso muito corrosivo, particularmente no cobre e no chumbo.</p>
+                <p>Como é impossível remover completamente o enxofre, é essencial que o mesmo seja mantido num mínimo controlado.</p>
+                <p>Embora a água livre seja removida antes do uso, água dissolvida, isto é, água em solução, não pode ser efetivamente removida, pois o combustível absorve a humidade da atmosfera quando armazenado numa aeronave ou tanque de armazenamento.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 45 (COM FIGURA) ==================== -->
+        <div class="page-slide has-image" data-page="45">
+            <div class="content-text">
+                <h3>Vaporização e ebulição</h3>
+                <p>A principal diferença física entre a Querosene e as gasolinas são o seu grau de volatilidade, tendo a gasolina uma maior volatilidade, aumentando assim o problema do vaporização e ebulição do vapor.</p>
+                <p>Nos combustíveis do tipo querosene, a volatilidade é controlada por destilação e pelo ponto de inflamação, mas nas gasolinas é controlado por destilação e pelo teste de pressão Reid.</p>
+                <p>Neste teste, a pressão absoluta do combustível é registrada por aparelhos especiais com a temperatura do combustível a 37,8 graus. C. (100 graus F.).</p>
+                <p>A Querosene tem pressão de vapor e ebulição apenas em altitudes extremamente elevadas ou temperaturas elevadas enquanto a gasolina tem um ponto de ebulição a altitudes muito mais baixas.</p>
+                <p>A temperatura do combustível durante o voo depende da altitude, taxa de subida, duração em altitude e aquecimento cinético devido à velocidade de avanço.</p>
+            </div>
+            <div class="image-placeholder">
+                <span class="placeholder-text">Espaço reservado para Figura: Curva de Pressão de Vapor vs Temperatura (Reid Vapor Pressure Test)</span>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 46 (COM FIGURA) ==================== -->
+        <div class="page-slide has-image" data-page="46">
+            <div class="content-text">
+                <p>Ao ebulir, a perda de vapor pode ser muito alta, especialmente com gasolinas, e isso pode causar vaporização com as consequentes avarias do sistema de combustível do motor e equipamento de medição de combustível.</p>
+                <p>Para evitar ou reduzir o risco de ebulição, usa-se a pressurização dos tanques de combustível.</p>
+                <p>Isso mantêm uma pressão do combustível acima do excesso de pressão de vapor em qualquer temperatura.</p>
+                <p>Pode ser feito usando um gás inerte ou usando a pressão do vapor de combustível com um sistema de ventilação controlado.</p>
+                <p>Para o vôo supersônico, algumas medidas têm de se tomar.</p>
+                <p>O isolamento dos tanques é necessário para reduzir a cinética dos efeitos de aquecimento, mesmo quando se usam combustíveis de baixa volatilidade.</p>
+                <p>Reduzir a matéria sólida evita desgaste indevido nas bombas de combustível, reduz a corrosão e diminui a possibilidade de bloqueio.</p>
+            </div>
+            <div class="image-placeholder">
+                <span class="placeholder-text">Espaço reservado para Figura: Efeitos da Temperatura e Altitude na Ebulição do Combustível</span>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 47 ==================== -->
+        <div class="page-slide" data-page="47">
+            <div class="content-text">
+                <h3>Controle de contaminação de combustível</h3>
+                <p>O combustível pode ser mantido em boas condições por armazenamento bem planeado e fazendo verificações de rotina no sistema de drenos do tanque.</p>
+                <p>O uso de filtros adequados, separadores de combustível / água e aditivos selecionados restringem o nível de contaminação até um mínimo prático.</p>
+                <p>Manter o combustível livre de água não dissolvida evitará formação de gêlo, reduz o crescimento microbiológico e minimiza a corrosão.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PÁGINA 48 (ENCERRAMENTO) ==================== -->
+        <div class="page-slide" data-page="48">
+            <div class="content-text" style="text-align: center; padding: 60px 20px;">
+                <h1 style="font-size: 2.5em;">🏁 Fim da Apresentação</h1>
+                <p style="font-size: 1.2em; margin: 30px 0;">Obrigado pela atenção!</p>
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 40px;">
+                    <button onclick="showPage(1)" class="btn" style="font-size: 1.2em; padding: 12px 30px;">🔙 Retornar ao Início</button>
+                    <button onclick="window.location.href='about:blank'" class="btn" style="font-size: 1.2em; padding: 12px 30px; background-color: #dc3545; color: white; border-color: #dc3545;">❌ Encerrar Apresentação</button>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- FECHAMENTO DA DIV BOOK-CONTAINER -->
+    <!-- CÓDIGO LÓGICO DE INTERATIVIDADE - VERSÃO CORRIGIDA (destaca qualquer evento) -->
+    <script>
+        // ---------- CONFIGURAÇÕES DE PAGINAÇÃO ----------
+        let currentPage = 1;
+        const pages = document.querySelectorAll('.page-slide');
+        const totalPages = pages.length;
+
+        function showPage(pageNumber) {
+            if (isReading) stopReading();
+            pages.forEach(page => page.style.display = 'none');
+            const activePage = document.querySelector(`.page-slide[data-page="${pageNumber}"]`);
+            if (activePage) {
+                if (activePage.classList.contains('has-image')) {
+                    activePage.style.display = 'flex';
+                } else {
+                    activePage.style.display = 'block';
+                }
+            }
+            const indicator = document.getElementById('page-indicator');
+            if (indicator) {
+                indicator.innerText = `Página ${pageNumber} de ${totalPages}`;
+            }
+            currentPage = pageNumber;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Navegação
+        document.getElementById('btn-prev').addEventListener('click', () => {
+            if (currentPage > 1) {
+                if (isReading) stopReading();
+                showPage(currentPage - 1);
+            }
+        });
+        document.getElementById('btn-next').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                if (isReading) stopReading();
+                showPage(currentPage + 1);
+            }
+        });
+
+        // ---------- CONTROLE DE FONTE ----------
+        let fontSize = 16;
+        document.getElementById('btn-font-plus').addEventListener('click', () => {
+            fontSize += 2;
+            document.querySelectorAll('.content-text p, .content-text li, .content-text h2, .content-text h3')
+                .forEach(el => el.style.fontSize = fontSize + 'px');
+        });
+        document.getElementById('btn-font-minus').addEventListener('click', () => {
+            if (fontSize > 12) {
+                fontSize -= 2;
+                document.querySelectorAll('.content-text p, .content-text li, .content-text h2, .content-text h3')
+                    .forEach(el => el.style.fontSize = fontSize + 'px');
+            }
+        });
+
+        // ---------- TELA CHEIA ----------
+        document.getElementById('btn-fullscreen').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        });
+
+        // ---------- CONFIGURAÇÕES DE ÁUDIO E LEITURA ----------
+        const synth = window.speechSynthesis;
+        let utterance = null;
+        let isReading = false;
+        let isPaused = false;
+        let currentSpeed = 1;
+        let selectedVoice = null;
+        let femaleVoiceEnabled = false;
+
+        // Elementos da UI
+        const btnRead = document.getElementById('btn-read');
+        const btnPause = document.getElementById('btn-pause');
+        const btnFemale = document.getElementById('btn-female');
+
+        // ---------- BOTÃO DE Voz Feminina (Alternância) ----------
+        btnFemale.addEventListener('click', function() {
+            const voices = synth.getVoices();
+            if (!voices || voices.length === 0) {
+                alert('Nenhuma voz disponível no momento. Tente recarregar a página.');
+                return;
+            }
+
+            femaleVoiceEnabled = !femaleVoiceEnabled;
+
+            if (femaleVoiceEnabled) {
+                const femaleKeywords = ['zira', 'samantha', 'female', 'feminina', 'google uk english female', 'microsoft zira', 'sarah', 'emma'];
+                let found = false;
+                for (let voice of voices) {
+                    const name = voice.name.toLowerCase();
+                    if (femaleKeywords.some(keyword => name.includes(keyword))) {
+                        selectedVoice = voice;
+                        found = true;
+                        this.innerText = '👩 Voz Feminina (Ativa)';
+                        this.classList.add('btn-active');
+                        break;
+                    }
+                }
+                if (!found) {
+                    alert('Nenhuma voz feminina encontrada no sistema. Usando a voz padrão.');
+                    selectedVoice = null;
+                    femaleVoiceEnabled = false;
+                    this.innerText = '👩 Voz Feminina';
+                    this.classList.remove('btn-active');
+                }
+            } else {
+                selectedVoice = null;
+                this.innerText = '👩 Voz Feminina';
+                this.classList.remove('btn-active');
+            }
+
+            if (isReading) {
+                const wasPaused = isPaused;
+                stopReading();
+                startReading();
+                if (wasPaused) {
+                    setTimeout(() => {
+                        if (synth.speaking) {
+                            synth.pause();
+                            isPaused = true;
+                            btnPause.innerText = '▶️ Retomar';
+                        }
+                    }, 100);
+                }
+            }
+        });
+
+        // ---------- CONTROLE DE VELOCIDADE ----------
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentSpeed = parseFloat(this.dataset.speed);
+                if (isReading) {
+                    const wasPaused = isPaused;
+                    stopReading();
+                    startReading();
+                    if (wasPaused) {
+                        setTimeout(() => {
+                            if (synth.speaking) {
+                                synth.pause();
+                                isPaused = true;
+                                btnPause.innerText = '▶️ Retomar';
+                            }
+                        }, 100);
+                    }
+                }
+            });
+        });
+
+        // ---------- FUNÇÃO PARA REMOVER DESTAQUES ----------
+        function clearHighlights() {
+            document.querySelectorAll('.highlight-sentence').forEach(el => {
+                el.classList.remove('highlight-sentence');
+            });
+        }
+
+        // ---------- FUNÇÃO PARA INICIAR LEITURA ----------
+        function startReading() {
+            if (isReading) {
+                if (isPaused && synth.paused) {
+                    synth.resume();
+                    isPaused = false;
+                    btnPause.innerText = '⏸️ Pausar';
+                    return;
+                }
+                return;
+            }
+
+            clearHighlights();
+
+            const activePage = document.querySelector(`.page-slide[data-page="${currentPage}"]`);
+            if (!activePage) return;
+
+            const textElements = activePage.querySelectorAll('.content-text p, .content-text li, .content-text h2, .content-text h3');
+            if (textElements.length === 0) return;
+
+            // Constrói o texto completo e mapeia os elementos
+            let fullText = '';
+            let elementBoundaries = [];
+
+            textElements.forEach(el => {
+                const text = el.innerText.trim();
+                if (text.length > 0) {
+                    elementBoundaries.push({
+                        startChar: fullText.length,
+                        endChar: fullText.length + text.length,
+                        element: el
+                    });
+                    fullText += text + ' ';
+                }
+            });
+
+            if (fullText.trim().length === 0) return;
+
+            utterance = new SpeechSynthesisUtterance(fullText.trim());
+            utterance.lang = 'pt-BR';
+            utterance.rate = currentSpeed;
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+
+            utterance.onstart = function() {
+                isReading = true;
+                isPaused = false;
+                btnRead.innerText = '🛑 Parar';
+                btnPause.disabled = false;
+                btnPause.innerText = '⏸️ Pausar';
+            };
+
+            utterance.onend = function() {
+                stopReading();
+                clearHighlights();
+            };
+
+            utterance.onerror = function(event) {
+                if (event.error !== 'canceled') {
+                    console.warn('Erro na síntese de fala:', event.error);
+                }
+                stopReading();
+                clearHighlights();
+            };
+
+            // ---------- CORREÇÃO AQUI: processa qualquer evento (sentence ou word) ----------
+            utterance.onboundary = function(event) {
+                const charIndex = event.charIndex;
+                const currentBlock = elementBoundaries.find(b => charIndex >= b.startChar && charIndex <= b.endChar);
+                if (currentBlock) {
+                    clearHighlights();
+                    currentBlock.element.classList.add('highlight-sentence');
+                }
+            };
+
+            synth.speak(utterance);
+        }
+
+        // ---------- FUNÇÃO PARA PARAR LEITURA ----------
+        function stopReading() {
+            if (synth) synth.cancel();
+            isReading = false;
+            isPaused = false;
+            btnRead.innerText = '🔊 Ler';
+            btnPause.disabled = true;
+            btnPause.innerText = '⏸️ Pausar';
+            clearHighlights();
+        }
+
+        // ---------- BOTÃO LER / PARAR ----------
+        btnRead.addEventListener('click', () => {
+            if (isReading) {
+                stopReading();
+            } else {
+                startReading();
+            }
+        });
+
+        // ---------- BOTÃO PAUSAR / RETOMAR ----------
+        btnPause.addEventListener('click', () => {
+            if (!isReading) return;
+
+            if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                btnPause.innerText = '⏸️ Pausar';
+            } else {
+                if (synth.speaking) {
+                    synth.pause();
+                    isPaused = true;
+                    btnPause.innerText = '▶️ Retomar';
+                }
+            }
+        });
+
+        // ---------- CARREGAMENTO INICIAL ----------
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = function() {
+                const voices = synth.getVoices();
+                console.log('Vozes carregadas:', voices.length);
+            };
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            showPage(1);
+            synth.getVoices();
+        });
+
+        showPage(1);
+
+        // ---------- ATALHOS DO TECLADO ----------
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                if (e.key === ' ' || e.code === 'Space') {
+                    e.preventDefault();
+                    if (isReading) {
+                        btnPause.click();
+                    } else {
+                        btnRead.click();
+                    }
+                }
+                if (e.key === 'ArrowRight') {
+                    document.getElementById('btn-next').click();
+                }
+                if (e.key === 'ArrowLeft') {
+                    document.getElementById('btn-prev').click();
+                }
+            }
+        });
+
+        console.log('Versão corrigida: destaque baseado em qualquer evento (sentence ou word).');
+    </script>
+
+</body>
+</html>
