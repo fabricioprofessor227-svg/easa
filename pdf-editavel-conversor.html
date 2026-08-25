@@ -1,150 +1,326 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Conversor de PDF para PDF Pesquisável</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+        }
         body {
-            font-family: sans-serif;
-            padding: 2em;
-            background: #f4f7f6;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f0f4f8;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 900px;
+            width: 100%;
             background: white;
-            padding: 2em;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            padding: 2rem 2rem 2.5rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #333;
+            font-weight: 600;
+            font-size: 1.8rem;
+            color: #1a2a3a;
             text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #5e6f8d;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
         }
         .drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 2em;
+            border: 2px dashed #bdd3e8;
+            border-radius: 16px;
+            padding: 2.5rem 1rem;
             text-align: center;
             cursor: pointer;
-            transition: background 0.3s;
-            margin-bottom: 20px;
+            transition: background 0.2s, border-color 0.2s;
+            background: #fafcff;
+        }
+        .drop-zone:hover {
+            background: #f2f8ff;
         }
         .drop-zone.dragover {
-            background: #f0f8ff;
-            border-color: #007bff;
+            background: #e3f0ff;
+            border-color: #2b7be4;
         }
         .drop-zone p {
+            font-size: 1.1rem;
+            color: #2c3e50;
             margin: 0;
-            color: #666;
+        }
+        .drop-zone span {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        #file-input {
+            display: none;
+        }
+        .status-area {
+            margin: 1.5rem 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
         #status {
-            text-align: center;
-            margin: 20px 0;
-            font-weight: bold;
-            color: #333;
+            font-weight: 500;
+            color: #1a2a3a;
+            flex: 1;
         }
-        #download-btn {
-            display: none;
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            font-size: 1.1em;
-            cursor: pointer;
-            margin: 20px auto;
-            transition: background 0.2s;
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e0e7ef;
+            border-top-color: #2b7be4;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            visibility: hidden;
         }
-        #download-btn:hover {
-            background: #0056b3;
+        .spinner.active {
+            visibility: visible;
         }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .progress-bar {
             width: 100%;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            margin: 10px 0;
+            height: 8px;
+            background: #e9ecf0;
+            border-radius: 20px;
+            margin: 0.5rem 0 1.2rem;
+            overflow: hidden;
         }
         .progress-bar-fill {
-            height: 20px;
-            background-color: #007bff;
-            border-radius: 4px;
+            height: 100%;
             width: 0%;
-            transition: width 0.3s;
+            background: linear-gradient(90deg, #2b7be4, #6ca6f0);
+            border-radius: 20px;
+            transition: width 0.25s ease;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 1.2rem 0 0.5rem;
+        }
+        .btn {
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn-primary {
+            background: #2b7be4;
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #1e66c9;
+        }
+        .btn-secondary {
+            background: #e9ecf0;
+            color: #1a2a3a;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: #d5dce4;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .text-section {
+            margin-top: 1.8rem;
+        }
+        .text-section h3 {
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: #1a2a3a;
+            margin-bottom: 0.3rem;
         }
         #full-text {
             width: 100%;
-            height: 200px;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            font-family: monospace;
+            height: 180px;
+            border: 1px solid #d5dce4;
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            background: #fafcff;
+            color: #1a2a3a;
         }
+        #full-text:focus {
+            outline: 2px solid #2b7be4;
+            outline-offset: 2px;
+        }
+
         .footer {
-            margin-top: 20px;
-            font-size: 0.8em;
-            color: #888;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #8a9bb0;
             text-align: center;
+            border-top: 1px solid #e9ecf0;
+            padding-top: 1.2rem;
+        }
+        .footer a {
+            color: #2b7be4;
+            text-decoration: none;
+        }
+        .badge {
+            background: #e9ecf0;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: #2c3e50;
+        }
+        .error-box {
+            background: #fff0f0;
+            border-left: 4px solid #e74c3c;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            color: #a93226;
+            display: none;
+        }
+        .error-box.show {
+            display: block;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>📄 Converter PDF para Pesquisável</h1>
-    <p style="text-align: center; color: #555;">Seu arquivo é processado 100% no seu navegador. Nada é enviado para a internet.</p>
+    <h1>📄 PDF → Pesquisável</h1>
+    <p class="subtitle">
+        <span class="badge">🔒 100% local</span>
+        Seu arquivo <strong>nunca</strong> é enviado para a internet.
+    </p>
 
     <div id="drop-zone" class="drop-zone">
-        <p>📥 Arraste e solte seu PDF aqui ou clique para selecionar</p>
-        <input type="file" id="file-input" accept=".pdf" style="display: none;">
+        <span>📥</span>
+        <p>Arraste seu PDF aqui ou <strong>clique</strong> para selecionar</p>
+        <input type="file" id="file-input" accept=".pdf" />
     </div>
 
-    <div id="status">Aguardando arquivo...</div>
-    <div class="progress-bar"><div id="progress-fill" class="progress-bar-fill"></div></div>
+    <div class="status-area">
+        <span id="status">Aguardando arquivo…</span>
+        <span class="spinner" id="spinner"></span>
+    </div>
+    <div class="progress-bar">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+    </div>
+    <div id="error-box" class="error-box"></div>
 
-    <div style="text-align: center;">
-        <button id="download-btn">⬇️ Baixar PDF Pesquisável</button>
+    <div class="btn-group">
+        <button id="download-btn" class="btn btn-primary" disabled>
+            ⬇️ Baixar PDF Pesquisável
+        </button>
+        <button id="download-txt-btn" class="btn btn-secondary">
+            📝 Baixar só o texto (.txt)
+        </button>
     </div>
 
-    <h3>📝 Texto Extraído (para conferência)</h3>
-    <textarea id="full-text" readonly placeholder="O texto extraído aparecerá aqui..."></textarea>
-    <div class="footer">Desenvolvido com PDF.js, Tesseract.js e pdf-lib.</div>
+    <div class="text-section">
+        <h3>📖 Texto extraído (para conferência)</h3>
+        <textarea id="full-text" readonly placeholder="O texto reconhecido aparecerá aqui após o processamento."></textarea>
+    </div>
+
+    <div class="footer">
+        Desenvolvido com ❤️ usando PDF.js · Tesseract.js · pdf-lib
+    </div>
 </div>
 
-<script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="https://unpkg.com/tesseract.js@v5.1.1/dist/tesseract.min.js"></script>
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<!-- Bibliotecas -->
+<script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js">
+</script>
+<script src="https://unpkg.com/tesseract.js@v5.1.1/dist/tesseract.min.js">
+</script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js">
+</script>
 
 <script>
     (function() {
+        // ---- Elementos DOM ----
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
-        const statusDiv = document.getElementById('status');
+        const statusEl = document.getElementById('status');
         const progressFill = document.getElementById('progress-fill');
         const downloadBtn = document.getElementById('download-btn');
+        const downloadTxtBtn = document.getElementById('download-txt-btn');
         const fullTextArea = document.getElementById('full-text');
+        const spinner = document.getElementById('spinner');
+        const errorBox = document.getElementById('error-box');
 
-        let ocrResult = null; // Guarda o resultado do OCR para gerar o PDF
+        // ---- Estado ----
+        let ocrResult = null; // { pages: [...], pdfData: ArrayBuffer, numPages: number, fullText: string }
+        let isProcessing = false;
 
-        // --- Funções de UI ---
-        function setStatus(msg) {
-            statusDiv.textContent = msg;
+        // ---- Utilitários de UI ----
+        function setStatus(msg, isError = false) {
+            statusEl.textContent = msg;
+            if (isError) {
+                statusEl.style.color = '#c0392b';
+            } else {
+                statusEl.style.color = '#1a2a3a';
+            }
         }
 
         function setProgress(value) {
-            progressFill.style.width = Math.min(value * 100, 100) + '%';
+            const v = Math.min(Math.max(value, 0), 1);
+            progressFill.style.width = (v * 100) + '%';
+        }
+
+        function setSpinner(active) {
+            spinner.classList.toggle('active', active);
+        }
+
+        function showError(msg) {
+            errorBox.textContent = msg;
+            errorBox.classList.add('show');
+        }
+
+        function hideError() {
+            errorBox.classList.remove('show');
         }
 
         function resetUI() {
-            setStatus('Aguardando arquivo...');
+            hideError();
+            setStatus('Aguardando arquivo…');
             setProgress(0);
-            downloadBtn.style.display = 'none';
+            setSpinner(false);
+            downloadBtn.disabled = true;
             fullTextArea.value = '';
             ocrResult = null;
         }
 
-        // --- Eventos do Drag and Drop ---
+        // ---- Eventos de drag & drop ----
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('dragover');
@@ -158,157 +334,165 @@
             e.preventDefault();
             dropZone.classList.remove('dragover');
             const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].type === 'application/pdf') {
+            if (files.length && files[0].type === 'application/pdf') {
                 processFile(files[0]);
             } else {
-                setStatus('❌ Por favor, envie um arquivo PDF.');
+                setStatus('❌ Por favor, envie um arquivo PDF.', true);
             }
         });
 
-        dropZone.addEventListener('click', () => {
-            fileInput.click();
-        });
+        dropZone.addEventListener('click', () => fileInput.click());
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                processFile(e.target.files[0]);
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                processFile(fileInput.files[0]);
             }
         });
 
-        // --- Função Principal de Processamento ---
+        // ---- Processamento principal ----
         async function processFile(file) {
+            if (isProcessing) return;
+            isProcessing = true;
             resetUI();
-            setStatus('📖 Lendo o PDF...');
-            const arrayBuffer = await file.arrayBuffer();
+            setSpinner(true);
+            setStatus('📖 Lendo o PDF…');
 
-            // 1. Carregar o PDF com pdf.js
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            const numPages = pdf.numPages;
-            setStatus(`🔍 OCR em andamento (Página 1 de ${numPages})...`);
+            try {
+                // 1. Carregar o PDF como ArrayBuffer
+                const arrayBuffer = await file.arrayBuffer();
 
-            // 2. Inicializar o Worker do Tesseract
-            const worker = await Tesseract.createWorker('por'); // 'por' para Português
+                // 2. Carregar com pdf.js
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const numPages = pdf.numPages;
 
-            let allWords = [];
-            let fullText = '';
-
-            // 3. Loop por cada página
-            for (let i = 1; i <= numPages; i++) {
-                setStatus(`🔍 OCR em andamento (Página ${i} de ${numPages})...`);
-                setProgress((i - 1) / numPages);
-
-                const page = await pdf.getPage(i);
-                const viewport = page.getViewport({ scale: 2.0 }); // Aumenta a resolução para melhor OCR
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                await page.render(renderContext).promise;
-
-                // 4. Executar OCR na imagem da página
-                const { data: { text, words } } = await worker.recognize(canvas);
-                
-                // Tesseract retorna 'words' com bounding boxes
-                if (words && words.length > 0) {
-                    allWords.push({
-                        pageIndex: i - 1,
-                        width: canvas.width,
-                        height: canvas.height,
-                        words: words
-                    });
-                } else {
-                    // Se não achou palavras, tenta extrair só o texto
-                    allWords.push({
-                        pageIndex: i - 1,
-                        width: canvas.width,
-                        height: canvas.height,
-                        words: []
-                    });
+                if (numPages === 0) {
+                    throw new Error('O PDF não contém páginas.');
                 }
 
-                fullText += `--- Página ${i} ---\n${text}\n\n`;
-                setProgress(i / numPages);
-            }
+                setStatus(`🔍 OCR em andamento (1 de ${numPages})…`);
 
-            await worker.terminate();
+                // 3. Inicializar o Tesseract (português)
+                const worker = await Tesseract.createWorker('por');
 
-            // 5. Finalizar e mostrar resultado
-            setStatus('✅ OCR Concluído!');
-            setProgress(1);
-            fullTextArea.value = fullText;
+                const pagesData = [];
+                let fullText = '';
 
-            if (allWords.length > 0) {
+                for (let i = 1; i <= numPages; i++) {
+                    setStatus(`🔍 OCR: página ${i} de ${numPages}…`);
+                    setProgress((i - 1) / numPages);
+
+                    // Renderizar a página em canvas com escala 2.0
+                    const page = await pdf.getPage(i);
+                    const scale = 2.0;
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    await page.render({ canvasContext: context, viewport }).promise;
+
+                    // OCR na imagem
+                    const { data: { text, words } } = await worker.recognize(canvas);
+
+                    // Guarda os dados da página
+                    pagesData.push({
+                        pageIndex: i - 1,
+                        width: canvas.width,
+                        height: canvas.height,
+                        words: words || [],
+                    });
+
+                    fullText += `--- Página ${i} ---\n${text}\n\n`;
+                    setProgress(i / numPages);
+                }
+
+                await worker.terminate();
+
+                // 4. Guardar resultado
                 ocrResult = {
-                    pages: allWords,
+                    pages: pagesData,
                     pdfData: arrayBuffer,
-                    numPages: numPages
+                    numPages,
+                    fullText,
                 };
-                downloadBtn.style.display = 'inline-block';
-                setStatus('✅ Pronto! Clique em "Baixar PDF Pesquisável" para salvar o arquivo.');
-            } else {
-                setStatus('⚠️ Nenhum texto foi reconhecido. Verifique se o PDF contém imagens legíveis.');
+
+                fullTextArea.value = fullText;
+                setStatus(`✅ OCR concluído! ${numPages} página(s) processada(s).`);
+                setProgress(1);
+                downloadBtn.disabled = false;
+                hideError();
+
+            } catch (err) {
+                console.error('Erro no processamento:', err);
+                setStatus(`❌ Erro: ${err.message || 'Falha no processamento.'}`, true);
+                showError(`Erro: ${err.message || 'Falha desconhecida'}. Verifique o console (F12) para mais detalhes.`);
+                downloadBtn.disabled = true;
+            } finally {
+                setSpinner(false);
+                isProcessing = false;
             }
         }
 
-        // --- Função para Gerar e Baixar o PDF Pesquisável ---
+        // ---- Download do PDF pesquisável (corrigido) ----
         downloadBtn.addEventListener('click', async () => {
-            if (!ocrResult) return;
+            if (!ocrResult || isProcessing) return;
 
             downloadBtn.disabled = true;
-            setStatus('🔄 Gerando PDF pesquisável...');
+            setSpinner(true);
+            setStatus('🔄 Gerando PDF pesquisável…');
 
             try {
                 const { pages, pdfData, numPages } = ocrResult;
-                
-                // 1. Carregar o PDF original com pdf-lib
+
+                // Carregar o PDF original com pdf-lib
                 const pdfDoc = await PDFLib.PDFDocument.load(pdfData);
-                
-                // 2. Para cada página, adicionar a camada de texto invisível
+
+                // Percorrer páginas e adicionar texto invisível
                 for (let i = 0; i < numPages; i++) {
                     const page = pdfDoc.getPage(i);
-                    const { width, height, words } = pages[i] || { width: 0, height: 0, words: [] };
-                    
-                    if (words.length === 0) continue;
+                    const pageData = pages[i];
+                    if (!pageData) continue;
 
-                    // Escala para converter pixels do canvas para pontos do PDF
+                    const { width, height, words } = pageData;
+                    if (!words || words.length === 0) continue;
+
                     const pageWidth = page.getWidth();
                     const pageHeight = page.getHeight();
                     const scaleX = pageWidth / width;
                     const scaleY = pageHeight / height;
 
-                    // Desenhar cada palavra como texto invisível
                     for (const word of words) {
-                        // word.bbox: { x0, y0, x1, y1 } em pixels do canvas
                         const bbox = word.bbox;
                         if (!bbox) continue;
 
-                        // Calcular tamanho da fonte baseado na altura da caixa
-                        const fontSize = Math.max(4, (bbox.y1 - bbox.y0) * scaleY * 0.9);
-                        
-                        // Mapear coordenadas: PDF tem origem no canto inferior esquerdo
+                        const fontSize = Math.max(3, (bbox.y1 - bbox.y0) * scaleY * 0.9);
                         const x = bbox.x0 * scaleX;
                         const y = pageHeight - (bbox.y1 * scaleY) + (fontSize * 0.15);
 
+                        // Normalizar texto: remover acentos e caracteres especiais
+                        let text = word.text || '';
+                        // Remove acentos (mantém letras base)
+                        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                        // Filtra apenas caracteres ASCII imprimíveis + espaços + pontuação comum
+                        text = text.replace(/[^a-zA-Z0-9\s\-.,;:!?'"()]/g, '');
+                        if (text.trim().length === 0) continue;
+
                         try {
-                            page.drawText(word.text, {
-                                x: x,
-                                y: y,
+                            page.drawText(text, {
+                                x,
+                                y,
                                 size: fontSize,
-                                opacity: 0, // TORNA O TEXTO INVISÍVEL
-                                // Opcional: usar a fonte padrão ou uma fonte específica
+                                opacity: 0, // invisível
                             });
-                        } catch(e) {
-                            // Ignora erros de desenho de texto (ex: caracteres especiais)
+                        } catch (wordErr) {
+                            // Ignora uma palavra com problema
+                            console.debug('Palavra ignorada:', text, wordErr);
                         }
                     }
                 }
 
-                // 3. Salvar e baixar o novo PDF
+                // Salvar e baixar
                 const pdfBytes = await pdfDoc.save();
                 const blob = new Blob([pdfBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
@@ -320,16 +504,39 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
 
-                setStatus('✅ PDF pesquisável baixado com sucesso!');
-            } catch (error) {
-                console.error('Erro ao gerar o PDF:', error);
-                setStatus('❌ Erro ao gerar o PDF. Verifique o console para mais detalhes.');
+                setStatus('✅ PDF pesquisável gerado e baixado com sucesso!');
+                hideError();
+
+            } catch (err) {
+                console.error('Erro ao gerar PDF:', err);
+                setStatus('❌ Erro ao gerar o PDF.', true);
+                showError(`Falha ao gerar PDF: ${err.message || 'Erro desconhecido'}. Tente baixar apenas o texto (.txt).`);
             } finally {
                 downloadBtn.disabled = false;
+                setSpinner(false);
             }
         });
 
-        // Reset inicial
+        // ---- Download do texto extraído (.txt) ----
+        downloadTxtBtn.addEventListener('click', () => {
+            const text = fullTextArea.value;
+            if (!text || text.trim().length === 0) {
+                alert('Nenhum texto disponível. Processe um PDF primeiro.');
+                return;
+            }
+
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'texto_extraido.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // ---- Inicialização ----
         resetUI();
     })();
 </script>
