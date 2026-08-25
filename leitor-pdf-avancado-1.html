@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor Digital com OCR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2b6cb0;
+            --bg-color: #f7fafc;
+            --container-bg: #ffffff;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            background-color: var(--container-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .header h1 { margin: 0; font-size: 1.25rem; color: var(--primary-color); }
+        .file-input-container { display: flex; align-items: center; gap: 10px; }
+        .custom-file-upload {
+            border: 1px solid var(--primary-color);
+            display: inline-block;
+            padding: 6px 12px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        input[type="file"] { display: none; }
+        .toolbar {
+            background-color: #edf2f7;
+            padding: 10px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        button {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        button:hover:not(:disabled) { background-color: #e2e8f0; border-color: #cbd5e0; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-audio {
+            background-color: #ebf8ff;
+            border-color: #bee3f8;
+            color: #2b6cb0;
+        }
+        .btn-audio:hover:not(:disabled) { background-color: #cee8ff; }
+        .btn-voz {
+            background-color: #f0e6ff;
+            border-color: #d4c4f0;
+            color: #553c9a;
+        }
+        .btn-voz:hover:not(:disabled) { background-color: #e2d4f5; }
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        .pdf-container {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            background-color: #cbd5e0;
+        }
+        .canvas-wrapper {
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .text-layer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .text-layer .word-box {
+            position: absolute;
+            border: 1px solid rgba(255,0,0,0.3);
+            background: transparent;
+            pointer-events: none;
+            display: none;
+        }
+        .text-layer .word-box.highlight {
+            background-color: rgba(255, 235, 59, 0.5);
+            border-color: rgba(255, 235, 59, 0.8);
+            display: block;
+        }
+        .pagination-ctrl { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .status-msg {
+            padding: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #718096;
+            width: 100%;
+        }
+        .progress-ocr {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 10;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Leitor Digital - Sistema de Combustível (com OCR)</h1>
+        <div class="file-input-container">
+            <label class="custom-file-upload">
+                <input type="file" id="file-selector" accept=".pdf">
+                📁 Escolher PDF
+            </label>
+            <span id="file-name" style="font-size: 0.9rem; color: #4a5568;">Nenhum arquivo</span>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button onclick="alterarFonte(1)">A+</button>
+        <button onclick="alterarFonte(-1)">A-</button>
+        <button class="btn-audio" id="btn-ler" onclick="iniciarLeitura()" disabled>▶ Ler Texto</button>
+        <button class="btn-audio" id="btn-pausar" onclick="pausarLeitura()" disabled>⏸ Pausar</button>
+        <button class="btn-audio" id="btn-parar" onclick="pararLeitura()" disabled>⏹ Parar</button>
+        <button onclick="alternarTelaCheia()">📺 Tela Cheia</button>
+        <button class="btn-voz" id="btn-voz" onclick="alternarVoz()" disabled>🎤 Voz</button>
+        <div style="border-left: 1px solid var(--border-color); height: 25px; margin: 0 10px;"></div>
+        <select id="select-velocidade" onchange="mudarVelocidade()" style="padding: 6px; border-radius: 4px;">
+            <option value="1">1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+        </select>
+        <div style="border-left: 1px solid var(--border-color); height: 25px; margin: 0 10px;"></div>
+        <div class="pagination-ctrl">
+            <button id="btn-anterior" onclick="paginaAnterior()" disabled>⬅ Voltar</button>
+            <span id="page-info">Página: 0 / 0</span>
+            <button id="btn-proximo" onclick="proximaPagina()" disabled>Avançar ➡</button>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="pdf-container" id="pdf-view-container">
+            <div id="inicial-status" class="status-msg">
+                Selecione um PDF para iniciar.
+            </div>
+            <div class="canvas-wrapper" id="canvas-wrapper" style="display: none;">
+                <canvas id="pdf-canvas"></canvas>
+                <div id="text-layer" class="text-layer"></div>
+                <div class="progress-ocr" id="progress-ocr">Processando OCR...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let scale = 1.3;
+        let canvas, ctx, textLayerDiv;
+
+        let sentencas = [];
+        let todasPalavras = [];
+        let textoCompletoPagina = "";
+
+        const synth = window.speechSynthesis;
+        let utterance = null;
+        let estaPausado = false;
+        let indiceSentencaAtual = 0;
+        let vozesDisponiveis = [];
+        let vozAtual = 0;
+
+        const fileSelector = document.getElementById('file-selector');
+        canvas = document.getElementById('pdf-canvas');
+        ctx = canvas.getContext('2d');
+        textLayerDiv = document.getElementById('text-layer');
+
+        fileSelector.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type === "application/pdf") {
+                document.getElementById('file-name').innerText = file.name;
+                document.getElementById('inicial-status').innerText = "Carregando...";
+                const fileReader = new FileReader();
+                fileReader.onload = function() {
+                    const typedarray = new Uint8Array(this.result);
+                    carregarDocumentoPDF(typedarray);
+                };
+                fileReader.readAsArrayBuffer(file);
+            }
+        });
+
+        function carregarDocumentoPDF(data) {
+            pdfjsLib.getDocument(data).promise.then(function(pdfDoc_) {
+                pdfDoc = pdfDoc_;
+                pageNum = 1;
+                document.getElementById('inicial-status').style.display = 'none';
+                document.getElementById('canvas-wrapper').style.display = 'block';
+                document.getElementById('btn-ler').disabled = true;
+                document.getElementById('btn-voz').disabled = false;
+                carregarVozes();
+                renderizarPagina(pageNum);
+            }).catch(err => {
+                document.getElementById('inicial-status').innerText = "Erro ao carregar o PDF.";
+                console.error(err);
+            });
+        }
+
+        function renderizarPagina(num) {
+            pageRendering = true;
+            pararLeitura();
+
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({scale: scale});
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                document.getElementById('canvas-wrapper').style.width = viewport.width + 'px';
+                document.getElementById('canvas-wrapper').style.height = viewport.height + 'px';
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                const renderTask = page.render(renderContext);
+
+                renderTask.promise.then(function() {
+                    page.getTextContent().then(function(textContent) {
+                        const texto = textContent.items.map(item => item.str).join('');
+                        if (texto.trim().length > 50) {
+                            processarTexto(textContent, viewport);
+                        } else {
+                            aplicarOCR(viewport);
+                        }
+                    }).catch(() => {
+                        aplicarOCR(viewport);
+                    });
+                });
+
+            }).catch(err => {
+                console.error(err);
+                pageRendering = false;
+            });
+        }
+
+        // ========== SEM FILTRO DE RODAPÉ ==========
+        function processarTexto(textContent, viewport) {
+            // NÃO FILTRAMOS por coordenadas de cabeçalho/rodapé
+            const itens = textContent.items; // todos os itens
+
+            itens.sort((a, b) => {
+                const yA = a.transform[5];
+                const yB = b.transform[5];
+                if (Math.abs(yA - yB) < 5) return a.transform[4] - b.transform[4];
+                return yB - yA;
+            });
+
+            let textoCompleto = "";
+            const palavras = [];
+            itens.forEach(item => {
+                const str = item.str;
+                const x = item.transform[4] * scale;
+                const y = (viewport.height - item.transform[5]) * scale;
+                const w = item.width * scale;
+                const h = item.height * scale;
+                palavras.push({
+                    text: str,
+                    x: x,
+                    y: y,
+                    width: w,
+                    height: h,
+                });
+                textoCompleto += str + " ";
+            });
+
+            textoCompletoPagina = textoCompleto.trim();
+            todasPalavras = palavras;
+
+            const regex = /[^.!?:]+[.!?:]+/g;
+            const matches = textoCompletoPagina.match(regex) || [textoCompletoPagina];
+            let idx = 0;
+            sentencas = matches.map(sent => {
+                const texto = sent.trim();
+                const palavrasDaSentenca = [];
+                let acumulado = "";
+                while (idx < palavras.length && acumulado.length < texto.length) {
+                    const p = palavras[idx];
+                    palavrasDaSentenca.push(p);
+                    acumulado += p.text + " ";
+                    idx++;
+                }
+                return {
+                    texto: texto,
+                    palavras: palavrasDaSentenca
+                };
+            });
+
+            textLayerDiv.innerHTML = '';
+            palavras.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'word-box';
+                div.style.left = p.x + 'px';
+                div.style.top = p.y + 'px';
+                div.style.width = p.width + 'px';
+                div.style.height = p.height + 'px';
+                textLayerDiv.appendChild(div);
+            });
+
+            atualizarInterfacePaginacao();
+            document.getElementById('btn-ler').disabled = (sentencas.length === 0);
+            pageRendering = false;
+            if (pageNumPending !== null) {
+                renderizarPagina(pageNumPending);
+                pageNumPending = null;
+            }
+        }
+
+        // ========== OCR SEM FILTRO DE RODAPÉ ==========
+        function aplicarOCR(viewport) {
+            const progressDiv = document.getElementById('progress-ocr');
+            progressDiv.style.display = 'block';
+            progressDiv.textContent = 'Aplicando OCR...';
+
+            const imageData = canvas.toDataURL('image/png');
+
+            Tesseract.recognize(imageData, 'por', {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        progressDiv.textContent = `OCR: ${Math.round(m.progress * 100)}%`;
+                    }
+                }
+            }).then(({ data }) => {
+                progressDiv.style.display = 'none';
+                const words = data.words;
+                if (!words || words.length === 0) {
+                    alert('Nenhum texto reconhecido.');
+                    pageRendering = false;
+                    return;
+                }
+
+                // NÃO FILTRAMOS por coordenadas de cabeçalho/rodapé
+                const palavrasFiltradas = words; // todas as palavras
+
+                palavrasFiltradas.sort((a, b) => {
+                    if (Math.abs(a.bbox.y0 - b.bbox.y0) < 0.02) return a.bbox.x0 - b.bbox.x0;
+                    return a.bbox.y0 - b.bbox.y0;
+                });
+
+                let textoCompleto = "";
+                const palavrasFormatadas = [];
+                const largura = viewport.width;
+                const altura = viewport.height;
+                palavrasFiltradas.forEach(w => {
+                    const text = w.text;
+                    const x = w.bbox.x0 * largura * scale;
+                    const y = w.bbox.y0 * altura * scale;
+                    const wd = (w.bbox.x1 - w.bbox.x0) * largura * scale;
+                    const ht = (w.bbox.y1 - w.bbox.y0) * altura * scale;
+                    palavrasFormatadas.push({
+                        text: text,
+                        x: x,
+                        y: y,
+                        width: wd,
+                        height: ht
+                    });
+                    textoCompleto += text + " ";
+                });
+
+                textoCompletoPagina = textoCompleto.trim();
+                todasPalavras = palavrasFormatadas;
+
+                const regex = /[^.!?:]+[.!?:]+/g;
+                const matches = textoCompletoPagina.match(regex) || [textoCompletoPagina];
+                let idx = 0;
+                sentencas = matches.map(sent => {
+                    const texto = sent.trim();
+                    const palavrasDaSentenca = [];
+                    let acumulado = "";
+                    while (idx < palavrasFormatadas.length && acumulado.length < texto.length) {
+                        const p = palavrasFormatadas[idx];
+                        palavrasDaSentenca.push(p);
+                        acumulado += p.text + " ";
+                        idx++;
+                    }
+                    return {
+                        texto: texto,
+                        palavras: palavrasDaSentenca
+                    };
+                });
+
+                textLayerDiv.innerHTML = '';
+                palavrasFormatadas.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'word-box';
+                    div.style.left = p.x + 'px';
+                    div.style.top = p.y + 'px';
+                    div.style.width = p.width + 'px';
+                    div.style.height = p.height + 'px';
+                    textLayerDiv.appendChild(div);
+                });
+
+                atualizarInterfacePaginacao();
+                document.getElementById('btn-ler').disabled = (sentencas.length === 0);
+                pageRendering = false;
+                if (pageNumPending !== null) {
+                    renderizarPagina(pageNumPending);
+                    pageNumPending = null;
+                }
+            }).catch(err => {
+                progressDiv.style.display = 'none';
+                alert('Falha no OCR.');
+                console.error(err);
+                pageRendering = false;
+            });
+        }
+
+        // ========== NAVEGAÇÃO E DESTAQUE ==========
+        function atualizarInterfacePaginacao() {
+            if (pdfDoc) {
+                document.getElementById('page-info').innerText = `Página: ${pageNum} / ${pdfDoc.numPages}`;
+                document.getElementById('btn-anterior').disabled = (pageNum <= 1);
+                document.getElementById('btn-proximo').disabled = (pageNum >= pdfDoc.numPages);
+            }
+        }
+
+        function agendarRenderizacao(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderizarPagina(num);
+            }
+        }
+
+        function paginaAnterior() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            agendarRenderizacao(pageNum);
+        }
+
+        function proximaPagina() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            agendarRenderizacao(pageNum);
+        }
+
+        function limparDestaques() {
+            document.querySelectorAll('.word-box.highlight').forEach(el => el.classList.remove('highlight'));
+        }
+
+        function destacarSentenca(indice) {
+            limparDestaques();
+            if (indice < 0 || indice >= sentencas.length) return;
+            const sent = sentencas[indice];
+            const boxes = document.querySelectorAll('.word-box');
+            let start = 0;
+            for (let i = 0; i < indice; i++) {
+                start += sentencas[i].palavras.length;
+            }
+            for (let i = 0; i < sent.palavras.length; i++) {
+                const box = boxes[start + i];
+                if (box) box.classList.add('highlight');
+            }
+            const firstBox = boxes[start];
+            if (firstBox) {
+                firstBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // ========== LEITURA ==========
+        function falarSentenca(indice) {
+            if (indice >= sentencas.length) {
+                limparDestaques();
+                alternarBotoes(false, true, false);
+                return;
+            }
+            const sent = sentencas[indice];
+            if (!sent || sent.texto.length === 0) {
+                falarSentenca(indice + 1);
+                return;
+            }
+
+            destacarSentenca(indice);
+            indiceSentencaAtual = indice;
+
+            let voz = null;
+            if (vozesDisponiveis.length > 0 && vozAtual < vozesDisponiveis.length) {
+                voz = vozesDisponiveis[vozAtual];
+            }
+
+            utterance = new SpeechSynthesisUtterance(sent.texto);
+            utterance.lang = 'pt-BR';
+            utterance.rate = parseFloat(document.getElementById('select-velocidade').value);
+            if (voz) utterance.voice = voz;
+
+            utterance.onend = function() {
+                if (!estaPausado) {
+                    falarSentenca(indice + 1);
+                }
+            };
+
+            utterance.onerror = function(e) {
+                console.warn("Erro na síntese:", e);
+                if (!estaPausado) {
+                    falarSentenca(indice + 1);
+                }
+            };
+
+            synth.speak(utterance);
+        }
+
+        function iniciarLeitura() {
+            if (synth.speaking && estaPausado) {
+                synth.resume();
+                estaPausado = false;
+                alternarBotoes(true, false, true);
+                return;
+            }
+
+            if (sentencas.length === 0) {
+                alert("Nenhum texto reconhecido nesta página.");
+                return;
+            }
+
+            synth.cancel();
+            estaPausado = false;
+            indiceSentencaAtual = 0;
+            alternarBotoes(true, false, true);
+            falarSentenca(0);
+        }
+
+        function pausarLeitura() {
+            if (synth.speaking && !estaPausado) {
+                synth.pause();
+                estaPausado = true;
+                alternarBotoes(false, true, true);
+            }
+        }
+
+        function pararLeitura() {
+            synth.cancel();
+            estaPausado = false;
+            limparDestaques();
+            alternarBotoes(false, true, false);
+        }
+
+        function alternarBotoes(ler, pausar, parar) {
+            document.getElementById('btn-ler').disabled = ler;
+            document.getElementById('btn-pausar').disabled = pausar;
+            document.getElementById('btn-parar').disabled = parar;
+        }
+
+        function mudarVelocidade() {
+            if (synth.speaking && !estaPausado) {
+                const idx = indiceSentencaAtual;
+                pararLeitura();
+                indiceSentencaAtual = idx;
+                alternarBotoes(true, false, true);
+                falarSentenca(idx);
+            }
+        }
+
+        // ========== VOZES ==========
+        function carregarVozes() {
+            vozesDisponiveis = synth.getVoices().filter(v => v.lang.startsWith('pt'));
+            if (vozesDisponiveis.length === 0) {
+                document.getElementById('btn-voz').disabled = true;
+                document.getElementById('btn-voz').textContent = '🎤 Voz (indisponível)';
+            } else {
+                document.getElementById('btn-voz').disabled = false;
+                vozAtual = 0;
+                atualizarNomeVoz();
+            }
+        }
+
+        function atualizarNomeVoz() {
+            if (vozesDisponiveis.length > 0 && vozAtual < vozesDisponiveis.length) {
+                const nome = vozesDisponiveis[vozAtual].name || 'Voz';
+                document.getElementById('btn-voz').textContent = '🎤 ' + nome;
+            }
+        }
+
+        function alternarVoz() {
+            if (vozesDisponiveis.length === 0) return;
+            vozAtual = (vozAtual + 1) % vozesDisponiveis.length;
+            atualizarNomeVoz();
+            if (synth.speaking && !estaPausado) {
+                const idx = indiceSentencaAtual;
+                pararLeitura();
+                indiceSentencaAtual = idx;
+                alternarBotoes(true, false, true);
+                falarSentenca(idx);
+            }
+        }
+
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = carregarVozes;
+        }
+        setTimeout(carregarVozes, 200);
+
+        // ========== UTILITÁRIOS ==========
+        function alterarFonte(fator) {
+            scale += fator * 0.15;
+            if (scale < 0.8) scale = 0.8;
+            if (scale > 2.5) scale = 2.5;
+            if (pdfDoc) renderizarPagina(pageNum);
+        }
+
+        function alternarTelaCheia() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>
