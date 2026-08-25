@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de PDF para PDF Pesquisável</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 2em;
+            background: #f4f7f6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2em;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 20px;
+        }
+        .drop-zone.dragover {
+            background: #f0f8ff;
+            border-color: #007bff;
+        }
+        .drop-zone p {
+            margin: 0;
+            color: #666;
+        }
+        #status {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        #download-btn {
+            display: none;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: background 0.2s;
+        }
+        #download-btn:hover {
+            background: #0056b3;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .progress-bar-fill {
+            height: 20px;
+            background-color: #007bff;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        #full-text {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📄 Converter PDF para Pesquisável</h1>
+    <p style="text-align: center; color: #555;">Seu arquivo é processado 100% no seu navegador. Nada é enviado para a internet.</p>
+
+    <div id="drop-zone" class="drop-zone">
+        <p>📥 Arraste e solte seu PDF aqui ou clique para selecionar</p>
+        <input type="file" id="file-input" accept=".pdf" style="display: none;">
+    </div>
+
+    <div id="status">Aguardando arquivo...</div>
+    <div class="progress-bar"><div id="progress-fill" class="progress-bar-fill"></div></div>
+
+    <div style="text-align: center;">
+        <button id="download-btn">⬇️ Baixar PDF Pesquisável</button>
+    </div>
+
+    <h3>📝 Texto Extraído (para conferência)</h3>
+    <textarea id="full-text" readonly placeholder="O texto extraído aparecerá aqui..."></textarea>
+    <div class="footer">Desenvolvido com PDF.js, Tesseract.js e pdf-lib.</div>
+</div>
+
+<script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://unpkg.com/tesseract.js@v5.1.1/dist/tesseract.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<script>
+    (function() {
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const statusDiv = document.getElementById('status');
+        const progressFill = document.getElementById('progress-fill');
+        const downloadBtn = document.getElementById('download-btn');
+        const fullTextArea = document.getElementById('full-text');
+
+        let ocrResult = null; // Guarda o resultado do OCR para gerar o PDF
+
+        // --- Funções de UI ---
+        function setStatus(msg) {
+            statusDiv.textContent = msg;
+        }
+
+        function setProgress(value) {
+            progressFill.style.width = Math.min(value * 100, 100) + '%';
+        }
+
+        function resetUI() {
+            setStatus('Aguardando arquivo...');
+            setProgress(0);
+            downloadBtn.style.display = 'none';
+            fullTextArea.value = '';
+            ocrResult = null;
+        }
+
+        // --- Eventos do Drag and Drop ---
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                processFile(files[0]);
+            } else {
+                setStatus('❌ Por favor, envie um arquivo PDF.');
+            }
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                processFile(e.target.files[0]);
+            }
+        });
+
+        // --- Função Principal de Processamento ---
+        async function processFile(file) {
+            resetUI();
+            setStatus('📖 Lendo o PDF...');
+            const arrayBuffer = await file.arrayBuffer();
+
+            // 1. Carregar o PDF com pdf.js
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const numPages = pdf.numPages;
+            setStatus(`🔍 OCR em andamento (Página 1 de ${numPages})...`);
+
+            // 2. Inicializar o Worker do Tesseract
+            const worker = await Tesseract.createWorker('por'); // 'por' para Português
+
+            let allWords = [];
+            let fullText = '';
+
+            // 3. Loop por cada página
+            for (let i = 1; i <= numPages; i++) {
+                setStatus(`🔍 OCR em andamento (Página ${i} de ${numPages})...`);
+                setProgress((i - 1) / numPages);
+
+                const page = await pdf.getPage(i);
+                const viewport = page.getViewport({ scale: 2.0 }); // Aumenta a resolução para melhor OCR
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+
+                // 4. Executar OCR na imagem da página
+                const { data: { text, words } } = await worker.recognize(canvas);
+                
+                // Tesseract retorna 'words' com bounding boxes
+                if (words && words.length > 0) {
+                    allWords.push({
+                        pageIndex: i - 1,
+                        width: canvas.width,
+                        height: canvas.height,
+                        words: words
+                    });
+                } else {
+                    // Se não achou palavras, tenta extrair só o texto
+                    allWords.push({
+                        pageIndex: i - 1,
+                        width: canvas.width,
+                        height: canvas.height,
+                        words: []
+                    });
+                }
+
+                fullText += `--- Página ${i} ---\n${text}\n\n`;
+                setProgress(i / numPages);
+            }
+
+            await worker.terminate();
+
+            // 5. Finalizar e mostrar resultado
+            setStatus('✅ OCR Concluído!');
+            setProgress(1);
+            fullTextArea.value = fullText;
+
+            if (allWords.length > 0) {
+                ocrResult = {
+                    pages: allWords,
+                    pdfData: arrayBuffer,
+                    numPages: numPages
+                };
+                downloadBtn.style.display = 'inline-block';
+                setStatus('✅ Pronto! Clique em "Baixar PDF Pesquisável" para salvar o arquivo.');
+            } else {
+                setStatus('⚠️ Nenhum texto foi reconhecido. Verifique se o PDF contém imagens legíveis.');
+            }
+        }
+
+        // --- Função para Gerar e Baixar o PDF Pesquisável ---
+        downloadBtn.addEventListener('click', async () => {
+            if (!ocrResult) return;
+
+            downloadBtn.disabled = true;
+            setStatus('🔄 Gerando PDF pesquisável...');
+
+            try {
+                const { pages, pdfData, numPages } = ocrResult;
+                
+                // 1. Carregar o PDF original com pdf-lib
+                const pdfDoc = await PDFLib.PDFDocument.load(pdfData);
+                
+                // 2. Para cada página, adicionar a camada de texto invisível
+                for (let i = 0; i < numPages; i++) {
+                    const page = pdfDoc.getPage(i);
+                    const { width, height, words } = pages[i] || { width: 0, height: 0, words: [] };
+                    
+                    if (words.length === 0) continue;
+
+                    // Escala para converter pixels do canvas para pontos do PDF
+                    const pageWidth = page.getWidth();
+                    const pageHeight = page.getHeight();
+                    const scaleX = pageWidth / width;
+                    const scaleY = pageHeight / height;
+
+                    // Desenhar cada palavra como texto invisível
+                    for (const word of words) {
+                        // word.bbox: { x0, y0, x1, y1 } em pixels do canvas
+                        const bbox = word.bbox;
+                        if (!bbox) continue;
+
+                        // Calcular tamanho da fonte baseado na altura da caixa
+                        const fontSize = Math.max(4, (bbox.y1 - bbox.y0) * scaleY * 0.9);
+                        
+                        // Mapear coordenadas: PDF tem origem no canto inferior esquerdo
+                        const x = bbox.x0 * scaleX;
+                        const y = pageHeight - (bbox.y1 * scaleY) + (fontSize * 0.15);
+
+                        try {
+                            page.drawText(word.text, {
+                                x: x,
+                                y: y,
+                                size: fontSize,
+                                opacity: 0, // TORNA O TEXTO INVISÍVEL
+                                // Opcional: usar a fonte padrão ou uma fonte específica
+                            });
+                        } catch(e) {
+                            // Ignora erros de desenho de texto (ex: caracteres especiais)
+                        }
+                    }
+                }
+
+                // 3. Salvar e baixar o novo PDF
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'documento_pesquisavel.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                setStatus('✅ PDF pesquisável baixado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao gerar o PDF:', error);
+                setStatus('❌ Erro ao gerar o PDF. Verifique o console para mais detalhes.');
+            } finally {
+                downloadBtn.disabled = false;
+            }
+        });
+
+        // Reset inicial
+        resetUI();
+    })();
+</script>
+</body>
+</html>
