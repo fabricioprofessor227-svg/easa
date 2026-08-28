@@ -337,7 +337,7 @@
                 const div = document.createElement('div');
                 div.className = 'word-box';
                 div.style.left = p.x + 'px';
-                div.style.top = p.y + 'px';
+               div.style.top = (p.y - 90) + 'px';
                 div.style.width = p.width + 'px';
                 div.style.height = p.height + 'px';
                 textLayerDiv.appendChild(div);
@@ -429,7 +429,7 @@
                     const div = document.createElement('div');
                     div.className = 'word-box';
                     div.style.left = p.x + 'px';
-                    div.style.top = p.y + 'px';
+                    div.style.top = (p.y - 90) + 'px';
                     div.style.width = p.width + 'px';
                     div.style.height = p.height + 'px';
                     textLayerDiv.appendChild(div);
