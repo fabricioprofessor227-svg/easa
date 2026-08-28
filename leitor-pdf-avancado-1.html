@@ -296,8 +296,8 @@
             const palavras = [];
             itens.forEach(item => {
                 const str = item.str;
-                const x = item.transform[4] * scale;
-                const y = (viewport.height - item.transform[5]) * scale;
+                const x = item.transform[4];
+                const y = viewport.height - item.transform[5];
                 const w = item.width * scale;
                 const h = item.height * scale;
                 palavras.push({
@@ -389,11 +389,10 @@
                 const altura = viewport.height;
                 palavrasFiltradas.forEach(w => {
                     const text = w.text;
-                    const x = w.bbox.x0 * largura * scale;
-                    const y = w.bbox.y0 * altura * scale;
-                    const wd = (w.bbox.x1 - w.bbox.x0) * largura * scale;
-                    const ht = (w.bbox.y1 - w.bbox.y0) * altura * scale;
-                    palavrasFormatadas.push({
+                    const x = w.bbox.x0 * largura;
+                    const y = w.bbox.y0 * altura;
+                    const wd = (w.bbox.x1 - w.bbox.x0) * largura;
+                    const ht = (w.bbox.y1 - w.bbox.y0) * altura;                    palavrasFormatadas.push({
                         text: text,
                         x: x,
                         y: y,
