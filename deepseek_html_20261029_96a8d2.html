@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>📘 Módulo 5B2 · Parte 4: Ambiente Eletromagnético e ESD</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #f5f7f6;
+            color: #1a2e2a;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            margin: 0;
+        }
+        .reader-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            padding: 12px 18px;
+            border: 1px solid #dde5e0;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .fixed-header {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #dde5e0;
+            padding-bottom: 6px;
+        }
+        .fixed-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f3d2e;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .progress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a5e44;
+            margin-bottom: 4px;
+        }
+        .progress-bar-bg {
+            background: #dee6e1;
+            height: 6px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #1a7a58;
+            height: 6px;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.2s;
+        }
+
+        .text-content {
+            text-align: justify;
+            padding: 6px 0 12px;
+            max-height: 75vh;
+            overflow-y: auto;
+            font-size: 18px;
+            line-height: 1.8;
+            margin: 0 2px;
+            scroll-behavior: smooth;
+        }
+        .text-content p { margin-bottom: 0.8em; }
+        .text-content h2, .text-content h3, .text-content h4 {
+            margin: 1em 0 0.3em;
+            color: #154e3a;
+            font-weight: 600;
+        }
+        .text-content h3 { font-size: 1.15em; }
+        .text-content h4 { font-size: 1.02em; }
+        .text-content ul, .text-content ol {
+            padding-left: 1.8em;
+            margin: 0.4em 0;
+        }
+        .text-content li { margin-bottom: 0.3em; }
+
+        .text-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8em 0;
+            font-size: 0.85em;
+            text-align: left;
+        }
+        .text-content th, .text-content td {
+            border: 1px solid #b3cdbf;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .text-content th {
+            background: #ecf3ef;
+            color: #134531;
+            font-weight: 600;
+        }
+        .text-content tr:nth-child(even) { background: #f9fbfa; }
+
+        .text-content pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            overflow-x: auto;
+            font-size: 0.78em;
+            line-height: 1.5;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0.8em 0;
+            border: 1px solid #1e293b;
+        }
+        .text-content pre code { background: none; color: inherit; padding: 0; }
+        .text-content code {
+            background: #e8eefb;
+            color: #1e3a8a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.88em;
+        }
+
+        .speech-word {
+            transition: background-color 0.15s ease, color 0.15s ease;
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin: 0 1px;
+        }
+        .speech-word.active {
+            background-color: #ffeb3b;
+            color: #000;
+            font-weight: 600;
+        }
+        .speech-word.upcoming { background-color: #fff9c4; }
+
+        .toolbar-single {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            margin: 14px 0 10px;
+            padding: 4px 0 6px;
+            border-top: 1px solid #dde5e0;
+            border-bottom: 1px solid #dde5e0;
+        }
+        .tool-btn {
+            background: #ecf3ef;
+            border: 1px solid #b3cdbf;
+            color: #134531;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 48px;
+            min-width: 50px;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .tool-btn:active { background: #d0e0d7; transform: scale(0.96); }
+        .tool-btn:disabled { opacity: 0.4; background: #e0e8e3; border-color: #b6ccc1; pointer-events: none; }
+        .tool-btn.hidden { display: none; }
+        .tool-btn.encerrar {
+            background: #134531;
+            color: #fff;
+            border-color: #0f3d2e;
+        }
+        .tool-btn.encerrar:active { background: #0f3d2e; }
+        .tool-btn.ler-selecao {
+            background: #e0f2f1;
+            border-color: #80cbc4;
+            color: #00695c;
+        }
+        .tool-btn.ler-selecao:active { background: #b2dfdb; }
+        .tool-btn.ler-selecao.reading {
+            background: #ffeb3b;
+            border-color: #fbc02d;
+            color: #5d4037;
+        }
+        .tool-btn.ler-selecao.paused {
+            background: #ffe0b2;
+            border-color: #ffb74d;
+            color: #e65100;
+        }
+
+        .capa {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .capa h1 { font-size: 26px; margin-bottom: 16px; color: #0f3d2e; }
+        .capa h2 { font-size: 18px; margin-bottom: 30px; color: #1a5e44; }
+        .capa p { font-size: 19px; color: #2a5e4a; }
+
+        .congrats-page {
+            text-align: center;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 40vh;
+        }
+        .congrats-page h2 { color: #1a5e44; margin-bottom: 10px; font-size: 1.8rem; }
+        .congrats-image { text-align: center; margin: 15px auto; }
+        .congrats-image img {
+            transform: scale(1.2);
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        .gabarito-questao {
+            background: #f4f9f6;
+            border-left: 5px solid #1a7a58;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+        }
+        .questao-bloco {
+            background: #e0f2f1;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 0 0 8px 0;
+            border-left: 4px solid #00695c;
+        }
+        .rotulo-questao {
+            display: inline-block;
+            background: #00695c;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+        .questao-bloco p { margin: 0.3em 0; color: #1a2e2a; }
+        .questao-bloco ul, .questao-bloco ol {
+            padding-left: 1.6em;
+            margin: 0.3em 0;
+        }
+        .gabarito-questao .resposta-bloco {
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 8px 0 6px;
+            border-left: 4px solid #1b5e20;
+        }
+        .gabarito-questao .justificativa-bloco {
+            background: #fff3e0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 6px 0 0;
+            border-left: 4px solid #e65100;
+        }
+        .rotulo-resposta {
+            display: inline-block;
+            background: #1b5e20;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+        .rotulo-justificativa {
+            display: inline-block;
+            background: #e65100;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 700px) {
+            .reader-wrapper { padding: 8px 10px; border-radius: 16px; }
+            .tool-btn { padding: 6px 8px; min-width: 44px; font-size: 0.85rem; }
+            .text-content { max-height: 70vh; font-size: 16px; }
+            .fixed-header h1 { font-size: 1.2rem; }
+            .text-content table { font-size: 0.75em; }
+            .text-content th, .text-content td { padding: 4px 5px; }
+            .text-content pre { font-size: 0.7em; padding: 8px 10px; }
+            .capa h1 { font-size: 20px; }
+            .capa h2 { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="reader-wrapper">
+    <div id="readerScreen" class="screen active">
+        <div class="fixed-header">
+            <h1>📘 Módulo 5B2 · Parte 4: Ambiente Eletromagnético e ESD</h1>
+            <div class="progress-row">
+                <span id="pageXofY">Página 1 de 17</span>
+                <span id="progressPercent">5%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="text-content" id="pageContent"></div>
+        <div class="toolbar-single">
+            <button class="tool-btn" id="fontMinusBtn" title="Diminuir fonte">A−</button>
+            <button class="tool-btn" id="fontPlusBtn" title="Aumentar fonte">A+</button>
+            <button class="tool-btn" id="fullscreenBtn" title="Tela cheia">⛶</button>
+            <button class="tool-btn" id="prevBtnInline" title="Página anterior">◀</button>
+            <button class="tool-btn" id="nextBtnInline" title="Próxima página">▶</button>
+            <button class="tool-btn" id="speakBtn" title="Ouvir a página inteira desde o início">🔊</button>
+            <button class="tool-btn ler-selecao" id="lerSelecaoBtn" title="Ler somente o trecho selecionado">📖 Ler Seleção</button>
+            <button class="tool-btn hidden" id="pauseBtn" title="Pausar">⏸️</button>
+            <button class="tool-btn hidden" id="resumeBtn" title="Retomar">▶️</button>
+            <button class="tool-btn hidden" id="stopBtn" title="Parar">⏹️</button>
+            <select id="rateSelect" class="tool-btn" style="width: auto; background: #ecf3ef; border: 1px solid #b3cdbf; padding: 8px 12px;">
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+            <button class="tool-btn encerrar hidden" id="encerrarBtn" title="Encerrar leitura">✖ Encerrar Leitura</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const pageContents = [
+            // Página 1 – Capa
+            `<div class="capa">
+                <h1>📘 Módulo 5B2 · Parte 4</h1>
+                <h2>Ambiente Eletromagnético e ESD<br>
+                EMI · EMC · HIRF · Proteção contra Raios · Descargas Eletrostáticas</h2>
+                <p>Material de Estudo Resumido</p>
+            </div>`,
+
+            // Página 2 – Índice
+            `<div class="text-container" style="max-width:100%;">
+                <h3>📌 ÍNDICE DA PARTE 4</h3>
+                <ol>
+                    <li>Introdução ao Ambiente Eletromagnético (EMC vs EMI) – Pág. 3</li>
+                    <li>Fontes de EMI (Internas e Externas) – Pág. 4</li>
+                    <li>HIRF (High Intensity Radiated Fields) – Pág. 5</li>
+                    <li>Efeitos do HIRF em Sistemas Digitais – Pág. 6</li>
+                    <li>Métodos de Proteção contra EMI/HIRF – Pág. 7</li>
+                    <li>Proteção contra Raios (Lightning) – Pág. 8</li>
+                    <li>Inspeção e Proteção contra Raios – Pág. 9</li>
+                    <li>Introdução ao ESD (Descarga Eletrostática) – Pág. 10</li>
+                    <li>Modelos de Teste ESD (HBM, CDM, MM) – Pág. 11</li>
+                    <li>Tipos de Falhas e Precauções ESD – Pág. 12</li>
+                    <li>Manuseamento de PCBs e LRUs Sensíveis – Pág. 13</li>
+                    <li>Outros Perigos Estáticos (Reabastecimento e PEDs) – Pág. 14</li>
+                    <li>Exercícios de Fixação (12 Questões com Respostas) – Pág. 15</li>
+                    <li>Continuação dos Exercícios – Pág. 16</li>
+                    <li>🎉 Parabéns (Fim da Parte 4) – Pág. 17</li>
+                </ol>
+            </div>`,
+
+            // Página 3
+            `<h3>1. Introdução ao Ambiente Eletromagnético</h3>
+            <p>A aviação moderna depende fortemente de sistemas eletrónicos. No entanto, esses sistemas operam num ambiente repleto de radiações eletromagnéticas, tanto geradas internamente pela própria aeronave quanto externamente por radares, emissoras de rádio e fenómenos naturais.</p>
+            
+            <h4>1.1 EMC (Electromagnetic Compatibility)</h4>
+            <p>É a capacidade de um equipamento operar satisfatoriamente no seu ambiente eletromagnético, sem introduzir distúrbios intoleráveis a outros dispositivos nesse mesmo ambiente.</p>
+            <ul>
+                <li>Testes de EMC avaliam as <strong>emissões</strong> (o quanto o equipamento "polui" o ambiente) e a <strong>imunidade</strong> (o quanto ele resiste à poluição externa).</li>
+                <li>Ensaios são feitos em câmaras anecoicas ou reverberantes.</li>
+            </ul>
+
+            <h4>1.2 EMI (Electromagnetic Interference)</h4>
+            <p>É a interferência indesejada causada por radiação eletromagnética. Pode manifestar-se como estática em sistemas de áudio, "neve" em ecrãs CRT ou perda de dados.</p>
+            <p>A EMI pode ser <strong>conduzida</strong> (viajando por cabos) ou <strong>radiada</strong> (viajando pelo ar).</p>`,
+
+            // Página 4
+            `<h3>2. Fontes de EMI</h3>
+            
+            <h4>2.1 Fontes Internas</h4>
+            <p>São geradas pelos próprios equipamentos da aeronave:</p>
+            <ul>
+                <li><strong>Motores e Geradores:</strong> As faíscas (arcing) entre as escovas e o comutador geram picos de ruído.</li>
+                <li><strong>Sistema de Ignição:</strong> Os magnetos e velas geram pulsos de alta energia.</li>
+                <li><strong>Luzes Anti-Colisão:</strong> Pulsos de energia que podem induzir ruído.</li>
+                <li><strong>Inversores e Fontes de Alimentação:</strong> A comutação de alta frequência gera ruído.</li>
+            </ul>
+
+            <h4>2.2 Fontes Externas</h4>
+            <ul>
+                <li><strong>Ruído Cósmico:</strong> Radiação proveniente do espaço (mais notável acima de 12 MHz).</li>
+                <li><strong>Ruído Atmosférico:</strong> Descargas elétricas durante tempestades.</li>
+                <li><strong>Eletricidade Estática (P-Static):</strong> O atrito da aeronave com partículas de ar, chuva ou granizo acumula carga na fuselagem. O "St. Elmo's Fire" é um exemplo de descarga corona. Os <em>static dischargers</em> (pássaros) nas pontas das asas servem para dissipar essa carga de forma controlada.</li>
+                <li><strong>Transmissores Externos:</strong> Radares, estações de rádio e TV.</li>
+            </ul>`,
+
+            // Página 5
+            `<h3>3. HIRF (High Intensity Radiated Fields)</h3>
+            <p>O HIRF é um campo eletromagnético externo de alta intensidade (não ionizante) que pode causar efeitos adversos nos sistemas elétricos e eletrónicos da aeronave, afetando a segurança do voo.</p>
+            
+            <h4>3.1 Definição e Faixa de Frequência</h4>
+            <ul>
+                <li>Considera-se o espectro de <strong>10 kHz a 18 GHz</strong>.</li>
+                <li>Inclui emissores intencionais licenciados (radares, comunicações, radiodifusão).</li>
+                <li>Não inclui EMI gerada internamente (EMC) nem descargas eletrostáticas (ESD).</li>
+            </ul>
+
+            <h4>3.2 Características do Espectro</h4>
+            <ul>
+                <li><strong>Abaixo de 400 MHz:</strong> Predominam sistemas de comunicação e radiodifusão (rádio AM/FM, TV). As ondas são mais largas e os sinais contínuos.</li>
+                <li><strong>Acima de 400 MHz:</strong> Predominam radares, sistemas de micro-ondas e satélites. Os feixes são muito estreitos e os picos de potência (pulsos) são extremamente altos.</li>
+            </ul>`,
+
+            // Página 6
+            `<h3>4. Efeitos do HIRF em Sistemas Digitais</h3>
+            <p>Os sinais de HIRF podem penetrar na aeronave através de janelas, radome (que é transparente ao radar) e fendas na fuselagem.</p>
+
+            <h4>4.1 Acoplamento e Efeitos</h4>
+            <ul>
+                <li><strong>Acoplamento em Cabos:</strong> O campo eletromagnético induz correntes e tensões nos fios. Isso pode levar a picos de tensão que "enganam" os circuitos integrados.</li>
+                <li><strong>Efeitos em Circuitos Digitais:</strong> Pulsos de HIRF podem ser retificados por diodos internos, criando um offset DC que altera o estado lógico (0 para 1 ou vice-versa), causando "upsets" (falhas momentâneas).</li>
+                <li><strong>Efeitos em Circuitos Analógicos:</strong> São mais sensíveis (na ordem de 50 mV). Podem causar leituras erradas de sensores.</li>
+                <li><strong>Efeitos em CRT:</strong> Pode causar desfoque ou apagão momentâneo do ecrã.</li>
+            </ul>
+
+            <h4>4.2 Importância da Blindagem</h4>
+            <p>As janelas do cockpit são as principais "portas de entrada" para o HIRF, pois são aberturas na blindagem metálica. A fuselagem de alumínio oferece excelente blindagem, mas os compósitos exigem a incorporação de malhas metálicas para garantir a mesma proteção.</p>`,
+
+            // Página 7
+            `<h3>5. Métodos de Proteção contra EMI/HIRF</h3>
+            
+            <h4>5.1 Bonding (Ligação Elétrica)</h4>
+            <p>Todos os equipamentos, bandejas de montagem e a estrutura da aeronave devem estar eletricamente ligados (bonded) para garantir um caminho de baixa impedância para o "terra". A resistência de bonding não deve exceder 0,05 ohms.</p>
+
+            <h4>5.2 Screening (Blindagem)</h4>
+            <ul>
+                <li>Uso de cabos blindados (com trança de cobre ou alumínio).</li>
+                <li>Os ecrãs dos cabos devem ser aterrados, muitas vezes numa só extremidade, para evitar <strong>ground loops</strong> (laços de terra) que atuam como antenas.</li>
+                <li>Gaxetas (gaskets) condutoras nas tampas dos LRUs para garantir a continuidade elétrica.</li>
+            </ul>
+
+            <h4>5.3 Filtros</h4>
+            <p>Filtros passa-baixo (capacitores) são colocados nas entradas e saídas dos LRUs para bloquear altas frequências, permitindo a passagem dos sinais de baixa frequência desejados.</p>
+
+            <h4>5.4 Transparent Conductive Windows</h4>
+            <p>As janelas do cockpit podem ter uma fina camada de óxido metálico que permite a visão, mas bloqueia a radiação eletromagnética.</p>`,
+
+            // Página 8
+            `<h3>6. Proteção contra Raios (Lightning)</h3>
+            <p>Uma aeronave comercial é atingida por um raio, em média, uma vez por ano. A proteção visa garantir que a descarga passe pela estrutura externa e saia sem causar danos aos sistemas internos ou inflamar o combustível.</p>
+
+            <h4>6.1 Zonas de Ataque (SAE ARP 5414)</h4>
+            <ul>
+                <li><strong>Zona 1:</strong> Áreas com alta probabilidade de ataque inicial (radome, pontas das asas, nacelles, ponta da cauda).</li>
+                <li><strong>Zona 2:</strong> Áreas suscetíveis a serem varridas (swept stroke) pelo canal do raio após o ataque inicial (fuselagem média).</li>
+                <li><strong>Zona 3:</strong> Áreas que raramente recebem o ataque direto, mas podem conduzir a corrente (partes internas, estrutura inferior).</li>
+            </ul>
+
+            <h4>6.2 Efeitos e Danos</h4>
+            <ul>
+                <li><strong>Estrutura Metálica:</strong> Furos, marcas de queimadura, derretimento, distorção.</li>
+                <li><strong>Estrutura Compósita:</strong> Delaminação, queima da fibra, perfuração. Requer malhas metálicas (foil de cobre ou alumínio) e fitas de metal (diverter strips) na superfície para conduzir a corrente.</li>
+                <li><strong>Sistemas:</strong> Pode causar magnetização de componentes, queima de fios e danos a LRUs.</li>
+            </ul>`,
+
+            // Página 9
+            `<h3>7. Inspeção e Proteção contra Raios</h3>
+            
+            <h4>7.1 Após um Ataque</h4>
+            <p>Se um raio atingir a aeronave, uma inspeção especial (Lightning Strike Conditional Inspection) deve ser realizada para encontrar os pontos de entrada e saída.</p>
+            <ul>
+                <li>Examinar Zona 1 e Zona 2 em busca de queimaduras, furos e danos em compósitos.</li>
+                <li>Verificar os pára-raios (static dischargers) e fitas de bonding.</li>
+                <li>Inspecionar as antenas e os radomes.</li>
+                <li>Testar os sistemas de rádio, navegação e radar, caso haja suspeita de danos.</li>
+            </ul>
+
+            <h4>7.2 Proteção em Compósitos</h4>
+            <ul>
+                <li>O Boeing 787 utiliza uma malha de cobre ou alumínio na superfície da fuselagem de fibra de carbono para conduzir a corrente do raio.</li>
+                <li>O radome tem <strong>diverter strips</strong> (tiras de metal) que atuam como para-raios, protegendo a antena de radar no seu interior.</li>
+            </ul>`,
+
+            // Página 10
+            `<h3>8. Introdução ao ESD (Descarga Eletrostática)</h3>
+            <p>A Descarga Eletrostática (ESD) é a transferência súbita de carga elétrica entre dois objetos com potenciais diferentes. É uma das principais causas de falhas em componentes eletrónicos durante a manutenção.</p>
+
+            <h4>8.1 Efeito Triboelétrico</h4>
+            <p>A carga estática é gerada quando dois materiais diferentes entram em contacto e são separados (atrito). O corpo humano pode acumular tensões de até 15.000 volts (ao andar sobre um tapete de náilon), o que é suficiente para destruir um circuito integrado.</p>
+
+            <h4>8.2 Sensibilidade dos Dispositivos (ESDS)</h4>
+            <p>Os dispositivos eletrónicos, especialmente os MOSFETs e circuitos CMOS, são extremamente sensíveis. Uma descarga invisível e indolor para o humano (ex: 100V) pode perfurar o óxido de silício de um chip e inutilizá-lo.</p>
+            <p>A tabela de <strong>Triboelectric Series</strong> mostra a tendência dos materiais em ganhar ou perder elétrons. O corpo humano está no topo (tende a ficar positivo) quando em contacto com o nylon.</p>`,
+
+            // Página 11
+            `<h3>9. Modelos de Teste ESD</h3>
+            <p>Para classificar a sensibilidade dos componentes e testar a sua robustez, são usados modelos padronizados.</p>
+            
+            <h4>9.1 Human Body Model (HBM)</h4>
+            <ul>
+                <li>O mais comum. Simula a descarga de uma pessoa que toca no componente.</li>
+                <li>Modelo: Um capacitor de <strong>100 pF</strong> (representando o corpo) descarrega através de um resistor de <strong>1,5 kΩ</strong> (resistência da pele).</li>
+                <li>É o modelo mais antigo e serve de base para muitas classificações.</li>
+            </ul>
+
+            <h4>9.2 Charged Device Model (CDM)</h4>
+            <ul>
+                <li>Simula o componente a mover-se (ex: deslizar numa calha) e depois entrar em contacto com uma superfície metálica aterrada.</li>
+                <li>O próprio dispositivo está carregado e descarrega rapidamente. Pode ser mais destrutivo que o HBM.</li>
+            </ul>
+
+            <h4>9.3 Machine Model (MM)</h4>
+            <ul>
+                <li>Simula a descarga de uma ferramenta metálica ou equipamento automatizado.</li>
+                <li>Modelo: Capacitor de 200 pF descarregado sem resistência em série (descarga muito rápida e de alta corrente).</li>
+            </ul>`,
+
+            // Página 12
+            `<h3>10. Tipos de Falhas e Precauções ESD</h3>
+            
+            <h4>10.1 Hard Failures vs Soft Failures</h4>
+            <ul>
+                <li><strong>Hard Failure (Falha Catastrófica):</strong> O componente é destruído imediatamente. É facilmente detetado.</li>
+                <li><strong>Soft Failure (Falha Latente):</strong> O componente é danificado, mas continua a funcionar. Pode falhar intermitentemente dias ou meses depois, causando problemas misteriosos.</li>
+            </ul>
+
+            <h4>10.2 Precauções e Equipamentos de Proteção</h4>
+            <ul>
+                <li><strong>Pulseira Anti-estática (Wrist Strap):</strong> Deve ser usada em contacto com a pele nua e ligada a um ponto de terra. Contém um resistor de <strong>> 1 MΩ</strong> para proteger o utilizador de choques elétricos.</li>
+                <li><strong>Embalagens Condutivas:</strong> Sacos rosa ou prateados (quasi-condutivos) para armazenar PCBs.</li>
+                <li><strong>Bancadas Anti-estáticas:</strong> Tapetes condutores ligados ao terra e pulseiras.</li>
+                <li><strong>Ionizadores:</strong> Sopram ar ionizado para neutralizar cargas no ar.</li>
+            </ul>`,
+
+            // Página 13
+            `<h3>11. Manuseamento de PCBs e LRUs Sensíveis</h3>
+            
+            <h4>11.1 Remoção de Placas (PCBs)</h4>
+            <ol>
+                <li>Desligar a energia e verificar no AMM (Aircraft Maintenance Manual).</li>
+                <li>Ligar a pulseira anti-estática ao chassis do equipamento (não ao chão, para evitar diferenças de potencial) e ao pulso.</li>
+                <li>Remover a placa usando os extratores (não tocar nos pinos ou conectores).</li>
+                <li>Colocar imediatamente no saco condutivo e selar (com fita própria ou cordão, nunca com agrafos).</li>
+            </ol>
+
+            <h4>11.2 Instalação de Placas</h4>
+            <ol>
+                <li>Verificar a documentação (JAA Form 1, etc.).</li>
+                <li>Ligar a pulseira ao chassis do equipamento.</li>
+                <li>Retirar a placa do saco e inspecioná-la (sem tocar nos contactos).</li>
+                <li>Inserir suavemente nos encaixes e trancar os extratores.</li>
+                <li>Não tocar nos conectores com os dedos.</li>
+            </ol>
+
+            <h4>11.3 LRUs Metálicos</h4>
+            <p>Ao remover/instalar um LRU completo (caixa metálica), a pulseira não é estritamente necessária, pois o próprio invólucro metálico e a estrutura da aeronave atuam como um caminho de descarga seguro. No entanto, deve-se usar tampas de proteção (dust caps) nos conectores.</p>`,
+
+            // Página 14
+            `<h3>12. Outros Perigos Estáticos</h3>
+            
+            <h4>12.1 Reabastecimento (Fuelling/Defuelling)</h4>
+            <p>O movimento do combustível dentro dos tanques e o atrito da aeronave com o ar geram carga estática. Se não for dissipada, pode causar uma faísca e inflamar os vapores de combustível.</p>
+            <ul>
+                <li><strong>Bonding:</strong> Um cabo terra deve ligar o camião de combustível (ou hidrante) à aeronave antes de abrir as tampas.</li>
+                <li>O <strong>bonding</strong> nunca deve ser feito a um hidrante subterrâneo, mas sim à aeronave.</li>
+                <li>Aditivos antiestáticos (Static Dissipater Additives) são adicionados ao combustível para aumentar a sua condutividade.</li>
+            </ul>
+
+            <h4>12.2 Dispositivos Eletrónicos Pessoais (PEDs)</h4>
+            <p>Embora o risco de ignição de vapores seja remoto, os PEDs (telemóveis, laptops) podem interferir com os sistemas de navegação e comunicação. Durante o reabastecimento, o uso de PEDs nas proximidades deve ser restrito.</p>`,
+
+            // Página 15 - Questões
+            `<h3>13. Exercícios de Fixação</h3>
+            <p>Abaixo estão 12 questões objetivas com respostas e justificativas integradas, conforme o modelo solicitado.</p>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 1</span>
+                    <p>Qual é a diferença fundamental entre EMC e EMI?</p>
+                    <ul>
+                        <li>a) EMC é a interferência, EMI é a compatibilidade.</li>
+                        <li>b) EMC é a capacidade de operar sem interferir; EMI é a própria interferência.</li>
+                        <li>c) São sinónimos.</li>
+                        <li>d) EMC aplica-se a rádios, EMI a radares.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) EMC é a capacidade de operar sem interferir; EMI é a própria interferência.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> EMC (Electromagnetic Compatibility) é a capacidade do equipamento funcionar corretamente no seu ambiente. EMI (Electromagnetic Interference) é o distúrbio indesejado que causa a falha.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 2</span>
+                    <p>Qual das seguintes é uma fonte INTERNA de EMI numa aeronave?</p>
+                    <ul>
+                        <li>a) Radar de tráfego aéreo.</li>
+                        <li>b) Estação de rádio AM.</li>
+                        <li>c) Faíscas no comutador de um motor elétrico.</li>
+                        <li>d) Descargas atmosféricas (raios).</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) Faíscas no comutador de um motor elétrico.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> Motores e geradores internos geram arcos elétricos (faíscas) entre as escovas e o comutador, que são fontes clássicas de EMI interna.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 3</span>
+                    <p>O que significa a sigla HIRF?</p>
+                    <ul>
+                        <li>a) High Intensity Radio Frequency</li>
+                        <li>b) High Intensity Radiated Fields</li>
+                        <li>c) Hazardous Internal Radiation Field</li>
+                        <li>d) High Interference Rejection Filter</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) High Intensity Radiated Fields
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> HIRF significa High Intensity Radiated Fields (Campos Radiados de Alta Intensidade), que são campos eletromagnéticos externos capazes de afetar os sistemas da aeronave.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 4</span>
+                    <p>Qual a faixa de frequência considerada para o HIRF?</p>
+                    <ul>
+                        <li>a) 10 kHz a 18 GHz</li>
+                        <li>b) 100 MHz a 40 GHz</li>
+                        <li>c) 1 MHz a 10 GHz</li>
+                        <li>d) 10 GHz a 100 GHz</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> a) 10 kHz a 18 GHz
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O comité da SAE definiu a faixa de 10 kHz a 18 GHz como o espectro de preocupação para HIRF, abrangendo radiodifusão, TV, comunicações e radares.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 5</span>
+                    <p>Como o HIRF pode causar "upsets" em circuitos digitais?</p>
+                    <ul>
+                        <li>a) Aumentando a voltagem da fonte de alimentação.</li>
+                        <li>b) Sendo retificado por diodos internos e criando offsets DC que alteram o estado lógico.</li>
+                        <li>c) Derretendo os fios de cobre.</li>
+                        <li>d) Aumentando a temperatura do chip.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Sendo retificado por diodos internos e criando offsets DC que alteram o estado lógico.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> Os picos de RF do HIRF podem ser retificados pelos diodos de proteção dos circuitos integrados, gerando um desvio DC que "engana" o circuito, forçando a mudança de estado.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 6</span>
+                    <p>Qual é a resistência máxima recomendada para as conexões de bonding (ligação à massa)?</p>
+                    <ul>
+                        <li>a) 1 ohm</li>
+                        <li>b) 10 ohms</li>
+                        <li>c) 0,05 ohms</li>
+                        <li>d) 100 ohms</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) 0,05 ohms
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> Para garantir um caminho de baixa impedância para correntes de EMI, HIRF e raios, as ligações de bonding não devem exceder 0,05 ohms.
+                </div>
+            </div>`,
+
+            // Página 16 - Continuação das Questões
+            `<div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 7</span>
+                    <p>Qual zona de proteção contra raios (Lightning) indica a área com maior probabilidade de ataque inicial?</p>
+                    <ul>
+                        <li>a) Zona 1</li>
+                        <li>b) Zona 2</li>
+                        <li>c) Zona 3</li>
+                        <li>d) Zona 4</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> a) Zona 1
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A Zona 1 inclui as extremidades da aeronave (radome, pontas das asas, cauda) onde a probabilidade de um ataque inicial de raio é mais alta.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 8</span>
+                    <p>Como as estruturas de material compósito (fibra de carbono) são protegidas contra raios?</p>
+                    <ul>
+                        <li>a) Não precisam de proteção, pois são isolantes.</li>
+                        <li>b) Com a incorporação de malhas metálicas (cobre/alumínio) na superfície.</li>
+                        <li>c) Sendo pintadas com tinta isolante.</li>
+                        <li>d) Com o uso de para-raios exclusivos nas pontas das asas.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Com a incorporação de malhas metálicas (cobre/alumínio) na superfície.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> Os compósitos são menos condutores que o metal. Para conduzir a corrente do raio e evitar danos por delaminação, malhas metálicas (foil) são incorporadas na superfície.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 9</span>
+                    <p>O que é o ESD (Electrostatic Discharge)?</p>
+                    <ul>
+                        <li>a) Uma interferência de rádio.</li>
+                        <li>b) A transferência súbita de carga elétrica entre dois objetos com potenciais diferentes.</li>
+                        <li>c) Um tipo de descarga atmosférica.</li>
+                        <li>d) Um padrão de barramento de dados.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) A transferência súbita de carga elétrica entre dois objetos com potenciais diferentes.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O ESD é a descarga estática, geralmente causada pelo efeito triboelétrico, que pode danificar componentes eletrónicos sensíveis.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 10</span>
+                    <p>No modelo Human Body Model (HBM), qual é a capacitância e a resistência utilizadas para simular o corpo humano?</p>
+                    <ul>
+                        <li>a) 100 pF e 1,5 kΩ</li>
+                        <li>b) 200 pF e 0 Ω</li>
+                        <li>c) 150 pF e 500 Ω</li>
+                        <li>d) 1 μF e 10 kΩ</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> a) 100 pF e 1,5 kΩ
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O HBM padroniza a descarga de um corpo humano através de um capacitor de 100 pF (representando a capacitância do corpo) e uma resistência de 1,5 kΩ (resistência da pele).
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 11</span>
+                    <p>Qual a principal diferença entre uma "Hard Failure" e uma "Soft Failure" causada por ESD?</p>
+                    <ul>
+                        <li>a) A Hard Failure é permanente e detetável; a Soft Failure é latente e intermitente.</li>
+                        <li>b) A Soft Failure destrói o componente; a Hard Failure não.</li>
+                        <li>c) A Hard Failure só ocorre em analógicos.</li>
+                        <li>d) Não há diferença prática.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> a) A Hard Failure é permanente e detetável; a Soft Failure é latente e intermitente.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A Hard Failure é uma falha catastrófica imediata. A Soft Failure causa danos internos que podem não ser detetados imediatamente, mas causam falhas intermitentes no futuro.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 12</span>
+                    <p>Qual é o valor mínimo de resistência recomendado para uma pulseira antiestática (wrist strap) para proteção do utilizador?</p>
+                    <ul>
+                        <li>a) 0 Ω</li>
+                        <li>b) 1 kΩ</li>
+                        <li>c) 1 MΩ (1.000.000 Ω)</li>
+                        <li>d) 10 MΩ</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) 1 MΩ (1.000.000 Ω)
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A resistência de 1 MΩ permite que a carga estática flua lentamente para a terra, mas limita a corrente elétrica a níveis seguros caso o utilizador toque acidentalmente numa fonte de alta tensão.
+                </div>
+            </div>`,
+
+            // Página 17 - Parabéns
+            `<div class="congrats-page">
+                <h2>🎉 Parabéns!</h2>
+                <p style="margin-top: 20px;">Você concluiu a <strong>Parte 4: Ambiente Eletromagnético e ESD</strong>.</p>
+                <div class="congrats-image">
+                    <img src="https://media.tenor.com/1Gq9HnEJ5wMAAAAM/shih-tzu-shihtzu.gif" alt="Parabéns">
+                </div>
+                <p style="margin-top: 20px;">Bons estudos! Avise quando estiver pronto para a Parte 5 (Sistemas Típicos Eletrónicos/Digitais: ACARS, EICAS, FBW, FMS, IRS, ECAM, EFIS, GPS, TCAS, IMA).</p>
+            </div>`
+        ];
+
+        const totalPages = pageContents.length;
+        let currentPage = 0;
+        let fontSizeIndex = 4;
+        const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 38, 42];
+
+        const pageContent = document.getElementById('pageContent');
+        const pageXofY = document.getElementById('pageXofY');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const fontMinus = document.getElementById('fontMinusBtn');
+        const fontPlus = document.getElementById('fontPlusBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const prevBtn = document.getElementById('prevBtnInline');
+        const nextBtn = document.getElementById('nextBtnInline');
+        const speakBtn = document.getElementById('speakBtn');
+        const lerSelecaoBtn = document.getElementById('lerSelecaoBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const rateSelect = document.getElementById('rateSelect');
+        const encerrarBtn = document.getElementById('encerrarBtn');
+
+        const synth = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+        let isPaused = false;
+        let speechToken = null;
+        let previousActiveSpan = null;
+        let wordSpans = [];
+        let charIndexToSpanMap = [];
+        let currentCharIndex = 0;
+
+        let selectionUtterance = null;
+        let isReadingSelection = false;
+        let isSelectionPaused = false;
+        let selectionToken = null;
+        let selectionWordSpans = [];
+        let selectionCharMap = [];
+        let selectionPrevSpan = null;
+        let lastSelectionRange = null;
+        let lastSelectionText = '';
+
+        document.addEventListener('selectionchange', function() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    lastSelectionRange = range.cloneRange();
+                    lastSelectionText = sel.toString().trim();
+                }
+            }
+        });
+
+        function getActiveSelectionRange() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    return range.cloneRange();
+                }
+            }
+            if (lastSelectionRange && lastSelectionText) return lastSelectionRange;
+            return null;
+        }
+
+        function getFemaleVoice() {
+            const voices = synth.getVoices();
+            const ptVoices = voices.filter(v => v.lang === 'pt-BR');
+            const female = ptVoices.find(v =>
+                v.name.toLowerCase().includes('female') ||
+                v.name.toLowerCase().includes('mulher') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Maria')
+            );
+            return female || ptVoices[0] || voices[0];
+        }
+
+        function tokenizeTextNodes(root) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            const textNodes = [];
+            while (walker.nextNode()) {
+                textNodes.push(walker.currentNode);
+            }
+            textNodes.forEach(node => {
+                const text = node.textContent;
+                if (!text.trim()) return;
+                if (node.parentNode && (node.parentNode.tagName === 'PRE' || node.parentNode.tagName === 'CODE')) return;
+                const fragment = document.createDocumentFragment();
+                const parts = text.split(/(\s+)/);
+                parts.forEach(part => {
+                    if (part.trim()) {
+                        const span = document.createElement('span');
+                        span.className = 'speech-word';
+                        span.textContent = part;
+                        fragment.appendChild(span);
+                    } else {
+                        fragment.appendChild(document.createTextNode(part));
+                    }
+                });
+                node.parentNode.replaceChild(fragment, node);
+            });
+        }
+
+        function buildCharMapForSpans(spans) {
+            const map = [];
+            spans.forEach((span, idx) => {
+                const len = span.textContent.length;
+                for (let i = 0; i < len; i++) map.push(idx);
+                if (idx < spans.length - 1) map.push(idx);
+            });
+            return map;
+        }
+
+        function buildCharMap() {
+            wordSpans = Array.from(pageContent.querySelectorAll('.speech-word'));
+            charIndexToSpanMap = buildCharMapForSpans(wordSpans);
+        }
+
+        function highlightWordSpan(spanIndex) {
+            if (previousActiveSpan !== null) {
+                const prevSpan = wordSpans[previousActiveSpan];
+                if (prevSpan) {
+                    prevSpan.classList.remove('active');
+                    prevSpan.classList.remove('upcoming');
+                }
+            }
+            if (spanIndex >= 0 && spanIndex < wordSpans.length) {
+                const currentSpan = wordSpans[spanIndex];
+                currentSpan.classList.add('active');
+                currentSpan.classList.remove('upcoming');
+                previousActiveSpan = spanIndex;
+                currentSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function markUpcoming(spanIndex) {
+            wordSpans.forEach(s => s.classList.remove('upcoming'));
+            for (let i = 1; i <= 3; i++) {
+                const nextIdx = spanIndex + i;
+                if (nextIdx < wordSpans.length) {
+                    wordSpans[nextIdx].classList.add('upcoming');
+                }
+            }
+        }
+
+        function clearAllWordHighlights() {
+            wordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            previousActiveSpan = null;
+        }
+
+        function syncHighlightFromCharIndex() {
+            if (currentCharIndex >= charIndexToSpanMap.length) return;
+            const spanIdx = charIndexToSpanMap[currentCharIndex];
+            if (spanIdx !== undefined && spanIdx !== previousActiveSpan) {
+                highlightWordSpan(spanIdx);
+                markUpcoming(spanIdx);
+            }
+        }
+
+        function highlightSelectionWord(spanIdx) {
+            if (selectionPrevSpan !== null) {
+                const prev = selectionWordSpans[selectionPrevSpan];
+                if (prev) {
+                    prev.classList.remove('active');
+                    prev.classList.remove('upcoming');
+                }
+            }
+            if (spanIdx >= 0 && spanIdx < selectionWordSpans.length) {
+                const curr = selectionWordSpans[spanIdx];
+                curr.classList.add('active');
+                curr.classList.remove('upcoming');
+                selectionPrevSpan = spanIdx;
+                curr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            selectionWordSpans.forEach((s, i) => {
+                if (i !== spanIdx) s.classList.remove('upcoming');
+            });
+            for (let i = 1; i <= 3; i++) {
+                const next = selectionWordSpans[spanIdx + i];
+                if (next) next.classList.add('upcoming');
+            }
+        }
+
+        function clearSelectionHighlights() {
+            selectionWordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            selectionPrevSpan = null;
+        }
+
+        function showPlayingUI() {
+            speakBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            stopBtn.classList.remove('hidden');
+            resumeBtn.classList.add('hidden');
+        }
+
+        function showPausedUI() {
+            pauseBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+            resumeBtn.classList.remove('hidden');
+            speakBtn.classList.add('hidden');
+        }
+
+        function showStoppedUI() {
+            speakBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+        }
+
+        function setSelectionBtnState(state) {
+            lerSelecaoBtn.classList.remove('reading', 'paused');
+            if (state === 'reading') {
+                lerSelecaoBtn.textContent = '⏸️ Pausar';
+                lerSelecaoBtn.title = 'Pausar leitura da seleção';
+                lerSelecaoBtn.classList.add('reading');
+            } else if (state === 'paused') {
+                lerSelecaoBtn.textContent = '▶️ Retomar';
+                lerSelecaoBtn.title = 'Retomar leitura da seleção';
+                lerSelecaoBtn.classList.add('paused');
+            } else {
+                lerSelecaoBtn.textContent = '📖 Ler Seleção';
+                lerSelecaoBtn.title = 'Ler somente o trecho selecionado';
+            }
+        }
+
+        function startReading() {
+            if (!synth) { alert('Seu navegador não suporta síntese de voz.'); return; }
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+
+            if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+                return;
+            }
+            if (isSpeaking) { stopReading(); return; }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+            }
+            buildCharMap();
+            if (wordSpans.length === 0) return;
+
+            const text = wordSpans.map(s => s.textContent).join(' ');
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) currentUtterance.voice = voice;
+            currentUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            speechToken = token;
+            currentCharIndex = 0;
+
+            currentUtterance.onboundary = function(event) {
+                if (speechToken !== token) return;
+                if (event.name === 'word') {
+                    currentCharIndex = event.charIndex;
+                    syncHighlightFromCharIndex();
+                }
+            };
+            currentUtterance.onstart = function() {
+                if (speechToken !== token) return;
+                isSpeaking = true;
+                isPaused = false;
+                showPlayingUI();
+            };
+            currentUtterance.onend = function() {
+                if (speechToken !== token) return;
+                resetSpeechState();
+            };
+            currentUtterance.onerror = function(e) {
+                if (speechToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Speech error:', e.error);
+                resetSpeechState();
+            };
+
+            synth.speak(currentUtterance);
+        }
+
+        function pauseReading() {
+            if (synth && isSpeaking && !isPaused) {
+                synth.pause();
+                isPaused = true;
+                showPausedUI();
+            }
+        }
+
+        function resumeReading() {
+            if (synth && isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+            }
+        }
+
+        function stopReading() {
+            if (synth) synth.cancel();
+            resetSpeechState();
+        }
+
+        function resetSpeechState() {
+            if (synth && synth.speaking) synth.cancel();
+            if (currentUtterance) {
+                currentUtterance.onboundary = null;
+                currentUtterance.onstart = null;
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+                currentUtterance = null;
+            }
+            isSpeaking = false;
+            isPaused = false;
+            speechToken = null;
+            currentCharIndex = 0;
+            clearAllWordHighlights();
+            showStoppedUI();
+        }
+
+        function startSelectionReading() {
+            if (!synth) { alert('Seu navegador não suporta síntese de voz.'); return; }
+            if (isSpeaking || isPaused) stopReading();
+
+            const range = getActiveSelectionRange();
+            if (!range) {
+                alert('Nenhum texto selecionado. Selecione um trecho e clique em "Ler Seleção".');
+                return;
+            }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+                const newRange = getActiveSelectionRange();
+                if (!newRange) {
+                    alert('Selecione novamente o trecho desejado.');
+                    return;
+                }
+                return startSelectionReadingWithRange(newRange);
+            }
+
+            startSelectionReadingWithRange(range);
+        }
+
+        function startSelectionReadingWithRange(range) {
+            const spans = [];
+            pageContent.querySelectorAll('.speech-word').forEach(span => {
+                try {
+                    if (range.intersectsNode(span)) spans.push(span);
+                } catch(e) {}
+            });
+
+            if (spans.length === 0) {
+                alert('Nenhum texto selecionado. Selecione um trecho e clique em "Ler Seleção".');
+                return;
+            }
+
+            selectionWordSpans = spans;
+            selectionCharMap = buildCharMapForSpans(selectionWordSpans);
+            clearSelectionHighlights();
+
+            const text = spans.map(s => s.textContent).join(' ');
+            selectionUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) selectionUtterance.voice = voice;
+            selectionUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            selectionToken = token;
+
+            selectionUtterance.onboundary = function(event) {
+                if (selectionToken !== token) return;
+                if (event.name === 'word') {
+                    const charIdx = event.charIndex;
+                    if (charIdx < selectionCharMap.length) {
+                        const spanIdx = selectionCharMap[charIdx];
+                        if (spanIdx !== undefined) highlightSelectionWord(spanIdx);
+                    }
+                }
+            };
+            selectionUtterance.onstart = function() {
+                if (selectionToken !== token) return;
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+                stopBtn.classList.remove('hidden');
+            };
+            selectionUtterance.onend = function() {
+                if (selectionToken !== token) return;
+                resetSelectionState();
+            };
+            selectionUtterance.onerror = function(e) {
+                if (selectionToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Selection speech error:', e.error);
+                resetSelectionState();
+            };
+
+            synth.speak(selectionUtterance);
+        }
+
+        function toggleSelectionReading() {
+            if (isReadingSelection) {
+                synth.pause();
+                isReadingSelection = false;
+                isSelectionPaused = true;
+                setSelectionBtnState('paused');
+            } else if (isSelectionPaused) {
+                synth.resume();
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+            } else {
+                startSelectionReading();
+            }
+        }
+
+        function stopSelectionReading() {
+            if (synth && (isReadingSelection || isSelectionPaused)) synth.cancel();
+            resetSelectionState();
+        }
+
+        function resetSelectionState() {
+            if (selectionUtterance) {
+                selectionUtterance.onboundary = null;
+                selectionUtterance.onstart = null;
+                selectionUtterance.onend = null;
+                selectionUtterance.onerror = null;
+                selectionUtterance = null;
+            }
+            isReadingSelection = false;
+            isSelectionPaused = false;
+            selectionToken = null;
+            clearSelectionHighlights();
+            setSelectionBtnState('idle');
+            stopBtn.classList.add('hidden');
+        }
+
+        function updateUI() {
+            resetSpeechState();
+            resetSelectionState();
+            pageContent.innerHTML = pageContents[currentPage];
+            tokenizeTextNodes(pageContent);
+            lastSelectionRange = null;
+            lastSelectionText = '';
+
+            const num = currentPage + 1;
+            pageXofY.textContent = `Página ${num} de ${totalPages}`;
+            const pct = (num / totalPages) * 100;
+            progressFill.style.width = pct + '%';
+            progressPercent.textContent = Math.round(pct) + '%';
+            prevBtn.disabled = (currentPage === 0);
+            nextBtn.disabled = (currentPage === totalPages - 1);
+
+            if (currentPage === totalPages - 1) {
+                encerrarBtn.classList.remove('hidden');
+            } else {
+                encerrarBtn.classList.add('hidden');
+            }
+
+            if (pageContent.scrollTop) pageContent.scrollTop = 0;
+        }
+
+        function applyFontSize() {
+            const size = fontSizes[fontSizeIndex] + 'px';
+            pageContent.style.fontSize = size;
+            fontMinus.disabled = (fontSizeIndex === 0);
+            fontPlus.disabled = (fontSizeIndex === fontSizes.length - 1);
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 0 && newPage < totalPages) {
+                currentPage = newPage;
+                updateUI();
+            }
+        }
+
+        fontMinus.addEventListener('click', () => {
+            if (fontSizeIndex > 0) fontSizeIndex--;
+            applyFontSize();
+        });
+        fontPlus.addEventListener('click', () => {
+            if (fontSizeIndex < fontSizes.length - 1) fontSizeIndex++;
+            applyFontSize();
+        });
+        fullscreenBtn.addEventListener('click', () => {
+            if (document.fullscreenElement) document.exitFullscreen();
+            else document.documentElement.requestFullscreen();
+        });
+        prevBtn.addEventListener('click', () => changePage(-1));
+        nextBtn.addEventListener('click', () => changePage(1));
+
+        speakBtn.addEventListener('click', startReading);
+        pauseBtn.addEventListener('click', pauseReading);
+        resumeBtn.addEventListener('click', resumeReading);
+        stopBtn.addEventListener('click', () => {
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+            if (isSpeaking || isPaused) stopReading();
+        });
+
+        lerSelecaoBtn.addEventListener('click', toggleSelectionReading);
+
+        rateSelect.addEventListener('change', () => {
+            const rate = parseFloat(rateSelect.value);
+            if (currentUtterance && isSpeaking && !isPaused) currentUtterance.rate = rate;
+            if (selectionUtterance && isReadingSelection && !isSelectionPaused) selectionUtterance.rate = rate;
+        });
+
+        encerrarBtn.addEventListener('click', () => {
+            if (synth) synth.cancel();
+            window.open('about:blank', '_blank');
+        });
+
+        applyFontSize();
+        updateUI();
+        if (synth) synth.getVoices();
+    })();
+</script>
+</body>
+</html>
