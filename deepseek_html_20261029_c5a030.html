@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>📘 Módulo 5B2 · Parte 1: Fundamentos de Eletrónica Digital</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #f5f7f6;
+            color: #1a2e2a;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            margin: 0;
+        }
+        .reader-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            padding: 12px 18px;
+            border: 1px solid #dde5e0;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .fixed-header {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #dde5e0;
+            padding-bottom: 6px;
+        }
+        .fixed-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f3d2e;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .progress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a5e44;
+            margin-bottom: 4px;
+        }
+        .progress-bar-bg {
+            background: #dee6e1;
+            height: 6px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #1a7a58;
+            height: 6px;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.2s;
+        }
+
+        .text-content {
+            text-align: justify;
+            padding: 6px 0 12px;
+            max-height: 75vh;
+            overflow-y: auto;
+            font-size: 18px;
+            line-height: 1.8;
+            margin: 0 2px;
+            scroll-behavior: smooth;
+        }
+        .text-content p { margin-bottom: 0.8em; }
+        .text-content h2, .text-content h3, .text-content h4 {
+            margin: 1em 0 0.3em;
+            color: #154e3a;
+            font-weight: 600;
+        }
+        .text-content h3 { font-size: 1.15em; }
+        .text-content h4 { font-size: 1.02em; }
+        .text-content ul, .text-content ol {
+            padding-left: 1.8em;
+            margin: 0.4em 0;
+        }
+        .text-content li { margin-bottom: 0.3em; }
+
+        .text-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8em 0;
+            font-size: 0.85em;
+            text-align: left;
+        }
+        .text-content th, .text-content td {
+            border: 1px solid #b3cdbf;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .text-content th {
+            background: #ecf3ef;
+            color: #134531;
+            font-weight: 600;
+        }
+        .text-content tr:nth-child(even) { background: #f9fbfa; }
+
+        .text-content pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            overflow-x: auto;
+            font-size: 0.78em;
+            line-height: 1.5;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0.8em 0;
+            border: 1px solid #1e293b;
+        }
+        .text-content pre code { background: none; color: inherit; padding: 0; }
+        .text-content code {
+            background: #e8eefb;
+            color: #1e3a8a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.88em;
+        }
+
+        .speech-word {
+            transition: background-color 0.15s ease, color 0.15s ease;
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin: 0 1px;
+        }
+        .speech-word.active {
+            background-color: #ffeb3b;
+            color: #000;
+            font-weight: 600;
+        }
+        .speech-word.upcoming { background-color: #fff9c4; }
+
+        .toolbar-single {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            margin: 14px 0 10px;
+            padding: 4px 0 6px;
+            border-top: 1px solid #dde5e0;
+            border-bottom: 1px solid #dde5e0;
+        }
+        .tool-btn {
+            background: #ecf3ef;
+            border: 1px solid #b3cdbf;
+            color: #134531;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 48px;
+            min-width: 50px;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .tool-btn:active { background: #d0e0d7; transform: scale(0.96); }
+        .tool-btn:disabled { opacity: 0.4; background: #e0e8e3; border-color: #b6ccc1; pointer-events: none; }
+        .tool-btn.hidden { display: none; }
+        .tool-btn.encerrar {
+            background: #134531;
+            color: #fff;
+            border-color: #0f3d2e;
+        }
+        .tool-btn.encerrar:active { background: #0f3d2e; }
+        .tool-btn.ler-selecao {
+            background: #e0f2f1;
+            border-color: #80cbc4;
+            color: #00695c;
+        }
+        .tool-btn.ler-selecao:active { background: #b2dfdb; }
+        .tool-btn.ler-selecao.reading {
+            background: #ffeb3b;
+            border-color: #fbc02d;
+            color: #5d4037;
+        }
+        .tool-btn.ler-selecao.paused {
+            background: #ffe0b2;
+            border-color: #ffb74d;
+            color: #e65100;
+        }
+
+        .capa {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .capa h1 { font-size: 26px; margin-bottom: 16px; color: #0f3d2e; }
+        .capa h2 { font-size: 18px; margin-bottom: 30px; color: #1a5e44; }
+        .capa p { font-size: 19px; color: #2a5e4a; }
+
+        .congrats-page {
+            text-align: center;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 40vh;
+        }
+        .congrats-page h2 { color: #1a5e44; margin-bottom: 10px; font-size: 1.8rem; }
+        .congrats-image { text-align: center; margin: 15px auto; }
+        .congrats-image img {
+            transform: scale(1.2);
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        .gabarito-questao {
+            background: #f4f9f6;
+            border-left: 5px solid #1a7a58;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+        }
+        .questao-bloco {
+            background: #e0f2f1;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 0 0 8px 0;
+            border-left: 4px solid #00695c;
+        }
+        .rotulo-questao {
+            display: inline-block;
+            background: #00695c;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+        .questao-bloco p { margin: 0.3em 0; color: #1a2e2a; }
+        .questao-bloco ul, .questao-bloco ol {
+            padding-left: 1.6em;
+            margin: 0.3em 0;
+        }
+        .gabarito-questao .resposta-bloco {
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 8px 0 6px;
+            border-left: 4px solid #1b5e20;
+        }
+        .gabarito-questao .justificativa-bloco {
+            background: #fff3e0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 6px 0 0;
+            border-left: 4px solid #e65100;
+        }
+        .rotulo-resposta {
+            display: inline-block;
+            background: #1b5e20;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+        .rotulo-justificativa {
+            display: inline-block;
+            background: #e65100;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 700px) {
+            .reader-wrapper { padding: 8px 10px; border-radius: 16px; }
+            .tool-btn { padding: 6px 8px; min-width: 44px; font-size: 0.85rem; }
+            .text-content { max-height: 70vh; font-size: 16px; }
+            .fixed-header h1 { font-size: 1.2rem; }
+            .text-content table { font-size: 0.75em; }
+            .text-content th, .text-content td { padding: 4px 5px; }
+            .text-content pre { font-size: 0.7em; padding: 8px 10px; }
+            .capa h1 { font-size: 20px; }
+            .capa h2 { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="reader-wrapper">
+    <div id="readerScreen" class="screen active">
+        <div class="fixed-header">
+            <h1>📘 Módulo 5B2 · Parte 1: Fundamentos de Eletrónica Digital</h1>
+            <div class="progress-row">
+                <span id="pageXofY">Página 1 de 18</span>
+                <span id="progressPercent">5%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="text-content" id="pageContent"></div>
+        <div class="toolbar-single">
+            <button class="tool-btn" id="fontMinusBtn" title="Diminuir fonte">A−</button>
+            <button class="tool-btn" id="fontPlusBtn" title="Aumentar fonte">A+</button>
+            <button class="tool-btn" id="fullscreenBtn" title="Tela cheia">⛶</button>
+            <button class="tool-btn" id="prevBtnInline" title="Página anterior">◀</button>
+            <button class="tool-btn" id="nextBtnInline" title="Próxima página">▶</button>
+            <button class="tool-btn" id="speakBtn" title="Ouvir a página inteira desde o início">🔊</button>
+            <button class="tool-btn ler-selecao" id="lerSelecaoBtn" title="Ler somente o trecho selecionado">📖 Ler Seleção</button>
+            <button class="tool-btn hidden" id="pauseBtn" title="Pausar">⏸️</button>
+            <button class="tool-btn hidden" id="resumeBtn" title="Retomar">▶️</button>
+            <button class="tool-btn hidden" id="stopBtn" title="Parar">⏹️</button>
+            <select id="rateSelect" class="tool-btn" style="width: auto; background: #ecf3ef; border: 1px solid #b3cdbf; padding: 8px 12px;">
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+            <button class="tool-btn encerrar hidden" id="encerrarBtn" title="Encerrar leitura">✖ Encerrar Leitura</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const pageContents = [
+            // Página 1 – Capa
+            `<div class="capa">
+                <h1>📘 Módulo 5B2 · Parte 1</h1>
+                <h2>Fundamentos de Eletrónica Digital<br>
+                Sistemas de Numeração · Conversão de Dados · Circuitos Lógicos</h2>
+                <p>Material de Estudo Resumido</p>
+            </div>`,
+
+            // Página 2 – Índice
+            `<div class="text-container" style="max-width:100%;">
+                <h3>📌 ÍNDICE DA PARTE 1</h3>
+                <ol>
+                    <li>Sistemas de Numeração: Introdução – Pág. 3</li>
+                    <li>Sistemas Binário, Octal e Hexadecimal – Pág. 4</li>
+                    <li>Conversões entre Sistemas – Pág. 5</li>
+                    <li>Binary-Coded Decimal (BCD) – Pág. 6</li>
+                    <li>Tipos de Dados: Analógico vs Digital – Pág. 7</li>
+                    <li>Conversores Analógico-Digital (ADC) – Pág. 8</li>
+                    <li>Tipos de ADC: Flash, SAR e Rampa – Pág. 9</li>
+                    <li>Conversores Digital-Analógico (DAC) – Pág. 10</li>
+                    <li>Tipos de DAC: Resistores Ponderados e R-2R – Pág. 11</li>
+                    <li>Circuitos Lógicos: Introdução e Portas Básicas – Pág. 12</li>
+                    <li>Portas Universais (NAND/NOR) e XOR – Pág. 13</li>
+                    <li>Álgebra de Boole e Tabelas de Verdade – Pág. 14</li>
+                    <li>Famílias Lógicas (TTL) e Tri-State – Pág. 15</li>
+                    <li>Aplicações em Sistemas de Aeronaves – Pág. 16</li>
+                    <li>Exercícios de Fixação (12 Questões) – Pág. 17</li>
+                    <li>Gabarito Comentado – Pág. 18</li>
+                </ol>
+            </div>`,
+
+            // Página 3
+            `<h3>1. Sistemas de Numeração: Introdução</h3>
+            <p>Os sistemas de numeração são fundamentais para a compreensão dos computadores e da eletrónica digital. Cada sistema possui uma <strong>base</strong> (ou radix), que define o número de símbolos distintos utilizados para representar valores.</p>
+            
+            <h4>1.1 Por que Binário?</h4>
+            <p>Os circuitos eletrónicos operam com dois estados distintos de tensão: <strong>HIGH</strong> (alto) e <strong>LOW</strong> (baixo). Estes dois estados são representados pelos dígitos <strong>1</strong> e <strong>0</strong>, respetivamente. Este é o sistema binário (base 2), a linguagem nativa dos computadores.</p>
+            <ul>
+                <li><strong>Lógica Positiva:</strong> HIGH = 1, LOW = 0.</li>
+                <li><strong>Lógica Negativa:</strong> HIGH = 0, LOW = 1.</li>
+            </ul>
+            <p>A voltagem exata não é crítica. Numa lógica de 5V, uma tensão de 3.6V ou 4.3V é interpretada como binário 1.</p>
+
+            <h4>1.2 Notação Posicional</h4>
+            <p>Nos sistemas posicionais, o valor de um dígito depende da sua posição. O dígito mais à direita é o <strong>Least Significant Digit (LSD)</strong> e o mais à esquerda é o <strong>Most Significant Digit (MSD)</strong>.</p>
+            <p>Exemplo decimal: 3721 = (3×10³) + (7×10²) + (2×10¹) + (1×10⁰).</p>
+            <p>O mesmo princípio aplica-se ao binário: 101₂ = (1×2²) + (0×2¹) + (1×2⁰) = 5₁₀.</p>
+            
+            <h4>1.3 Armazenamento</h4>
+            <ul>
+                <li><strong>Bit:</strong> Um dígito binário (0 ou 1).</li>
+                <li><strong>Byte:</strong> 8 bits.</li>
+                <li><strong>Word:</strong> 4 bytes (32 bits) na maioria dos sistemas modernos, embora possa variar.</li>
+            </ul>`,
+
+            // Página 4
+            `<h3>2. Sistemas Binário, Octal e Hexadecimal</h3>
+            
+            <h4>2.1 Binário (Base 2)</h4>
+            <p>Utiliza apenas dois símbolos: 0 e 1. É o sistema fundamental da eletrónica digital.</p>
+
+            <h4>2.2 Octal (Base 8)</h4>
+            <p>Utiliza os símbolos de 0 a 7. É particularmente útil porque cada dígito octal representa exatamente <strong>três dígitos binários</strong> (2³ = 8). É frequentemente utilizado como uma forma abreviada de representar números binários.</p>
+            <p><em>Exemplo:</em> 724₈ = (7×8²) + (2×8¹) + (4×8⁰) = 448 + 16 + 4 = 468₁₀.</p>
+
+            <h4>2.3 Hexadecimal (Base 16)</h4>
+            <p>Utiliza os símbolos 0-9 e as letras A-F (onde A=10, B=11, ..., F=15). Cada dígito hexadecimal representa exatamente <strong>quatro dígitos binários</strong> (2⁴ = 16).</p>
+            <p><em>Exemplo:</em> ABC₁₆ = (10×16²) + (11×16¹) + (12×16⁰) = 2560 + 176 + 12 = 2748₁₀.</p>
+
+            <h4>2.4 Comparação</h4>
+            <table>
+                <tr><th>Decimal</th><th>Binário</th><th>Octal</th><th>Hex</th></tr>
+                <tr><td>0</td><td>0000</td><td>0</td><td>0</td></tr>
+                <tr><td>1</td><td>0001</td><td>1</td><td>1</td></tr>
+                <tr><td>2</td><td>0010</td><td>2</td><td>2</td></tr>
+                <tr><td>8</td><td>1000</td><td>10</td><td>8</td></tr>
+                <tr><td>10</td><td>1010</td><td>12</td><td>A</td></tr>
+                <tr><td>15</td><td>1111</td><td>17</td><td>F</td></tr>
+            </table>`,
+
+            // Página 5
+            `<h3>3. Conversões entre Sistemas</h3>
+            
+            <h4>3.1 Decimal para Binário</h4>
+            <p><strong>Método:</strong> Divisão sucessiva por 2. O resto de cada divisão (de baixo para cima) forma o número binário.</p>
+            <p><em>Exemplo:</em> Converter 125₁₀.</p>
+            <ul>
+                <li>125 ÷ 2 = 62, resto <strong>1</strong> (LSB)</li>
+                <li>62 ÷ 2 = 31, resto <strong>0</strong></li>
+                <li>31 ÷ 2 = 15, resto <strong>1</strong></li>
+                <li>15 ÷ 2 = 7, resto <strong>1</strong></li>
+                <li>7 ÷ 2 = 3, resto <strong>1</strong></li>
+                <li>3 ÷ 2 = 1, resto <strong>1</strong></li>
+                <li>1 ÷ 2 = 0, resto <strong>1</strong> (MSB)</li>
+            </ul>
+            <p>Resultado: <strong>1111101₂</strong>.</p>
+
+            <h4>3.2 Decimal para Octal e Hex</h4>
+            <p>O princípio é o mesmo, mas dividindo por 8 (para octal) ou por 16 (para hexadecimal).</p>
+            <p><em>Exemplo Octal:</em> 1234₁₀ ÷ 8 sucessivamente = 2322₈.</p>
+            <p><em>Exemplo Hex:</em> 1234₁₀ ÷ 16 sucessivamente = 4D2₁₆.</p>
+
+            <h4>3.3 Binário para Octal e Hex</h4>
+            <ul>
+                <li><strong>Para Octal:</strong> Agrupar os bits de 3 em 3 (a partir da direita). Ex: 1011010111₂ → 1 (001) (011) (010) (111) → 1327₈.</li>
+                <li><strong>Para Hex:</strong> Agrupar os bits de 4 em 4. Ex: 1010111011₂ → (0010) (1011) (1011) → 2BB₁₆.</li>
+            </ul>
+
+            <h4>3.4 Octal/Hex para Binário</h4>
+            <p>O processo inverso: converter cada dígito octal em 3 bits ou cada dígito hex em 4 bits.</p>
+            <p>Ex: 705₈ → 111 000 101₂. Ex: 10AF₁₆ → 0001 0000 1010 1111₂.</p>`,
+
+            // Página 6
+            `<h3>4. Binary-Coded Decimal (BCD)</h3>
+            <p>O BCD é um sistema de codificação que representa cada dígito decimal (0-9) por um código binário de 4 bits. Não é um sistema de numeração posicional como os outros, mas sim uma forma de codificação.</p>
+            
+            <h4>4.1 Características do BCD</h4>
+            <ul>
+                <li>Cada dígito decimal é convertido individualmente em 4 bits.</li>
+                <li>Exemplo: O número decimal 1895 em BCD é <strong>0001 1000 1001 0101</strong>.</li>
+                <li>O BCD não deve ser confundido com a representação binária pura. O binário puro de 1895 é 11101100111₂.</li>
+                <li>O BCD facilita a interface com dispositivos que exibem números decimais (como displays de 7 segmentos).</li>
+            </ul>
+
+            <h4>4.2 Limitações do BCD</h4>
+            <ul>
+                <li>Uma palavra de 12 bits em binário puro pode representar valores de 0 a 4095.</li>
+                <li>Uma palavra de 12 bits em BCD só pode representar valores de 0 a 999 (porque cada grupo de 4 bits só é válido até 9, ou seja, 1001).</li>
+            </ul>
+
+            <h4>4.3 Adição BCD</h4>
+            <p>Na adição BCD, se o resultado de um grupo de 4 bits for maior que 1001 (9), deve-se adicionar um <strong>fator de correção de 6 (0110₂)</strong> ao grupo.</p>
+            <p><em>Exemplo:</em> 9 + 6 = 15. Em BCD: 1001 + 0110 = 1111 (inválido). Adiciona-se 0110: 1111 + 0110 = 0001 0101 (vai 1 para o próximo grupo, e o valor é 5).</p>`,
+
+            // Página 7
+            `<h3>5. Tipos de Dados: Analógico vs Digital</h3>
+            
+            <h4>5.1 Sinais Analógicos</h4>
+            <p>São sinais contínuos que variam ao longo do tempo. O mundo real é analógico (temperatura, pressão, som). Estes sinais podem ser representados por variações de tensão, corrente ou ângulos de eixo.</p>
+            <p><em>Exemplo:</em> A saída de um microfone é um sinal analógico que varia continuamente com a pressão sonora.</p>
+
+            <h4>5.2 Sinais Digitais</h4>
+            <p>São sinais discretos, representados por níveis lógicos (HIGH/LOW, 1/0). A principal vantagem é a imunidade ao ruído: o valor exato da tensão não é crítico, desde que esteja dentro dos limites lógicos.</p>
+            <p>Os sinais digitais são processados por computadores e armazenados como sequências de bits.</p>
+
+            <h4>5.3 Interfaces de Conversão</h4>
+            <p>Para que os sistemas digitais possam interagir com o mundo analógico, são necessários conversores:</p>
+            <ul>
+                <li><strong>ADC (Analog-to-Digital Converter):</strong> Converte um sinal contínuo (ex: temperatura) num valor digital (ex: 1010₂).</li>
+                <li><strong>DAC (Digital-to-Analog Converter):</strong> Converte um valor digital num sinal contínuo (ex: controlar a velocidade de um motor).</li>
+            </ul>`,
+
+            // Página 8
+            `<h3>6. Conversores Analógico-Digital (ADC)</h3>
+            <p>Um ADC converte um sinal de tensão contínuo num código digital de múltiplos bits.</p>
+            
+            <h4>6.1 Princípios de Funcionamento</h4>
+            <p>O processo de conversão envolve várias etapas, incluindo amostragem (sampling) e quantização. A <strong>resolução</strong> é dada pelo número de bits da palavra digital.</p>
+            <ul>
+                <li>Uma palavra de <em>n</em> bits divide a gama de entrada em <strong>2ⁿ</strong> níveis de quantização.</li>
+                <li><em>Exemplo:</em> Um ADC de 3 bits divide uma gama de 0-7V em 8 níveis (0, 1, 2, 3, 4, 5, 6, 7V).</li>
+            </ul>
+
+            <h4>6.2 Tipos de ADC</h4>
+            <p>Existem vários métodos de conversão, cada um com diferentes compromissos entre velocidade e precisão:</p>
+            <ul>
+                <li><strong>Flash (Paralelo):</strong> O mais rápido, mas requer muitos comparadores (2ⁿ - 1).</li>
+                <li><strong>SAR (Successive Approximation Register):</strong> Equilíbrio entre velocidade e complexidade. Usa um único comparador e um DAC interno.</li>
+                <li><strong>Rampa (Integrador):</strong> Mais lento, mas muito preciso e com boa imunidade a ruído.</li>
+                <li><strong>Sigma-Delta:</strong> Utiliza amostragem de alta frequência e filtros digitais para obter alta resolução.</li>
+            </ul>`,
+
+            // Página 9
+            `<h3>7. Tipos de ADC: Flash, SAR e Rampa</h3>
+            
+            <h4>7.1 Flash ADC</h4>
+            <p>Utiliza um divisor de tensão com vários comparadores. A conversão é feita num único ciclo de clock. É o tipo mais rápido, mas tem uma arquitetura complexa e alto consumo. Para 8 bits, são necessários 255 comparadores.</p>
+
+            <h4>7.2 SAR ADC (Aproximações Sucessivas)</h4>
+            <p>Utiliza um registrador (SAR) que testa os bits um a um, do MSB para o LSB. Para 8 bits, são necessários 8 ciclos de clock. É mais lento que o Flash, mas muito mais eficiente em termos de espaço e consumo.</p>
+
+            <h4>7.3 Ramp Generation ADC (Contador)</h4>
+            <p>Um contador gera uma rampa de tensão (via DAC) que é comparada com a entrada. Quando a rampa ultrapassa a entrada, o contador para. O valor do contador é o código digital. É um método simples, mas lento.</p>
+
+            <h4>7.4 Integration ADC (Integrador / Dupla Rampa)</h4>
+            <p>O sinal de entrada carrega um condensador durante um tempo fixo. Depois, uma tensão de referência descarrega o condensador, e o tempo de descarga é medido. É muito preciso e imune a ruído, ideal para instrumentação.</p>`,
+
+            // Página 10
+            `<h3>8. Conversores Digital-Analógico (DAC)</h3>
+            <p>Um DAC converte um valor digital (geralmente binário) numa tensão ou corrente analógica correspondente.</p>
+            
+            <h4>8.1 Princípio Básico</h4>
+            <p>O DAC divide a tensão de referência (Vref) em 2ⁿ passos. Cada bit de entrada tem um peso específico. A saída é a soma ponderada dos bits que estão a 1.</p>
+            <ul>
+                <li>Para um DAC de 8 bits com Vref = 5V, cada passo (LSB) é 5V / 256 = 0.0195V.</li>
+                <li>Se a entrada for 1111 1111, a saída será 4.98V (não exatamente 5V devido à ponderação binária).</li>
+            </ul>
+
+            <h4>8.2 Tipos de DAC</h4>
+            <ul>
+                <li><strong>Resistores Ponderados (Weighted Resistor):</strong> Utiliza resistores com valores binários (R, 2R, 4R, 8R...). Simples, mas difícil de fabricar com precisão para muitos bits.</li>
+                <li><strong>Rede R-2R (Ladder):</strong> Utiliza apenas dois valores de resistência (R e 2R). É muito mais preciso e fácil de implementar em circuitos integrados. É o método mais comum.</li>
+            </ul>`,
+
+            // Página 11
+            `<h3>9. Tipos de DAC: Resistores Ponderados e R-2R</h3>
+            
+            <h4>9.1 DAC de Resistores Ponderados</h4>
+            <p>O op-amp soma as correntes de cada ramo. A corrente de cada ramo é inversamente proporcional ao valor do resistor. Os valores dos resistores devem ser precisos (especialmente para o MSB), o que torna difícil a produção em massa para alta resolução.</p>
+
+            <h4>9.2 DAC R-2R Ladder</h4>
+            <p>Esta é a arquitetura mais utilizada. Utiliza uma rede de resistores com apenas dois valores: R e 2R. A corrente é dividida por 2 a cada nó da rede. É mais tolerante a variações dos resistores e pode ser implementada com precisão em CI.</p>
+            <p><em>Fórmula da tensão de saída:</em> Vout = -Vref/2 * (D0 + D1/2 + D2/4 + D3/8...).</p>
+            <p>As aplicações típicas incluem geradores de forma de onda, controlo de motores e amplificadores de ganho programável.</p>`,
+
+            // Página 12
+            `<h3>10. Circuitos Lógicos: Introdução e Portas Básicas</h3>
+            <p>A eletrónica digital baseia-se em circuitos lógicos que tomam decisões com base em entradas binárias. As portas lógicas são os blocos de construção fundamentais.</p>
+            
+            <h4>10.1 Porta AND (E)</h4>
+            <p>A saída é 1 apenas se <strong>todas</strong> as entradas forem 1. A expressão booleana é F = A · B. Funciona como dois interruptores em série.</p>
+            <table>
+                <tr><th>A</th><th>B</th><th>F = A·B</th></tr>
+                <tr><td>0</td><td>0</td><td>0</td></tr>
+                <tr><td>0</td><td>1</td><td>0</td></tr>
+                <tr><td>1</td><td>0</td><td>0</td></tr>
+                <tr><td>1</td><td>1</td><td>1</td></tr>
+            </table>
+
+            <h4>10.2 Porta OR (OU)</h4>
+            <p>A saída é 1 se <strong>qualquer uma</strong> (ou ambas) as entradas for 1. A expressão booleana é F = A + B. Funciona como dois interruptores em paralelo.</p>
+            <table>
+                <tr><th>A</th><th>B</th><th>F = A+B</th></tr>
+                <tr><td>0</td><td>0</td><td>0</td></tr>
+                <tr><td>0</td><td>1</td><td>1</td></tr>
+                <tr><td>1</td><td>0</td><td>1</td></tr>
+                <tr><td>1</td><td>1</td><td>1</td></tr>
+            </table>
+
+            <h4>10.3 Porta NOT (Inversor)</h4>
+            <p>Inverte o estado da entrada. Se a entrada for 0, a saída é 1; se for 1, a saída é 0. A expressão é F = A' ou F = Ā.</p>`,
+
+            // Página 13
+            `<h3>11. Portas Universais (NAND/NOR) e XOR</h3>
+            
+            <h4>11.1 Porta NAND (E-NÃO)</h4>
+            <p>É uma porta AND seguida de um inversor. A saída é 0 apenas quando todas as entradas são 1. É considerada uma <strong>porta universal</strong>, pois qualquer outra porta lógica pode ser construída apenas com NANDs.</p>
+            <p>Expressão: F = (A · B)'.</p>
+
+            <h4>11.2 Porta NOR (OU-NÃO)</h4>
+            <p>É uma porta OR seguida de um inversor. A saída é 1 apenas quando todas as entradas são 0. Também é uma <strong>porta universal</strong>.</p>
+            <p>Expressão: F = (A + B)'.</p>
+
+            <h4>11.3 Porta XOR (OU Exclusivo)</h4>
+            <p>A saída é 1 apenas quando as entradas são <strong>diferentes</strong>. É muito utilizada em circuitos de paridade e somadores.</p>
+            <table>
+                <tr><th>A</th><th>B</th><th>F = A ⊕ B</th></tr>
+                <tr><td>0</td><td>0</td><td>0</td></tr>
+                <tr><td>0</td><td>1</td><td>1</td></tr>
+                <tr><td>1</td><td>0</td><td>1</td></tr>
+                <tr><td>1</td><td>1</td><td>0</td></tr>
+            </table>
+
+            <h4>11.4 Porta XNOR</h4>
+            <p>É a negação da XOR. A saída é 1 quando as entradas são <strong>iguais</strong>.</p>`,
+
+            // Página 14
+            `<h3>12. Álgebra de Boole e Tabelas de Verdade</h3>
+            <p>A Álgebra de Boole é a matemática que rege os circuitos lógicos. Permite simplificar expressões e, consequentemente, reduzir o número de portas necessárias num circuito.</p>
+            
+            <h4>12.1 Teoremas Fundamentais</h4>
+            <ul>
+                <li><strong>Identidade:</strong> A + 0 = A; A · 1 = A.</li>
+                <li><strong>Anulação:</strong> A + 1 = 1; A · 0 = 0.</li>
+                <li><strong>Idempotência:</strong> A + A = A; A · A = A.</li>
+                <li><strong>Involução:</strong> (A')' = A.</li>
+                <li><strong>Complementaridade:</strong> A + A' = 1; A · A' = 0.</li>
+                <li><strong>Comutatividade:</strong> A + B = B + A; A · B = B · A.</li>
+                <li><strong>Distributividade:</strong> A · (B + C) = (A · B) + (A · C).</li>
+            </ul>
+
+            <h4>12.2 Teoremas de De Morgan</h4>
+            <p>Estes teoremas são essenciais para converter circuitos entre NAND e NOR:</p>
+            <ul>
+                <li>(A + B)' = A' · B' (NOR é igual a AND com entradas invertidas).</li>
+                <li>(A · B)' = A' + B' (NAND é igual a OR com entradas invertidas).</li>
+            </ul>
+
+            <h4>12.3 Simplificação</h4>
+            <p>Ao simplificar uma expressão, reduz-se o custo e o atraso do circuito. Por exemplo, a expressão P + (P · Q) simplifica-se para P (Teorema da Absorção).</p>`,
+
+            // Página 15
+            `<h3>13. Famílias Lógicas (TTL) e Tri-State</h3>
+            
+            <h4>13.1 Família TTL (Transistor-Transistor Logic)</h4>
+            <p>Foi a família de circuitos integrados mais popular. Define os níveis lógicos de tensão da seguinte forma:</p>
+            <ul>
+                <li><strong>Logic 0:</strong> 0V a 0.8V.</li>
+                <li><strong>Logic 1:</strong> 2V a 5V.</li>
+            </ul>
+            <p>A série 7400 é a mais famosa e ainda hoje é utilizada em laboratórios e projetos educacionais.</p>
+
+            <h4>13.2 Dispositivos Tri-State</h4>
+            <p>Estes dispositivos têm uma terceira condição de saída, além do 0 e do 1: a <strong>alta impedância (Hi-Z)</strong>. Quando a linha de controlo está desativada, a saída "desliga-se" eletricamente do barramento.</p>
+            <p>Isto permite que vários dispositivos partilhem o mesmo barramento de dados sem conflito. Apenas um dispositivo deve estar ativo (com o controlo ON) de cada vez.</p>
+
+            <h4>13.3 Circuitos Integrados (DIP)</h4>
+            <p>Os circuitos lógicos são geralmente montados em pacotes DIP (Dual In-line Package), com pinos espaçados de 0.1 polegada. Os mais comuns têm 14 ou 16 pinos.</p>`,
+
+            // Página 16
+            `<h3>14. Aplicações em Sistemas de Aeronaves</h3>
+            <p>Os conceitos de eletrónica digital são aplicados massivamente nos sistemas das aeronaves modernas.</p>
+            
+            <h4>14.1 Aviso de Trem de Aterragem (Gear Warning)</h4>
+            <p>Os circuitos lógicos processam os sinais de vários sensores (posição do trem, velocidade, altitude) para determinar se as luzes de aviso devem acender. Uma porta AND, por exemplo, pode acender a luz vermelha se o trem não estiver em baixo E a aeronave estiver em voo.</p>
+
+            <h4>14.2 Conversão de Sensores</h4>
+            <p>Os sensores de pressão, temperatura e posição geram sinais analógicos. Os ADCs integrados nos LRUs (Line Replaceable Units) convertem estes sinais para o formato digital, onde podem ser processados pelo software de controlo de voo.</p>
+
+            <h4>14.3 Tratamento de Sinal</h4>
+            <p>O sinal digital do ADC é processado pela CPU. Por exemplo, o sinal do sensor de pressão estática é convertido e, após cálculos, é exibido no PFD como a altitude da aeronave.</p>`,
+
+            // Página 17 - Exercícios
+            `<h3>15. Exercícios de Fixação</h3>
+            <p>Abaixo estão 12 questões objetivas com respostas e justificativas integradas, conforme o modelo solicitado.</p>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 1</span>
+                    <p>Qual é o equivalente decimal do número binário 1101?</p>
+                    <ul>
+                        <li>a) 11</li>
+                        <li>b) 12</li>
+                        <li>c) 13</li>
+                        <li>d) 14</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) 13
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> 1101₂ = (1×2³) + (1×2²) + (0×2¹) + (1×2⁰) = 8 + 4 + 0 + 1 = 13.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 2</span>
+                    <p>Qual é a representação hexadecimal do número decimal 174?</p>
+                    <ul>
+                        <li>a) AE</li>
+                        <li>b) FA</li>
+                        <li>c) 9C</li>
+                        <li>d) 1E</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> a) AE
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> 174 ÷ 16 = 10 (A) com resto 14 (E). Portanto, AE₁₆.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 3</span>
+                    <p>O número decimal 12 é representado em binário como 1100. Qual o seu equivalente em Octal?</p>
+                    <ul>
+                        <li>a) 12</li>
+                        <li>b) 14</li>
+                        <li>c) 16</li>
+                        <li>d) 10</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) 14
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> 1100₂ agrupando de 3 em 3 bits: 001 (1) e 100 (4) → 14₈.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 4</span>
+                    <p>Qual a principal desvantagem do código BCD em relação ao binário puro?</p>
+                    <ul>
+                        <li>a) É mais lento.</li>
+                        <li>b) Não pode representar números negativos.</li>
+                        <li>c) Desperdiça combinações de bits (não usa 1010 a 1111).</li>
+                        <li>d) Só funciona com números de 8 bits.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) Desperdiça combinações de bits.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> Cada dígito BCD usa 4 bits, mas apenas os valores 0 a 9 são válidos. As combinações de 1010 a 1111 são inválidas e não são utilizadas, o que reduz a capacidade de armazenamento.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 5</span>
+                    <p>Um ADC de 8 bits tem uma gama de entrada de 0 a 5V. Qual é a sua resolução?</p>
+                    <ul>
+                        <li>a) 5mV</li>
+                        <li>b) 10mV</li>
+                        <li>c) 19.5mV</li>
+                        <li>d) 20mV</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) 19.5mV
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> Resolução = Vref / 2ⁿ = 5V / 256 = 0.0195V = 19.5mV.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 6</span>
+                    <p>Qual é o tipo de ADC mais rápido disponível?</p>
+                    <ul>
+                        <li>a) SAR</li>
+                        <li>b) Flash</li>
+                        <li>c) Rampa</li>
+                        <li>d) Sigma-Delta</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Flash
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O ADC Flash utiliza comparadores em paralelo e converte num único ciclo de clock, sendo o mais rápido, mas também o mais complexo e caro.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 7</span>
+                    <p>Numa porta AND com duas entradas, a saída será 1 quando:</p>
+                    <ul>
+                        <li>a) A=0, B=0</li>
+                        <li>b) A=1, B=0</li>
+                        <li>c) A=0, B=1</li>
+                        <li>d) A=1, B=1</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> d) A=1, B=1
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A porta AND só produz saída 1 quando todas as suas entradas são 1.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 8</span>
+                    <p>Qual é a expressão booleana simplificada para a porta NAND?</p>
+                    <ul>
+                        <li>a) A + B</li>
+                        <li>b) A · B</li>
+                        <li>c) (A · B)'</li>
+                        <li>d) A' + B'</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) (A · B)'
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A porta NAND é o inverso da AND. A barra sobre a expressão indica a negação. Pelo Teorema de De Morgan, também é equivalente a A' + B'.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 9</span>
+                    <p>Qual é a principal vantagem de um DAC R-2R em relação a um DAC de resistores ponderados?</p>
+                    <ul>
+                        <li>a) É mais rápido.</li>
+                        <li>b) Requer apenas dois valores de resistência (R e 2R), facilitando a fabricação em CI.</li>
+                        <li>c) Não precisa de tensão de referência.</li>
+                        <li>d) Tem maior resolução.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Requer apenas dois valores de resistência.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A rede R-2R simplifica muito a produção de circuitos integrados, pois elimina a necessidade de resistores com valores muito díspares e de alta precisão.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 10</span>
+                    <p>O que caracteriza um dispositivo Tri-State?</p>
+                    <ul>
+                        <li>a) Ter três entradas lógicas.</li>
+                        <li>b) Ter três estados de saída: 0, 1 e alta impedância.</li>
+                        <li>c) Operar com três níveis de tensão diferentes.</li>
+                        <li>d) Ser imune a ruído.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Ter três estados de saída: 0, 1 e alta impedância.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O estado de alta impedância (Hi-Z) permite desconectar eletricamente a saída do barramento, possibilitando a partilha do barramento por vários dispositivos.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 11</span>
+                    <p>Qual a principal diferença entre um sinal analógico e um sinal digital?</p>
+                    <ul>
+                        <li>a) O analógico varia continuamente; o digital em passos discretos.</li>
+                        <li>b) O analógico é sempre binário.</li>
+                        <li>c) O digital é mais suscetível a ruído.</li>
+                        <li>d) Não há diferença prática.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> a) O analógico varia continuamente; o digital em passos discretos.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O sinal analógico pode assumir qualquer valor num intervalo contínuo. O digital é representado por valores discretos (0 e 1) e é mais imune a ruído.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 12</span>
+                    <p>Segundo o Teorema de De Morgan, a expressão (A + B)' é equivalente a:</p>
+                    <ul>
+                        <li>a) A' · B'</li>
+                        <li>b) A' + B'</li>
+                        <li>c) A · B</li>
+                        <li>d) A + B</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> a) A' · B'
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O Teorema de De Morgan afirma que a negação de uma disjunção é a conjunção das negações: (A + B)' = A' · B'.
+                </div>
+            </div>`,
+
+            // Página 18 - Parabéns
+            `<div class="congrats-page">
+                <h2>🎉 Parabéns!</h2>
+                <p style="margin-top: 20px;">Você concluiu a <strong>Parte 1: Fundamentos de Eletrónica Digital</strong>, cobrindo Sistemas de Numeração, Conversão de Dados (ADCs e DACs) e Circuitos Lógicos.</p>
+                <div class="congrats-image">
+                    <img src="https://media.tenor.com/1Gq9HnEJ5wMAAAAM/shih-tzu-shihtzu.gif" alt="Parabéns">
+                </div>
+                <p style="margin-top: 20px;">Bons estudos! Avise quando estiver pronto para a Parte 2 (Data Buses e Fibra Ótica).</p>
+            </div>`
+        ];
+
+        const totalPages = pageContents.length;
+        let currentPage = 0;
+        let fontSizeIndex = 4;
+        const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 38, 42];
+
+        const pageContent = document.getElementById('pageContent');
+        const pageXofY = document.getElementById('pageXofY');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const fontMinus = document.getElementById('fontMinusBtn');
+        const fontPlus = document.getElementById('fontPlusBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const prevBtn = document.getElementById('prevBtnInline');
+        const nextBtn = document.getElementById('nextBtnInline');
+        const speakBtn = document.getElementById('speakBtn');
+        const lerSelecaoBtn = document.getElementById('lerSelecaoBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const rateSelect = document.getElementById('rateSelect');
+        const encerrarBtn = document.getElementById('encerrarBtn');
+
+        const synth = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+        let isPaused = false;
+        let speechToken = null;
+        let previousActiveSpan = null;
+        let wordSpans = [];
+        let charIndexToSpanMap = [];
+        let currentCharIndex = 0;
+
+        let selectionUtterance = null;
+        let isReadingSelection = false;
+        let isSelectionPaused = false;
+        let selectionToken = null;
+        let selectionWordSpans = [];
+        let selectionCharMap = [];
+        let selectionPrevSpan = null;
+        let lastSelectionRange = null;
+        let lastSelectionText = '';
+
+        document.addEventListener('selectionchange', function() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    lastSelectionRange = range.cloneRange();
+                    lastSelectionText = sel.toString().trim();
+                }
+            }
+        });
+
+        function getActiveSelectionRange() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    return range.cloneRange();
+                }
+            }
+            if (lastSelectionRange && lastSelectionText) return lastSelectionRange;
+            return null;
+        }
+
+        function getFemaleVoice() {
+            const voices = synth.getVoices();
+            const ptVoices = voices.filter(v => v.lang === 'pt-BR');
+            const female = ptVoices.find(v =>
+                v.name.toLowerCase().includes('female') ||
+                v.name.toLowerCase().includes('mulher') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Maria')
+            );
+            return female || ptVoices[0] || voices[0];
+        }
+
+        function tokenizeTextNodes(root) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            const textNodes = [];
+            while (walker.nextNode()) {
+                textNodes.push(walker.currentNode);
+            }
+            textNodes.forEach(node => {
+                const text = node.textContent;
+                if (!text.trim()) return;
+                if (node.parentNode && (node.parentNode.tagName === 'PRE' || node.parentNode.tagName === 'CODE')) return;
+                const fragment = document.createDocumentFragment();
+                const parts = text.split(/(\s+)/);
+                parts.forEach(part => {
+                    if (part.trim()) {
+                        const span = document.createElement('span');
+                        span.className = 'speech-word';
+                        span.textContent = part;
+                        fragment.appendChild(span);
+                    } else {
+                        fragment.appendChild(document.createTextNode(part));
+                    }
+                });
+                node.parentNode.replaceChild(fragment, node);
+            });
+        }
+
+        function buildCharMapForSpans(spans) {
+            const map = [];
+            spans.forEach((span, idx) => {
+                const len = span.textContent.length;
+                for (let i = 0; i < len; i++) map.push(idx);
+                if (idx < spans.length - 1) map.push(idx);
+            });
+            return map;
+        }
+
+        function buildCharMap() {
+            wordSpans = Array.from(pageContent.querySelectorAll('.speech-word'));
+            charIndexToSpanMap = buildCharMapForSpans(wordSpans);
+        }
+
+        function highlightWordSpan(spanIndex) {
+            if (previousActiveSpan !== null) {
+                const prevSpan = wordSpans[previousActiveSpan];
+                if (prevSpan) {
+                    prevSpan.classList.remove('active');
+                    prevSpan.classList.remove('upcoming');
+                }
+            }
+            if (spanIndex >= 0 && spanIndex < wordSpans.length) {
+                const currentSpan = wordSpans[spanIndex];
+                currentSpan.classList.add('active');
+                currentSpan.classList.remove('upcoming');
+                previousActiveSpan = spanIndex;
+                currentSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function markUpcoming(spanIndex) {
+            wordSpans.forEach(s => s.classList.remove('upcoming'));
+            for (let i = 1; i <= 3; i++) {
+                const nextIdx = spanIndex + i;
+                if (nextIdx < wordSpans.length) {
+                    wordSpans[nextIdx].classList.add('upcoming');
+                }
+            }
+        }
+
+        function clearAllWordHighlights() {
+            wordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            previousActiveSpan = null;
+        }
+
+        function syncHighlightFromCharIndex() {
+            if (currentCharIndex >= charIndexToSpanMap.length) return;
+            const spanIdx = charIndexToSpanMap[currentCharIndex];
+            if (spanIdx !== undefined && spanIdx !== previousActiveSpan) {
+                highlightWordSpan(spanIdx);
+                markUpcoming(spanIdx);
+            }
+        }
+
+        function highlightSelectionWord(spanIdx) {
+            if (selectionPrevSpan !== null) {
+                const prev = selectionWordSpans[selectionPrevSpan];
+                if (prev) {
+                    prev.classList.remove('active');
+                    prev.classList.remove('upcoming');
+                }
+            }
+            if (spanIdx >= 0 && spanIdx < selectionWordSpans.length) {
+                const curr = selectionWordSpans[spanIdx];
+                curr.classList.add('active');
+                curr.classList.remove('upcoming');
+                selectionPrevSpan = spanIdx;
+                curr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            selectionWordSpans.forEach((s, i) => {
+                if (i !== spanIdx) s.classList.remove('upcoming');
+            });
+            for (let i = 1; i <= 3; i++) {
+                const next = selectionWordSpans[spanIdx + i];
+                if (next) next.classList.add('upcoming');
+            }
+        }
+
+        function clearSelectionHighlights() {
+            selectionWordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            selectionPrevSpan = null;
+        }
+
+        function showPlayingUI() {
+            speakBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            stopBtn.classList.remove('hidden');
+            resumeBtn.classList.add('hidden');
+        }
+
+        function showPausedUI() {
+            pauseBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+            resumeBtn.classList.remove('hidden');
+            speakBtn.classList.add('hidden');
+        }
+
+        function showStoppedUI() {
+            speakBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+        }
+
+        function setSelectionBtnState(state) {
+            lerSelecaoBtn.classList.remove('reading', 'paused');
+            if (state === 'reading') {
+                lerSelecaoBtn.textContent = '⏸️ Pausar';
+                lerSelecaoBtn.title = 'Pausar leitura da seleção';
+                lerSelecaoBtn.classList.add('reading');
+            } else if (state === 'paused') {
+                lerSelecaoBtn.textContent = '▶️ Retomar';
+                lerSelecaoBtn.title = 'Retomar leitura da seleção';
+                lerSelecaoBtn.classList.add('paused');
+            } else {
+                lerSelecaoBtn.textContent = '📖 Ler Seleção';
+                lerSelecaoBtn.title = 'Ler somente o trecho selecionado';
+            }
+        }
+
+        function startReading() {
+            if (!synth) { alert('Seu navegador não suporta síntese de voz.'); return; }
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+
+            if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+                return;
+            }
+            if (isSpeaking) { stopReading(); return; }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+            }
+            buildCharMap();
+            if (wordSpans.length === 0) return;
+
+            const text = wordSpans.map(s => s.textContent).join(' ');
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) currentUtterance.voice = voice;
+            currentUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            speechToken = token;
+            currentCharIndex = 0;
+
+            currentUtterance.onboundary = function(event) {
+                if (speechToken !== token) return;
+                if (event.name === 'word') {
+                    currentCharIndex = event.charIndex;
+                    syncHighlightFromCharIndex();
+                }
+            };
+            currentUtterance.onstart = function() {
+                if (speechToken !== token) return;
+                isSpeaking = true;
+                isPaused = false;
+                showPlayingUI();
+            };
+            currentUtterance.onend = function() {
+                if (speechToken !== token) return;
+                resetSpeechState();
+            };
+            currentUtterance.onerror = function(e) {
+                if (speechToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Speech error:', e.error);
+                resetSpeechState();
+            };
+
+            synth.speak(currentUtterance);
+        }
+
+        function pauseReading() {
+            if (synth && isSpeaking && !isPaused) {
+                synth.pause();
+                isPaused = true;
+                showPausedUI();
+            }
+        }
+
+        function resumeReading() {
+            if (synth && isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+            }
+        }
+
+        function stopReading() {
+            if (synth) synth.cancel();
+            resetSpeechState();
+        }
+
+        function resetSpeechState() {
+            if (synth && synth.speaking) synth.cancel();
+            if (currentUtterance) {
+                currentUtterance.onboundary = null;
+                currentUtterance.onstart = null;
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+                currentUtterance = null;
+            }
+            isSpeaking = false;
+            isPaused = false;
+            speechToken = null;
+            currentCharIndex = 0;
+            clearAllWordHighlights();
+            showStoppedUI();
+        }
+
+        function startSelectionReading() {
+            if (!synth) { alert('Seu navegador não suporta síntese de voz.'); return; }
+            if (isSpeaking || isPaused) stopReading();
+
+            const range = getActiveSelectionRange();
+            if (!range) {
+                alert('Nenhum texto selecionado. Selecione um trecho e clique em "Ler Seleção".');
+                return;
+            }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+                const newRange = getActiveSelectionRange();
+                if (!newRange) {
+                    alert('Selecione novamente o trecho desejado.');
+                    return;
+                }
+                return startSelectionReadingWithRange(newRange);
+            }
+
+            startSelectionReadingWithRange(range);
+        }
+
+        function startSelectionReadingWithRange(range) {
+            const spans = [];
+            pageContent.querySelectorAll('.speech-word').forEach(span => {
+                try {
+                    if (range.intersectsNode(span)) spans.push(span);
+                } catch(e) {}
+            });
+
+            if (spans.length === 0) {
+                alert('Nenhum texto selecionado. Selecione um trecho e clique em "Ler Seleção".');
+                return;
+            }
+
+            selectionWordSpans = spans;
+            selectionCharMap = buildCharMapForSpans(selectionWordSpans);
+            clearSelectionHighlights();
+
+            const text = spans.map(s => s.textContent).join(' ');
+            selectionUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) selectionUtterance.voice = voice;
+            selectionUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            selectionToken = token;
+
+            selectionUtterance.onboundary = function(event) {
+                if (selectionToken !== token) return;
+                if (event.name === 'word') {
+                    const charIdx = event.charIndex;
+                    if (charIdx < selectionCharMap.length) {
+                        const spanIdx = selectionCharMap[charIdx];
+                        if (spanIdx !== undefined) highlightSelectionWord(spanIdx);
+                    }
+                }
+            };
+            selectionUtterance.onstart = function() {
+                if (selectionToken !== token) return;
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+                stopBtn.classList.remove('hidden');
+            };
+            selectionUtterance.onend = function() {
+                if (selectionToken !== token) return;
+                resetSelectionState();
+            };
+            selectionUtterance.onerror = function(e) {
+                if (selectionToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Selection speech error:', e.error);
+                resetSelectionState();
+            };
+
+            synth.speak(selectionUtterance);
+        }
+
+        function toggleSelectionReading() {
+            if (isReadingSelection) {
+                synth.pause();
+                isReadingSelection = false;
+                isSelectionPaused = true;
+                setSelectionBtnState('paused');
+            } else if (isSelectionPaused) {
+                synth.resume();
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+            } else {
+                startSelectionReading();
+            }
+        }
+
+        function stopSelectionReading() {
+            if (synth && (isReadingSelection || isSelectionPaused)) synth.cancel();
+            resetSelectionState();
+        }
+
+        function resetSelectionState() {
+            if (selectionUtterance) {
+                selectionUtterance.onboundary = null;
+                selectionUtterance.onstart = null;
+                selectionUtterance.onend = null;
+                selectionUtterance.onerror = null;
+                selectionUtterance = null;
+            }
+            isReadingSelection = false;
+            isSelectionPaused = false;
+            selectionToken = null;
+            clearSelectionHighlights();
+            setSelectionBtnState('idle');
+            stopBtn.classList.add('hidden');
+        }
+
+        function updateUI() {
+            resetSpeechState();
+            resetSelectionState();
+            pageContent.innerHTML = pageContents[currentPage];
+            tokenizeTextNodes(pageContent);
+            lastSelectionRange = null;
+            lastSelectionText = '';
+
+            const num = currentPage + 1;
+            pageXofY.textContent = `Página ${num} de ${totalPages}`;
+            const pct = (num / totalPages) * 100;
+            progressFill.style.width = pct + '%';
+            progressPercent.textContent = Math.round(pct) + '%';
+            prevBtn.disabled = (currentPage === 0);
+            nextBtn.disabled = (currentPage === totalPages - 1);
+
+            if (currentPage === totalPages - 1) {
+                encerrarBtn.classList.remove('hidden');
+            } else {
+                encerrarBtn.classList.add('hidden');
+            }
+
+            if (pageContent.scrollTop) pageContent.scrollTop = 0;
+        }
+
+        function applyFontSize() {
+            const size = fontSizes[fontSizeIndex] + 'px';
+            pageContent.style.fontSize = size;
+            fontMinus.disabled = (fontSizeIndex === 0);
+            fontPlus.disabled = (fontSizeIndex === fontSizes.length - 1);
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 0 && newPage < totalPages) {
+                currentPage = newPage;
+                updateUI();
+            }
+        }
+
+        fontMinus.addEventListener('click', () => {
+            if (fontSizeIndex > 0) fontSizeIndex--;
+            applyFontSize();
+        });
+        fontPlus.addEventListener('click', () => {
+            if (fontSizeIndex < fontSizes.length - 1) fontSizeIndex++;
+            applyFontSize();
+        });
+        fullscreenBtn.addEventListener('click', () => {
+            if (document.fullscreenElement) document.exitFullscreen();
+            else document.documentElement.requestFullscreen();
+        });
+        prevBtn.addEventListener('click', () => changePage(-1));
+        nextBtn.addEventListener('click', () => changePage(1));
+
+        speakBtn.addEventListener('click', startReading);
+        pauseBtn.addEventListener('click', pauseReading);
+        resumeBtn.addEventListener('click', resumeReading);
+        stopBtn.addEventListener('click', () => {
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+            if (isSpeaking || isPaused) stopReading();
+        });
+
+        lerSelecaoBtn.addEventListener('click', toggleSelectionReading);
+
+        rateSelect.addEventListener('change', () => {
+            const rate = parseFloat(rateSelect.value);
+            if (currentUtterance && isSpeaking && !isPaused) currentUtterance.rate = rate;
+            if (selectionUtterance && isReadingSelection && !isSelectionPaused) selectionUtterance.rate = rate;
+        });
+
+        encerrarBtn.addEventListener('click', () => {
+            if (synth) synth.cancel();
+            window.open('about:blank', '_blank');
+        });
+
+        applyFontSize();
+        updateUI();
+        if (synth) synth.getVoices();
+    })();
+</script>
+</body>
+</html>
