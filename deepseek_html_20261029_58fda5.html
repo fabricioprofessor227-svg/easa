@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Quiz 3 · Eletrónica Digital e Sistemas</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #eef2f7;
+            color: #2d3748;
+            line-height: 1.5;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            margin: 0;
+        }
+        .quiz-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(45, 55, 72, 0.08);
+            padding: 20px 24px;
+            border: 1px solid #cbd5e0;
+            height: 90vh; /* Altura fixa em 90% */
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+        }
+        .screen { display: none; }
+        .screen.active { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .blank-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+        .blank-screen.active { display: block; }
+        .wrapper-blank {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .header-container {
+            flex-shrink: 0;
+        }
+
+        /* Controlos de Acessibilidade */
+        .font-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .font-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1rem;
+            transition: 0.15s;
+        }
+        .font-btn:hover { background: #cbd5e0; }
+
+        .title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2b6cb0;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        #questionArea {
+            flex-grow: 1;
+            overflow-y: auto; 
+            padding-right: 5px;
+            margin-bottom: 10px;
+        }
+        
+        /* Fontes duplicadas para as perguntas */
+        .question-text {
+            font-size: 3rem; 
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.3;
+            color: #2d3748;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        /* Fontes duplicadas para as respostas */
+        .opt-btn {
+            background: #edf2f7;
+            border: 1px solid #a0aec0;
+            padding: 18px 24px;
+            font-size: 2.2rem; 
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #2d3748;
+            text-align: left;
+            width: 100%;
+            font-weight: 500;
+        }
+        .opt-btn:hover {
+            background: #e2e8f0;
+            border-color: #718096;
+        }
+        .opt-btn.selected {
+            background: #2b6cb0;
+            color: #ffffff;
+            border-color: #2b6cb0;
+        }
+        /* Fontes duplicadas para as justificativas */
+        .feedback {
+            margin-top: 18px;
+            padding: 18px 22px;
+            border-radius: 16px;
+            font-size: 1.8rem;
+            line-height: 1.4;
+            display: none;
+        }
+        .feedback.correct { background: #f0fff4; border-left: 8px solid #38a169; }
+        .feedback.wrong { background: #fff5f5; border-left: 8px solid #e53e3e; }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-top: 10px;
+        }
+        .tool-btn {
+            background: #edf2f7;
+            border: 1px solid #a0aec0;
+            padding: 14px 0;
+            font-size: 1.1rem;
+            border-radius: 48px;
+            width: 140px; /* Tamanho fixo */
+            flex: none;
+            text-align: center;
+            cursor: pointer;
+            color: #2d3748;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+        .tool-btn:hover:not(:disabled) {
+            background: #e2e8f0;
+            border-color: #718096;
+        }
+        .tool-btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .progress {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            color: #2b6cb0;
+            text-align: right;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .result-screen { text-align: center; justify-content: center !important; }
+        .result-box {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 24px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+        .action-btn {
+            background: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: 0.15s;
+        }
+        .action-btn:hover { background: #2c5282; }
+        .action-btn.end-btn { background: #dd6b20; }
+        .action-btn.end-btn:hover { background: #c05621; }
+        .stats { font-size: 1.1rem; line-height: 1.8; }
+
+        .capa { text-align: center; padding: 30px 10px; }
+        .capa h1 { font-size: 26px; margin-bottom: 16px; color: #2b6cb0; }
+        .capa h2 { font-size: 17px; margin-bottom: 12px; color: #dd6b20; }
+        .capa .subtitulo { font-size: 14px; color: #4a5568; margin-bottom: 8px; }
+        .capa .info-quiz { font-size: 15px; color: #718096; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .start-btn {
+            background: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 22px;
+            font-weight: bold;
+            transition: 0.15s;
+        }
+        .start-btn:hover { background: #2c5282; }
+
+        @media (max-width: 800px) {
+            .quiz-wrapper { padding: 12px; }
+            .question-text { font-size: 2rem; }
+            .opt-btn { font-size: 1.5rem; padding: 14px 18px;}
+            .feedback { font-size: 1.3rem; }
+            .tool-btn { width: 110px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-wrapper" id="mainWrapper">
+    <!-- TELA DE CAPA -->
+    <div id="capaScreen" class="screen active">
+        <div class="capa">
+            <h1>📝 Quiz 3</h1>
+            <h2>Eletrónica Digital e Sistemas de Aeronaves</h2>
+            <p class="subtitulo">Revisão baseada no Teste-01 e Módulo 5B2</p>
+            <p class="info-quiz">20 questões objetivas (Múltipla Escolha)</p>
+            <button class="start-btn" id="startQuizBtn">▶ Iniciar Quiz</button>
+        </div>
+    </div>
+
+    <!-- TELA DO QUIZ -->
+    <div id="quizScreen" class="screen">
+        <div class="header-container">
+            <div class="font-controls">
+                <button class="font-btn" id="fontMinus">A−</button>
+                <button class="font-btn" id="fontPlus">A+</button>
+                <button class="font-btn" id="fullscreenBtn">⛶ Tela cheia</button>
+            </div>
+            <div class="title">📖 Eletrónica Digital</div>
+            <div class="progress" id="progressText">Questão 1 de 20</div>
+        </div>
+        
+        <div id="questionArea">
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="optionsArea"></div>
+            <div class="feedback" id="feedbackArea" style="display: none;"></div>
+        </div>
+        
+        <div class="toolbar">
+            <button class="tool-btn" id="prevBtn" disabled>◀ Anterior</button>
+            <button class="tool-btn" id="nextBtn">Próxima ▶</button>
+        </div>
+    </div>
+
+    <!-- TELA DE RESULTADO -->
+    <div id="resultScreen" class="screen result-screen">
+        <h2>🙏 Parabéns! Você concluiu o Quiz 3.</h2>
+        <div class="result-box" id="resultContent"></div>
+        <button class="action-btn" id="restartQuizBtn">🔄 Refazer quiz</button>
+        <button class="action-btn end-btn" id="endQuizBtn">🏁 Encerrar</button>
+    </div>
+
+    <!-- TELA EM BRANCO -->
+    <div class="blank-screen" id="blankScreen"></div>
+</div>
+
+<script>
+    const questions = [
+        {
+            text: "Durante o funcionamento do processador, qual é a função da unidade Timing & Control?",
+            options: [
+                "Gerar apenas os sinais utilizados pelos periféricos de saída.",
+                "Coordenar as operações internas do CPU e a sua sequência de execução.",
+                "Determinar exclusivamente o tempo de acesso à memória ROM."
+            ],
+            correctIndex: 1,
+            justification: "A unidade de Controlo e Temporização (Timing & Control) gere e coordena todas as operações internas do CPU, gerando os sinais de controlo e sincronizando a sequência de execução das instruções (fetch-decode-execute)."
+        },
+        {
+            text: "Dois Flight Management Computers estão disponíveis e o sistema opera sem degradação. A que condição corresponde o funcionamento em dual mode?",
+            options: [
+                "Ao modo normal de funcionamento do sistema.",
+                "Ao funcionamento de emergência com apenas um FMC disponível.",
+                "Ao primeiro nível de degradação do sistema."
+            ],
+            correctIndex: 0,
+            justification: "No modo 'dual', ambos os FMCs (ou computadores de voo) estão operacionais e a trabalhar em conjunto, o que corresponde ao modo normal de funcionamento do sistema, sem degradação."
+        },
+        {
+            text: "Num circuito sequencial síncrono, quando ocorrem normalmente as alterações de estado das saídas?",
+            options: [
+                "Em instantes determinados pelo sinal de clock.",
+                "Imediatamente após qualquer alteração das entradas, independentemente do clock.",
+                "Apenas quando a alimentação do circuito é interrompida e restabelecida."
+            ],
+            correctIndex: 0,
+            justification: "Em circuitos sequenciais síncronos, as mudanças de estado das saídas (flip-flops) ocorrem em instantes sincronizados pelo sinal de clock (relógio), garantindo previsibilidade e evitando condições de corrida."
+        },
+        {
+            text: "Um multiplexador deverá selecionar individualmente uma de 16 entradas e encaminhá-la para uma única saída. Quantas linhas de seleção são necessárias?",
+            options: [
+                "16 linhas de seleção.",
+                "8 linhas de seleção.",
+                "4 linhas de seleção."
+            ],
+            correctIndex: 2,
+            justification: "O número de linhas de seleção (n) é determinado pela potência de 2 que resulta no número de entradas. Como 2⁴ = 16, são necessárias 4 linhas de seleção para endereçar as 16 entradas de um multiplexador (MUX)."
+        },
+        {
+            text: "Num conversor A/D, vários intervalos consecutivos de quantificação constituem um determinado nível de quantificação. Como é definido esse nível?",
+            options: [
+                "Apenas pelo maior intervalo de quantificação existente.",
+                "Por um único intervalo de quantificação, independentemente dos restantes.",
+                "Pela soma dos intervalos de quantificação correspondentes."
+            ],
+            correctIndex: 2,
+            justification: "O nível de quantificação (quantization level) representa um valor discreto de tensão. A transição de um nível para outro envolve a soma dos intervalos (degraus) de quantificação desde o zero até àquele nível."
+        },
+        {
+            text: "Para evitar erros de contagem devido ao atraso de propagação em altas frequências num contador, que solução deve ser adotada?",
+            options: [
+                "Utilizar a saída de cada flip-flop como clock do estágio seguinte.",
+                "Utilizar um contador síncrono com clock comum aos flip-flops.",
+                "Aumentar o número de estágios de um contador assíncrono."
+            ],
+            correctIndex: 1,
+            justification: "Contadores assíncronos (ripple) sofrem do efeito de atraso de propagação. Para altas frequências, deve-se usar um contador síncrono, onde o sinal de clock é aplicado simultaneamente a todos os flip-flops."
+        },
+        {
+            text: "Um conversor A/D utiliza uma palavra digital de 6 bits para representar o sinal de entrada. Quantos níveis distintos estão disponíveis?",
+            options: [
+                "64 níveis.",
+                "36 níveis.",
+                "32 níveis."
+            ],
+            correctIndex: 0,
+            justification: "O número de níveis de quantificação é dado por 2ⁿ, onde n é o número de bits. Para 6 bits, 2⁶ = 64 níveis distintos."
+        },
+        {
+            text: "Um shift register contém o número binário 001101. Depois de deslocar todos os bits uma posição para a esquerda, qual será o novo valor, desprezando overflow?",
+            options: [
+                "001111",
+                "000110",
+                "011010"
+            ],
+            correctIndex: 2,
+            justification: "Ao deslocar os bits para a esquerda, o bit mais à esquerda é descartado (overflow) e um zero é inserido à direita. O valor 001101 passa a ser 011010."
+        },
+        {
+            text: "Um circuito recebe um sinal ativo numa de várias entradas e produz na saída um código binário correspondente à entrada selecionada. Que circuito está a ser descrito?",
+            options: [
+                "Codificador.",
+                "Descodificador.",
+                "Registo de deslocamento."
+            ],
+            correctIndex: 0,
+            justification: "O Codificador (Encoder) realiza a função inversa do descodificador: recebe uma entrada ativa (ex: decimal) e converte-a num código binário correspondente."
+        },
+        {
+            text: "Entre os componentes seguintes, qual apresenta menor suscetibilidade aos efeitos da eletricidade estática?",
+            options: [
+                "RAM.",
+                "MOSFET.",
+                "SCR."
+            ],
+            correctIndex: 2,
+            justification: "Dispositivos semicondutores de potência como o SCR (Silicon Controlled Rectifier) possuem estruturas físicas mais robustas e maiores dimensões, tornando-os menos suscetíveis a danos por descargas eletrostáticas (ESD) em comparação com microeletrónica como MOSFETs ou memórias RAM."
+        },
+        {
+            text: "Numa aeronave ligeira equipada com MFD, que combinação de informação pode normalmente ser consultada neste visor?",
+            options: [
+                "Apenas atitude, velocidade e altitude.",
+                "Informação de navegação e parâmetros primários do motor.",
+                "Exclusivamente mensagens relativas aos sistemas da aeronave."
+            ],
+            correctIndex: 1,
+            justification: "O Multi-Function Display (MFD) em aeronaves ligeiras (como o Garmin G1000) é utilizado para apresentar o mapa de navegação móvel (moving map) e, simultaneamente, a instrumentação do motor (engine gauges)."
+        },
+        {
+            text: "Para que dois equipamentos ligados por ARINC 429 possam trocar informação nos dois sentidos, qual configuração é necessária?",
+            options: [
+                "Uma ligação paralela de 32 condutores utilizada alternadamente pelos dois equipamentos.",
+                "Um único par entrelaçado que altera automaticamente o sentido da transmissão.",
+                "Dois canais unidirecionais, um para cada sentido de transmissão."
+            ],
+            correctIndex: 2,
+            justification: "O barramento ARINC 429 é unidirecional (simplex). Para haver comunicação bidirecional entre dois equipamentos, são necessários dois pares de fios independentes (dois canais unidirecionais)."
+        },
+        {
+            text: "Durante o voo, onde consulta normalmente a tripulação os parâmetros primários dos motores num sistema EICAS?",
+            options: [
+                "No visor inferior do ECAM.",
+                "Na MCDU do FMS.",
+                "No visor superior do EICAS."
+            ],
+            correctIndex: 2,
+            justification: "No EICAS (Engine Indication and Crew Alerting System), o visor superior (Upper Display Unit) está permanentemente dedicado à apresentação dos parâmetros primários do motor (ex: N1, EGT) e mensagens de alerta."
+        },
+        {
+            text: "O piloto pretende verificar imediatamente a atitude e a velocidade da aeronave sem recorrer aos instrumentos de standby. Em que visor EFIS encontra normalmente estas informações?",
+            options: [
+                "EWIS.",
+                "PFD.",
+                "NDT."
+            ],
+            correctIndex: 1,
+            justification: "O Primary Flight Display (PFD) integra a atitude (atitude indicator), velocidade (airspeed tape) e altitude, fornecendo os dados primários essenciais para o controlo do voo."
+        },
+        {
+            text: "O microprocessador pretende ler uma instrução guardada na localização 3A20H da memória. Que barramento é responsável por indicar essa localização?",
+            options: [
+                "Barramento de dados.",
+                "Barramento de controlo.",
+                "Barramento de endereços."
+            ],
+            correctIndex: 2,
+            justification: "O barramento de endereços (Address Bus) é o canal unidirecional utilizado pelo CPU para enviar o endereço de memória (ex: 3A20H) onde se encontra a instrução ou dado que se deseja aceder."
+        },
+        {
+            text: "Na configuração inicial do EICAS eram utilizados dois computadores dedicados redundantes. Como funcionavam normalmente?",
+            options: [
+                "Um permanecia ativo e o outro em standby.",
+                "Ambos funcionavam sem qualquer redundância entre si.",
+                "Um era dedicado exclusivamente ao piloto e o outro exclusivamente ao copiloto."
+            ],
+            correctIndex: 0,
+            justification: "Para garantir redundância, o EICAS opera com dois computadores: um fica 'Ativo' (a controlar os visores) e o outro fica em 'Standby' (hot backup), assumindo automaticamente em caso de falha do primeiro."
+        },
+        {
+            text: "Num ensaio segundo o Human Body Model (HBM), pretende-se simular a energia eletrostática acumulada numa pessoa antes de ocorrer a descarga para um dispositivo. Qual conjunto representa o modelo utilizado?",
+            options: [
+                "250 pF em série com uma resistência de 100 Ω.",
+                "150 pF ligado diretamente ao dispositivo sem resistência.",
+                "100 pF em conjunto com uma resistência série de 1,5 kΩ."
+            ],
+            correctIndex: 2,
+            justification: "O Human Body Model (HBM) padrão simula a descarga do corpo humano através de um condensador de 100 pF, descarregado através de uma resistência em série de 1,5 kΩ."
+        },
+        {
+            text: "Num circuito, a entrada X passa primeiro por um inversor e depois é aplicada, juntamente com Y, a uma porta AND. Qual combinação permite obter 1 na saída?",
+            options: [
+                "X = 0 e Y = 1.",
+                "X = 1 e Y = 0.",
+                "X = 1 e Y = 1."
+            ],
+            correctIndex: 0,
+            justification: "A expressão lógica é (NOT X) AND Y. Para a saída ser 1, ambos os termos têm de ser 1. Logo, NOT X = 1 (o que significa X = 0) e Y = 1. A combinação é X = 0 e Y = 1."
+        },
+        {
+            text: "Durante o voo, é detetada outra aeronave com uma trajetória potencialmente conflituosa. Que sistema está especificamente destinado a fornecer alertas relativos a este tipo de ameaça?",
+            options: [
+                "EICAS.",
+                "TCAS.",
+                "BITE."
+            ],
+            correctIndex: 1,
+            justification: "O TCAS (Traffic Alert and Collision Avoidance System) monitoriza o espaço aéreo e emite avisos de tráfego (TAs) e avisos de resolução (RAs) para evitar colisões entre aeronaves."
+        },
+        {
+            text: "Num CRT com deflexão eletromagnética, as correntes responsáveis pelos movimentos horizontal e vertical do feixe são simultaneamente reduzidas a zero. Qual será a posição resultante do feixe?",
+            options: [
+                "Na extremidade horizontal do ecrã.",
+                "Na região central do ecrã.",
+                "Num dos cantos do ecrã."
+            ],
+            correctIndex: 1,
+            justification: "Na ausência de corrente nas bobinas de deflexão (horizontal e vertical), não há força magnética a desviar o feixe de eletrões, pelo que este incide diretamente na região central do ecrã (ponto de repouso)."
+        }
+    ];
+
+    const total = questions.length;
+    let currentIndex = 0;
+    let userAnswers = new Array(total).fill(null);
+    let userJustification = new Array(total).fill(null);
+
+    const mainWrapper = document.getElementById('mainWrapper');
+    const capaScreen = document.getElementById('capaScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const blankScreen = document.getElementById('blankScreen');
+    const questionText = document.getElementById('questionText');
+    const optionsArea = document.getElementById('optionsArea');
+    const feedbackArea = document.getElementById('feedbackArea');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressText = document.getElementById('progressText');
+    const startQuizBtn = document.getElementById('startQuizBtn');
+    const restartQuizBtn = document.getElementById('restartQuizBtn');
+    const endQuizBtn = document.getElementById('endQuizBtn');
+    const resultContent = document.getElementById('resultContent');
+    
+    // Controlos de acessibilidade
+    const fontMinus = document.getElementById('fontMinus');
+    const fontPlus = document.getElementById('fontPlus');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    
+    let baseFontSize = 16; // Tamanho base para referência
+
+    fontMinus.addEventListener('click', () => {
+        baseFontSize = Math.max(12, baseFontSize - 2);
+        applyFontSize(baseFontSize);
+    });
+
+    fontPlus.addEventListener('click', () => {
+        baseFontSize = Math.min(30, baseFontSize + 2);
+        applyFontSize(baseFontSize);
+    });
+
+    function applyFontSize(size) {
+        const questionText = document.getElementById('questionText');
+        const optBtns = document.querySelectorAll('.opt-btn');
+        const feedback = document.getElementById('feedbackArea');
+        
+        questionText.style.fontSize = (size * 1.875) + 'px'; // 30px base para 16
+        optBtns.forEach(btn => btn.style.fontSize = (size * 1.375) + 'px'); // 22px base para 16
+        if(feedback) feedback.style.fontSize = (size * 1.125) + 'px'; // 18px base para 16
+    }
+
+    fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Erro ao tentar entrar em tela cheia: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+
+    function renderQuestion() {
+        const q = questions[currentIndex];
+        
+        questionText.innerHTML = `<strong>Questão ${currentIndex + 1}:</strong> ${q.text}`;
+        
+        optionsArea.innerHTML = q.options.map((opt, idx) => 
+            `<button class="opt-btn" data-index="${idx}">${opt}</button>`
+        ).join('');
+
+        feedbackArea.style.display = 'none';
+        feedbackArea.className = 'feedback';
+        
+        const selected = userAnswers[currentIndex];
+        const btns = document.querySelectorAll('.opt-btn');
+        
+        if (selected !== null) {
+            btns.forEach(btn => {
+                if (parseInt(btn.getAttribute('data-index')) === selected) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            if (userJustification[currentIndex]) {
+                const isCorrect = (selected === questions[currentIndex].correctIndex);
+                feedbackArea.classList.add(isCorrect ? 'correct' : 'wrong');
+                feedbackArea.style.display = 'block';
+                feedbackArea.innerHTML = userJustification[currentIndex];
+            }
+        }
+        
+        progressText.innerText = `Questão ${currentIndex + 1} de ${total}`;
+        prevBtn.disabled = (currentIndex === 0);
+        nextBtn.disabled = false;
+        
+        applyFontSize(baseFontSize);
+    }
+
+    function selectAnswer(index) {
+        userAnswers[currentIndex] = index;
+        const q = questions[currentIndex];
+        const isCorrect = (index === q.correctIndex);
+        const correctText = q.options[q.correctIndex];
+        
+        const explanation = 
+            `<strong>${isCorrect ? '✓ Correto!' : '✗ Incorreto'}</strong><br>
+             <strong>Justificativa:</strong> ${q.justification}<br>
+             <span style="font-size:0.85em; opacity:0.8; margin-top:5px; display:block;">Resposta correta: ${correctText}</span>`;
+             
+        userJustification[currentIndex] = explanation;
+        
+        feedbackArea.classList.remove('correct', 'wrong');
+        feedbackArea.classList.add(isCorrect ? 'correct' : 'wrong');
+        feedbackArea.style.display = 'block';
+        feedbackArea.innerHTML = explanation;
+        
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => btn.classList.remove('selected'));
+        
+        const selectedBtn = Array.from(btns).find(btn => parseInt(btn.getAttribute('data-index')) === index);
+        if (selectedBtn) selectedBtn.classList.add('selected');
+        
+        applyFontSize(baseFontSize);
+    }
+
+    optionsArea.addEventListener('click', (e) => {
+        const btn = e.target.closest('.opt-btn');
+        if (btn) selectAnswer(parseInt(btn.getAttribute('data-index')));
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (userAnswers[currentIndex] === null) {
+            alert('Por favor, responda a questão antes de avançar.');
+            return;
+        }
+        if (currentIndex < total - 1) {
+            currentIndex++;
+            renderQuestion();
+        } else {
+            mostrarResultado();
+        }
+    });
+
+    function mostrarResultado() {
+        let acertos = 0;
+        let erros = 0;
+        for (let i = 0; i < total; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] === questions[i].correctIndex) acertos++;
+            else if (userAnswers[i] !== null) erros++;
+        }
+        const percentual = (acertos / total) * 100;
+        const nota = (acertos / total) * 10;
+
+        let mensagem = "";
+        if (percentual >= 85) mensagem = "⭐ Excelente! Você domina os conceitos de eletrónica digital e sistemas de aeronaves.";
+        else if (percentual >= 70) mensagem = "👍 Muito bom! Revise os pontos que errou e tente novamente.";
+        else if (percentual >= 50) mensagem = "📘 Bom, mas dá para melhorar. Releia as justificativas das questões que errou.";
+        else mensagem = "📚 Que tal revisar o conteúdo com calma e depois refazer o quiz?";
+
+        const resultadoHTML = `
+            <div class="stats">
+                <p><strong>✅ Acertos:</strong> ${acertos} (${percentual.toFixed(1)}%)</p>
+                <p><strong>❌ Erros:</strong> ${erros}</p>
+                <p><strong>🎓 Nota (0 a 10):</strong> ${nota.toFixed(1)}</p>
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid #e2e8f0;">
+                <p>${mensagem}</p>
+            </div>
+        `;
+        resultContent.innerHTML = resultadoHTML;
+        quizScreen.classList.remove('active');
+        resultScreen.classList.add('active');
+    }
+
+    function mostrarBlank() {
+        capaScreen.classList.remove('active');
+        quizScreen.classList.remove('active');
+        resultScreen.classList.remove('active');
+        blankScreen.classList.remove('active');
+        blankScreen.classList.add('active');
+        mainWrapper.classList.add('wrapper-blank');
+        blankScreen.innerHTML = '';
+    }
+
+    function refazerQuiz() {
+        userAnswers = new Array(total).fill(null);
+        userJustification = new Array(total).fill(null);
+        currentIndex = 0;
+        mainWrapper.classList.remove('wrapper-blank');
+        blankScreen.classList.remove('active');
+        resultScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        renderQuestion();
+    }
+
+    startQuizBtn.addEventListener('click', () => {
+        capaScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        renderQuestion();
+    });
+
+    restartQuizBtn.addEventListener('click', refazerQuiz);
+    endQuizBtn.addEventListener('click', mostrarBlank);
+</script>
+</body>
+</html>
