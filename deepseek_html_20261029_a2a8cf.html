@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Quiz 2 · Eletrónica Digital e Sistemas</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #eef2f7;
+            color: #2d3748;
+            line-height: 1.5;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            margin: 0;
+        }
+        .quiz-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(45, 55, 72, 0.08);
+            padding: 20px 24px;
+            border: 1px solid #cbd5e0;
+            height: 90vh; /* Altura fixa em 90% */
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+        }
+        .screen { display: none; }
+        .screen.active { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .blank-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+        .blank-screen.active { display: block; }
+        .wrapper-blank {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .header-container {
+            flex-shrink: 0;
+        }
+
+        /* Controlos de Acessibilidade */
+        .font-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .font-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1rem;
+            transition: 0.15s;
+        }
+        .font-btn:hover { background: #cbd5e0; }
+
+        .title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2b6cb0;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        #questionArea {
+            flex-grow: 1;
+            overflow-y: auto; 
+            padding-right: 5px;
+            margin-bottom: 10px;
+        }
+        
+        /* Fontes duplicadas para as perguntas */
+        .question-text {
+            font-size: 3rem; 
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.3;
+            color: #2d3748;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        /* Fontes duplicadas para as respostas */
+        .opt-btn {
+            background: #edf2f7;
+            border: 1px solid #a0aec0;
+            padding: 18px 24px;
+            font-size: 2.2rem; 
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #2d3748;
+            text-align: left;
+            width: 100%;
+            font-weight: 500;
+        }
+        .opt-btn:hover {
+            background: #e2e8f0;
+            border-color: #718096;
+        }
+        .opt-btn.selected {
+            background: #2b6cb0;
+            color: #ffffff;
+            border-color: #2b6cb0;
+        }
+        /* Fontes duplicadas para as justificativas */
+        .feedback {
+            margin-top: 18px;
+            padding: 18px 22px;
+            border-radius: 16px;
+            font-size: 1.8rem;
+            line-height: 1.4;
+            display: none;
+        }
+        .feedback.correct { background: #f0fff4; border-left: 8px solid #38a169; }
+        .feedback.wrong { background: #fff5f5; border-left: 8px solid #e53e3e; }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-top: 10px;
+        }
+        .tool-btn {
+            background: #edf2f7;
+            border: 1px solid #a0aec0;
+            padding: 14px 0;
+            font-size: 1.1rem;
+            border-radius: 48px;
+            width: 140px; /* Tamanho fixo */
+            flex: none;
+            text-align: center;
+            cursor: pointer;
+            color: #2d3748;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+        .tool-btn:hover:not(:disabled) {
+            background: #e2e8f0;
+            border-color: #718096;
+        }
+        .tool-btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .progress {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            color: #2b6cb0;
+            text-align: right;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .result-screen { text-align: center; justify-content: center !important; }
+        .result-box {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 24px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+        .action-btn {
+            background: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: 0.15s;
+        }
+        .action-btn:hover { background: #2c5282; }
+        .action-btn.end-btn { background: #dd6b20; }
+        .action-btn.end-btn:hover { background: #c05621; }
+        .stats { font-size: 1.1rem; line-height: 1.8; }
+
+        .capa { text-align: center; padding: 30px 10px; }
+        .capa h1 { font-size: 26px; margin-bottom: 16px; color: #2b6cb0; }
+        .capa h2 { font-size: 17px; margin-bottom: 12px; color: #dd6b20; }
+        .capa .subtitulo { font-size: 14px; color: #4a5568; margin-bottom: 8px; }
+        .capa .info-quiz { font-size: 15px; color: #718096; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .start-btn {
+            background: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 22px;
+            font-weight: bold;
+            transition: 0.15s;
+        }
+        .start-btn:hover { background: #2c5282; }
+
+        @media (max-width: 800px) {
+            .quiz-wrapper { padding: 12px; }
+            .question-text { font-size: 2rem; }
+            .opt-btn { font-size: 1.5rem; padding: 14px 18px;}
+            .feedback { font-size: 1.3rem; }
+            .tool-btn { width: 110px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-wrapper" id="mainWrapper">
+    <!-- TELA DE CAPA -->
+    <div id="capaScreen" class="screen active">
+        <div class="capa">
+            <h1>📝 Quiz 2</h1>
+            <h2>Eletrónica Digital e Sistemas de Aeronaves</h2>
+            <p class="subtitulo">Revisão baseada no Teste-01 e Módulo 5B2</p>
+            <p class="info-quiz">20 questões objetivas (Múltipla Escolha)</p>
+            <button class="start-btn" id="startQuizBtn">▶ Iniciar Quiz</button>
+        </div>
+    </div>
+
+    <!-- TELA DO QUIZ -->
+    <div id="quizScreen" class="screen">
+        <div class="header-container">
+            <div class="font-controls">
+                <button class="font-btn" id="fontMinus">A−</button>
+                <button class="font-btn" id="fontPlus">A+</button>
+                <button class="font-btn" id="fullscreenBtn">⛶ Tela cheia</button>
+            </div>
+            <div class="title">📖 Eletrónica Digital</div>
+            <div class="progress" id="progressText">Questão 1 de 20</div>
+        </div>
+        
+        <div id="questionArea">
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="optionsArea"></div>
+            <div class="feedback" id="feedbackArea" style="display: none;"></div>
+        </div>
+        
+        <div class="toolbar">
+            <button class="tool-btn" id="prevBtn" disabled>◀ Anterior</button>
+            <button class="tool-btn" id="nextBtn">Próxima ▶</button>
+        </div>
+    </div>
+
+    <!-- TELA DE RESULTADO -->
+    <div id="resultScreen" class="screen result-screen">
+        <h2>🙏 Parabéns! Você concluiu o Quiz 2.</h2>
+        <div class="result-box" id="resultContent"></div>
+        <button class="action-btn" id="restartQuizBtn">🔄 Refazer quiz</button>
+        <button class="action-btn end-btn" id="endQuizBtn">🏁 Encerrar</button>
+    </div>
+
+    <!-- TELA EM BRANCO -->
+    <div class="blank-screen" id="blankScreen"></div>
+</div>
+
+<script>
+    const questions = [
+        {
+            text: "O microprocessador pretende ler uma instrução guardada na localização 3A20H da memória. Que barramento é responsável por indicar essa localização?",
+            options: [
+                "Barramento de dados.",
+                "Barramento de controlo.",
+                "Barramento de endereços."
+            ],
+            correctIndex: 2,
+            justification: "O barramento de endereços (Address Bus) é unidirecional e transporta o endereço da localização de memória que o CPU deseja ler ou escrever. O barramento de dados transporta a informação em si."
+        },
+        {
+            text: "Durante uma operação aritmética, a ALU necessita de guardar temporariamente um resultado para utilização na operação seguinte. Que elemento é utilizado para esse efeito?",
+            options: [
+                "Circuito de entrada/saída.",
+                "Acumulador.",
+                "Memória ROM."
+            ],
+            correctIndex: 1,
+            justification: "O acumulador é um registrador especial dentro do CPU utilizado para armazenar os resultados intermediários de operações aritméticas e lógicas realizadas pela ALU."
+        },
+        {
+            text: "Durante a análise de uma palavra ARINC 429, é verificado o bit 32. Que função está associada a esse bit?",
+            options: [
+                "Verificação de paridade.",
+                "Identificação do recetor da mensagem.",
+                "Seleção da velocidade de transmissão."
+            ],
+            correctIndex: 0,
+            justification: "De acordo com o Módulo 5B2, o MSB (bit 32) de uma palavra ARINC 429 é sempre o bit de paridade (Parity). A paridade é normalmente ímpar (odd parity)."
+        },
+        {
+            text: "Pretende-se ligar 18 equipamentos recetores a uma única fonte de dados ARINC 429. Esta configuração encontra-se dentro da capacidade prevista para um único transmissor?",
+            options: [
+                "Sim, porque um transmissor pode alimentar até 20 recetores.",
+                "Não, porque uma ligação ARINC 429 admite apenas um transmissor e um único recetor.",
+                "Não, porque cada transmissor pode alimentar no máximo 16 recetores."
+            ],
+            correctIndex: 0,
+            justification: "O barramento ARINC 429 suporta uma arquitetura 'single source, multiple sink'. De acordo com a especificação, um único transmissor pode alimentar até 20 recetores."
+        },
+        {
+            text: "Uma mensagem ACARS é enviada através de uma ligação por satélite. Em que formato é transmitida a informação?",
+            options: [
+                "Analógico.",
+                "Digital.",
+                "Analógico ou digital, selecionado manualmente pelo piloto."
+            ],
+            correctIndex: 1,
+            justification: "O sistema ACARS transmite dados via VHF (em formato analógico modulado por desvio de frequência - FSK) ou via SATCOM. Quando transmitido por SATCOM, o formato é digital."
+        },
+        {
+            text: "Um sistema aviónico utiliza dois barramentos redundantes constituídos por cabos STP (Shielded Twisted Pair). A que especificação corresponde esta arquitetura?",
+            options: [
+                "ARINC 429",
+                "ARINC 629",
+                "MIL-STD-1553"
+            ],
+            correctIndex: 2,
+            justification: "O padrão MIL-STD-1553B utiliza uma arquitetura de barramento duplo redundante (dual redundant), com cabos de par entrelaçado blindado (STP), operando em modo half-duplex e controlado por um Bus Controller."
+        },
+        {
+            text: "Ao consultar o PFD, em que zona do visor é normalmente apresentada a indicação de altitude barométrica?",
+            options: [
+                "No lado direito.",
+                "No lado esquerdo.",
+                "Na zona inferior reservada à informação de navegação."
+            ],
+            correctIndex: 0,
+            justification: "No layout padrão 'Basic-T' dos PFDs (Primary Flight Displays), a fita de velocidade (Airspeed) fica à esquerda, a atitude no centro, e a fita de altitude (Altimeter) fica à direita."
+        },
+        {
+            text: "Um programa escrito em Assembly para o 8085 necessita de ser transformado antes de poder ser executado diretamente pelo processador. Qual afirmação está de acordo com esta característica?",
+            options: [
+                "A linguagem Assembly é utilizada exclusivamente para controlar dispositivos de entrada e saída.",
+                "A linguagem é utilizada para orientar o CPU, mas não é diretamente entendida por este, necessitando de tradução.",
+                "A linguagem Assembly é executada diretamente pelo CPU sem qualquer processo de tradução."
+            ],
+            correctIndex: 1,
+            justification: "A linguagem Assembly é uma linguagem de baixo nível (usando mnemónicas), mas o CPU só entende código de máquina binário. Portanto, o código Assembly precisa de ser traduzido por um programa 'assembler' antes da execução."
+        },
+        {
+            text: "Pretende-se selecionar, entre um conversor integrador e um conversor Flash, aquele que oferece maior precisão na conversão A/D. Qual deverá ser escolhido?",
+            options: [
+                "Ambos apresentam necessariamente a mesma precisão.",
+                "Conversor Flash.",
+                "Conversor integrador."
+            ],
+            correctIndex: 2,
+            justification: "O conversor tipo integrador (Integrating ADC) oferece alta precisão e excelente imunidade a ruído, embora seja mais lento. O conversor Flash é extremamente rápido, mas tem menor resolução e precisão para o mesmo custo."
+        },
+        {
+            text: "O resultado da soma binária 110010 + 10101 é:",
+            options: [
+                "1000111",
+                "1110111",
+                "1010111"
+            ],
+            correctIndex: 0,
+            justification: "110010₂ (50) + 010101₂ (21) = 1000111₂ (71). Fazendo a soma: 0+1=1; 1+0=1; 0+1=1; 0+0=0; 1+1=10 (escreve 0, vai 1); 1+1+0+1 (carry) = 11 (escreve 1, vai 1). Resultado: 1000111."
+        },
+        {
+            text: "Num EFIS de uma aeronave de transporte, que função desempenha o gerador de símbolos (Symbol Generator)?",
+            options: [
+                "Produzir o grafismo apresentado no PFD e no ND.",
+                "Gerar apenas as mensagens apresentadas pelo ECAM.",
+                "Produzir exclusivamente as páginas apresentadas na MCDU."
+            ],
+            correctIndex: 0,
+            justification: "O Symbol Generator Unit (SGU) ou Display Processor é o computador que recebe os dados dos sensores e gera os símbolos e gráficos (raster e stroke) que são apresentados nos ecrãs do EFIS (PFD e ND)."
+        },
+        {
+            text: "Durante a operação normal de um sistema EICAS, os parâmetros essenciais dos motores devem permanecer permanentemente visíveis à tripulação. Onde são normalmente apresentados?",
+            options: [
+                "No visor inferior.",
+                "Apenas numa página específica de manutenção.",
+                "No visor superior."
+            ],
+            correctIndex: 2,
+            justification: "No sistema EICAS (Boeing), o visor superior (Upper Display Unit) exibe permanentemente os parâmetros primários dos motores (N1, EGT, etc.) e as mensagens de alerta. O visor inferior exibe parâmetros secundários e páginas de sistema."
+        },
+        {
+            text: "Durante o funcionamento de um motor elétrico instalado na aeronave, surgem faíscas no respetivo comutador. Como é classificada esta fonte de interferência eletromagnética?",
+            options: [
+                "Fonte externa de EMI.",
+                "Fonte interna de EMI.",
+                "Interferência exclusivamente provocada por eletricidade atmosférica."
+            ],
+            correctIndex: 1,
+            justification: "Motores e geradores que produzem arcos elétricos (faíscas) entre escovas e comutadores são fontes internas de EMI (Electromagnetic Interference) geradas a bordo da própria aeronave."
+        },
+        {
+            text: "Um sistema TDM (Time Division Multiplexing) combina 6 canais, cada um com uma taxa de transmissão de 300 bps. Qual deverá ser a velocidade da linha comum?",
+            options: [
+                "300 bps.",
+                "1800 bps.",
+                "900 bps."
+            ],
+            correctIndex: 1,
+            justification: "No TDM, a capacidade total da linha deve ser a soma das capacidades de todos os canais multiplexados. 6 canais x 300 bps = 1800 bps."
+        },
+        {
+            text: "Uma memória possui uma capacidade de 4 MB. A quantos kB corresponde essa capacidade?",
+            options: [
+                "4096 kB.",
+                "4000 kB.",
+                "400 kB."
+            ],
+            correctIndex: 0,
+            justification: "Em informática, 1 MB (Megabyte) equivale a 1024 kB (Kilobytes). Portanto, 4 MB = 4 x 1024 = 4096 kB."
+        },
+        {
+            text: "Numa aeronave ligeira equipada com PFD e MFD, o piloto pretende consultar simultaneamente informação de navegação e dados relativos ao funcionamento do motor. Qual visor é normalmente utilizado?",
+            options: [
+                "Standby attitude indicator.",
+                "PFD.",
+                "MFD."
+            ],
+            correctIndex: 2,
+            justification: "O Multi-Function Display (MFD) é projetado para mostrar múltiplas informações, como mapas de navegação (moving map), dados do motor (engine gauges) e checklists. O PFD foca-se nos dados primários de voo."
+        },
+        {
+            text: "Pretende-se combinar vários sinais num único meio de transmissão. Que técnicas podem ser utilizadas para realizar essa multiplexagem?",
+            options: [
+                "TDM ou FDM.",
+                "Apenas TDM.",
+                "Apenas FDM."
+            ],
+            correctIndex: 0,
+            justification: "A multiplexagem pode ser realizada no domínio do tempo (TDM - Time Division Multiplexing) ou no domínio da frequência (FDM - Frequency Division Multiplexing). Ambas são técnicas válidas."
+        },
+        {
+            text: "Um CPU passa a operar com uma frequência de clock superior. Que característica do seu funcionamento é diretamente influenciada?",
+            options: [
+                "A velocidade com que executa as instruções.",
+                "A capacidade máxima da memória RAM instalada.",
+                "O número de linhas existentes no barramento de endereços."
+            ],
+            correctIndex: 0,
+            justification: "O clock (relógio) define a cadência de execução do CPU. Quanto maior a frequência (em MHz ou GHz), mais ciclos de instrução são executados por segundo, aumentando a velocidade de processamento."
+        },
+        {
+            text: "Durante a instalação de uma ligação de fibra ótica end-to-end, qual dos seguintes tipos de conector pode ser utilizado?",
+            options: [
+                "Bicónico ou de ponteira cilíndrica.",
+                "Exclusivamente de ponteira retangular.",
+                "Exclusivamente bicónico."
+            ],
+            correctIndex: 0,
+            justification: "Diversos tipos de conectores de fibra ótica são utilizados na aviação. O Módulo 5B2 cita conectores de ponteira cilíndrica (ferrule, como o ST) e conectores bicónicos (biconical) como opções válidas para ligações de fibra."
+        },
+        {
+            text: "Durante uma ação de manutenção, pretende-se utilizar as capacidades internas de um equipamento aviónico para localizar uma avaria. Que sistema integrado é destinado a apoiar este processo?",
+            options: [
+                "BITE.",
+                "TCAS.",
+                "EFIS."
+            ],
+            correctIndex: 0,
+            justification: "BITE significa Built-In Test Equipment. É um sistema integrado no próprio equipamento (LRU) que monitoriza o seu funcionamento e isola falhas, auxiliando a manutenção a diagnosticar avarias."
+        }
+    ];
+
+    const total = questions.length;
+    let currentIndex = 0;
+    let userAnswers = new Array(total).fill(null);
+    let userJustification = new Array(total).fill(null);
+
+    const mainWrapper = document.getElementById('mainWrapper');
+    const capaScreen = document.getElementById('capaScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const blankScreen = document.getElementById('blankScreen');
+    const questionText = document.getElementById('questionText');
+    const optionsArea = document.getElementById('optionsArea');
+    const feedbackArea = document.getElementById('feedbackArea');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressText = document.getElementById('progressText');
+    const startQuizBtn = document.getElementById('startQuizBtn');
+    const restartQuizBtn = document.getElementById('restartQuizBtn');
+    const endQuizBtn = document.getElementById('endQuizBtn');
+    const resultContent = document.getElementById('resultContent');
+    
+    // Controlos de acessibilidade
+    const fontMinus = document.getElementById('fontMinus');
+    const fontPlus = document.getElementById('fontPlus');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    
+    let baseFontSize = 16; // Tamanho base para referência
+
+    fontMinus.addEventListener('click', () => {
+        baseFontSize = Math.max(12, baseFontSize - 2);
+        applyFontSize(baseFontSize);
+    });
+
+    fontPlus.addEventListener('click', () => {
+        baseFontSize = Math.min(30, baseFontSize + 2);
+        applyFontSize(baseFontSize);
+    });
+
+    function applyFontSize(size) {
+        const questionText = document.getElementById('questionText');
+        const optBtns = document.querySelectorAll('.opt-btn');
+        const feedback = document.getElementById('feedbackArea');
+        
+        questionText.style.fontSize = (size * 1.875) + 'px'; // 30px base para 16
+        optBtns.forEach(btn => btn.style.fontSize = (size * 1.375) + 'px'); // 22px base para 16
+        if(feedback) feedback.style.fontSize = (size * 1.125) + 'px'; // 18px base para 16
+    }
+
+    fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Erro ao tentar entrar em tela cheia: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+
+    function renderQuestion() {
+        const q = questions[currentIndex];
+        
+        questionText.innerHTML = `<strong>Questão ${currentIndex + 1}:</strong> ${q.text}`;
+        
+        optionsArea.innerHTML = q.options.map((opt, idx) => 
+            `<button class="opt-btn" data-index="${idx}">${opt}</button>`
+        ).join('');
+
+        feedbackArea.style.display = 'none';
+        feedbackArea.className = 'feedback';
+        
+        const selected = userAnswers[currentIndex];
+        const btns = document.querySelectorAll('.opt-btn');
+        
+        if (selected !== null) {
+            btns.forEach(btn => {
+                if (parseInt(btn.getAttribute('data-index')) === selected) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            if (userJustification[currentIndex]) {
+                const isCorrect = (selected === questions[currentIndex].correctIndex);
+                feedbackArea.classList.add(isCorrect ? 'correct' : 'wrong');
+                feedbackArea.style.display = 'block';
+                feedbackArea.innerHTML = userJustification[currentIndex];
+            }
+        }
+        
+        progressText.innerText = `Questão ${currentIndex + 1} de ${total}`;
+        prevBtn.disabled = (currentIndex === 0);
+        nextBtn.disabled = false;
+        
+        applyFontSize(baseFontSize);
+    }
+
+    function selectAnswer(index) {
+        userAnswers[currentIndex] = index;
+        const q = questions[currentIndex];
+        const isCorrect = (index === q.correctIndex);
+        const correctText = q.options[q.correctIndex];
+        
+        const explanation = 
+            `<strong>${isCorrect ? '✓ Correto!' : '✗ Incorreto'}</strong><br>
+             <strong>Justificativa:</strong> ${q.justification}<br>
+             <span style="font-size:0.85em; opacity:0.8; margin-top:5px; display:block;">Resposta correta: ${correctText}</span>`;
+             
+        userJustification[currentIndex] = explanation;
+        
+        feedbackArea.classList.remove('correct', 'wrong');
+        feedbackArea.classList.add(isCorrect ? 'correct' : 'wrong');
+        feedbackArea.style.display = 'block';
+        feedbackArea.innerHTML = explanation;
+        
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => btn.classList.remove('selected'));
+        
+        const selectedBtn = Array.from(btns).find(btn => parseInt(btn.getAttribute('data-index')) === index);
+        if (selectedBtn) selectedBtn.classList.add('selected');
+        
+        applyFontSize(baseFontSize);
+    }
+
+    optionsArea.addEventListener('click', (e) => {
+        const btn = e.target.closest('.opt-btn');
+        if (btn) selectAnswer(parseInt(btn.getAttribute('data-index')));
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (userAnswers[currentIndex] === null) {
+            alert('Por favor, responda a questão antes de avançar.');
+            return;
+        }
+        if (currentIndex < total - 1) {
+            currentIndex++;
+            renderQuestion();
+        } else {
+            mostrarResultado();
+        }
+    });
+
+    function mostrarResultado() {
+        let acertos = 0;
+        let erros = 0;
+        for (let i = 0; i < total; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] === questions[i].correctIndex) acertos++;
+            else if (userAnswers[i] !== null) erros++;
+        }
+        const percentual = (acertos / total) * 100;
+        const nota = (acertos / total) * 10;
+
+        let mensagem = "";
+        if (percentual >= 85) mensagem = "⭐ Excelente! Você domina os conceitos de eletrónica digital e sistemas de aeronaves.";
+        else if (percentual >= 70) mensagem = "👍 Muito bom! Revise os pontos que errou e tente novamente.";
+        else if (percentual >= 50) mensagem = "📘 Bom, mas dá para melhorar. Releia as justificativas das questões que errou.";
+        else mensagem = "📚 Que tal revisar o conteúdo com calma e depois refazer o quiz?";
+
+        const resultadoHTML = `
+            <div class="stats">
+                <p><strong>✅ Acertos:</strong> ${acertos} (${percentual.toFixed(1)}%)</p>
+                <p><strong>❌ Erros:</strong> ${erros}</p>
+                <p><strong>🎓 Nota (0 a 10):</strong> ${nota.toFixed(1)}</p>
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid #e2e8f0;">
+                <p>${mensagem}</p>
+            </div>
+        `;
+        resultContent.innerHTML = resultadoHTML;
+        quizScreen.classList.remove('active');
+        resultScreen.classList.add('active');
+    }
+
+    function mostrarBlank() {
+        capaScreen.classList.remove('active');
+        quizScreen.classList.remove('active');
+        resultScreen.classList.remove('active');
+        blankScreen.classList.remove('active');
+        blankScreen.classList.add('active');
+        mainWrapper.classList.add('wrapper-blank');
+        blankScreen.innerHTML = '';
+    }
+
+    function refazerQuiz() {
+        userAnswers = new Array(total).fill(null);
+        userJustification = new Array(total).fill(null);
+        currentIndex = 0;
+        mainWrapper.classList.remove('wrapper-blank');
+        blankScreen.classList.remove('active');
+        resultScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        renderQuestion();
+    }
+
+    startQuizBtn.addEventListener('click', () => {
+        capaScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        renderQuestion();
+    });
+
+    restartQuizBtn.addEventListener('click', refazerQuiz);
+    endQuizBtn.addEventListener('click', mostrarBlank);
+</script>
+</body>
+</html>
