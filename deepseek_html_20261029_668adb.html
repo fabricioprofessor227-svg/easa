@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>📘 Module 5B2 · Part 4: Electromagnetic Environment and ESD</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #f5f7f6;
+            color: #1a2e2a;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            margin: 0;
+        }
+        .reader-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            padding: 12px 18px;
+            border: 1px solid #dde5e0;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .fixed-header {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #dde5e0;
+            padding-bottom: 6px;
+        }
+        .fixed-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f3d2e;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .progress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a5e44;
+            margin-bottom: 4px;
+        }
+        .progress-bar-bg {
+            background: #dee6e1;
+            height: 6px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #1a7a58;
+            height: 6px;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.2s;
+        }
+
+        .text-content {
+            text-align: justify;
+            padding: 6px 0 12px;
+            max-height: 75vh;
+            overflow-y: auto;
+            font-size: 18px;
+            line-height: 1.8;
+            margin: 0 2px;
+            scroll-behavior: smooth;
+        }
+        .text-content p { margin-bottom: 0.8em; }
+        .text-content h2, .text-content h3, .text-content h4 {
+            margin: 1em 0 0.3em;
+            color: #154e3a;
+            font-weight: 600;
+        }
+        .text-content h3 { font-size: 1.15em; }
+        .text-content h4 { font-size: 1.02em; }
+        .text-content ul, .text-content ol {
+            padding-left: 1.8em;
+            margin: 0.4em 0;
+        }
+        .text-content li { margin-bottom: 0.3em; }
+
+        .text-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8em 0;
+            font-size: 0.85em;
+            text-align: left;
+        }
+        .text-content th, .text-content td {
+            border: 1px solid #b3cdbf;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .text-content th {
+            background: #ecf3ef;
+            color: #134531;
+            font-weight: 600;
+        }
+        .text-content tr:nth-child(even) { background: #f9fbfa; }
+
+        .text-content pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            overflow-x: auto;
+            font-size: 0.78em;
+            line-height: 1.5;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0.8em 0;
+            border: 1px solid #1e293b;
+        }
+        .text-content pre code { background: none; color: inherit; padding: 0; }
+        .text-content code {
+            background: #e8eefb;
+            color: #1e3a8a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.88em;
+        }
+
+        .speech-word {
+            transition: background-color 0.15s ease, color 0.15s ease;
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin: 0 1px;
+        }
+        .speech-word.active {
+            background-color: #ffeb3b;
+            color: #000;
+            font-weight: 600;
+        }
+        .speech-word.upcoming { background-color: #fff9c4; }
+
+        .toolbar-single {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            margin: 14px 0 10px;
+            padding: 4px 0 6px;
+            border-top: 1px solid #dde5e0;
+            border-bottom: 1px solid #dde5e0;
+        }
+        .tool-btn {
+            background: #ecf3ef;
+            border: 1px solid #b3cdbf;
+            color: #134531;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 48px;
+            min-width: 50px;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .tool-btn:active { background: #d0e0d7; transform: scale(0.96); }
+        .tool-btn:disabled { opacity: 0.4; background: #e0e8e3; border-color: #b6ccc1; pointer-events: none; }
+        .tool-btn.hidden { display: none; }
+        .tool-btn.encerrar {
+            background: #134531;
+            color: #fff;
+            border-color: #0f3d2e;
+        }
+        .tool-btn.encerrar:active { background: #0f3d2e; }
+        .tool-btn.ler-selecao {
+            background: #e0f2f1;
+            border-color: #80cbc4;
+            color: #00695c;
+        }
+        .tool-btn.ler-selecao:active { background: #b2dfdb; }
+        .tool-btn.ler-selecao.reading {
+            background: #ffeb3b;
+            border-color: #fbc02d;
+            color: #5d4037;
+        }
+        .tool-btn.ler-selecao.paused {
+            background: #ffe0b2;
+            border-color: #ffb74d;
+            color: #e65100;
+        }
+
+        .capa {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .capa h1 { font-size: 26px; margin-bottom: 16px; color: #0f3d2e; }
+        .capa h2 { font-size: 18px; margin-bottom: 30px; color: #1a5e44; }
+        .capa p { font-size: 19px; color: #2a5e4a; }
+
+        .congrats-page {
+            text-align: center;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 40vh;
+        }
+        .congrats-page h2 { color: #1a5e44; margin-bottom: 10px; font-size: 1.8rem; }
+        .congrats-image { text-align: center; margin: 15px auto; }
+        .congrats-image img {
+            transform: scale(1.2);
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        .gabarito-questao {
+            background: #f4f9f6;
+            border-left: 5px solid #1a7a58;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+        }
+        .questao-bloco {
+            background: #e0f2f1;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 0 0 8px 0;
+            border-left: 4px solid #00695c;
+        }
+        .rotulo-questao {
+            display: inline-block;
+            background: #00695c;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+        .questao-bloco p { margin: 0.3em 0; color: #1a2e2a; }
+        .questao-bloco ul, .questao-bloco ol {
+            padding-left: 1.6em;
+            margin: 0.3em 0;
+        }
+        .gabarito-questao .resposta-bloco {
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 8px 0 6px;
+            border-left: 4px solid #1b5e20;
+        }
+        .gabarito-questao .justificativa-bloco {
+            background: #fff3e0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 6px 0 0;
+            border-left: 4px solid #e65100;
+        }
+        .rotulo-resposta {
+            display: inline-block;
+            background: #1b5e20;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+        .rotulo-justificativa {
+            display: inline-block;
+            background: #e65100;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 700px) {
+            .reader-wrapper { padding: 8px 10px; border-radius: 16px; }
+            .tool-btn { padding: 6px 8px; min-width: 44px; font-size: 0.85rem; }
+            .text-content { max-height: 70vh; font-size: 16px; }
+            .fixed-header h1 { font-size: 1.2rem; }
+            .text-content table { font-size: 0.75em; }
+            .text-content th, .text-content td { padding: 4px 5px; }
+            .text-content pre { font-size: 0.7em; padding: 8px 10px; }
+            .capa h1 { font-size: 20px; }
+            .capa h2 { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="reader-wrapper">
+    <div id="readerScreen" class="screen active">
+        <div class="fixed-header">
+            <h1>📘 Module 5B2 · Part 4: Electromagnetic Environment and ESD</h1>
+            <div class="progress-row">
+                <span id="pageXofY">Page 1 of 17</span>
+                <span id="progressPercent">5%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="text-content" id="pageContent"></div>
+        <div class="toolbar-single">
+            <button class="tool-btn" id="fontMinusBtn" title="Decrease font">A−</button>
+            <button class="tool-btn" id="fontPlusBtn" title="Increase font">A+</button>
+            <button class="tool-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+            <button class="tool-btn" id="prevBtnInline" title="Previous page">◀</button>
+            <button class="tool-btn" id="nextBtnInline" title="Next page">▶</button>
+            <button class="tool-btn" id="speakBtn" title="Listen to the whole page from the beginning">🔊</button>
+            <button class="tool-btn ler-selecao" id="lerSelecaoBtn" title="Read only the selected text">📖 Read Selection</button>
+            <button class="tool-btn hidden" id="pauseBtn" title="Pause">⏸️</button>
+            <button class="tool-btn hidden" id="resumeBtn" title="Resume">▶️</button>
+            <button class="tool-btn hidden" id="stopBtn" title="Stop">⏹️</button>
+            <select id="rateSelect" class="tool-btn" style="width: auto; background: #ecf3ef; border: 1px solid #b3cdbf; padding: 8px 12px;">
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+            <button class="tool-btn encerrar hidden" id="encerrarBtn" title="End reading">✖ End Reading</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const pageContents = [
+            // Page 1 – Cover
+            `<div class="capa">
+                <h1>📘 Module 5B2 · Part 4</h1>
+                <h2>Electromagnetic Environment and ESD<br>
+                EMI · EMC · HIRF · Lightning Protection · Electrostatic Discharge</h2>
+                <p>Study Material Summary</p>
+            </div>`,
+
+            // Page 2 – Index
+            `<div class="text-container" style="max-width:100%;">
+                <h3>📌 PART 4 INDEX</h3>
+                <ol>
+                    <li>Introduction to the Electromagnetic Environment (EMC vs EMI) – Page 3</li>
+                    <li>Sources of EMI (Internal and External) – Page 4</li>
+                    <li>HIRF (High Intensity Radiated Fields) – Page 5</li>
+                    <li>Effects of HIRF on Digital Systems – Page 6</li>
+                    <li>EMI/HIRF Protection Methods – Page 7</li>
+                    <li>Lightning Protection – Page 8</li>
+                    <li>Lightning Inspection and Protection – Page 9</li>
+                    <li>Introduction to ESD (Electrostatic Discharge) – Page 10</li>
+                    <li>ESD Test Models (HBM, CDM, MM) – Page 11</li>
+                    <li>Failure Types and ESD Precautions – Page 12</li>
+                    <li>Handling Sensitive PCBs and LRUs – Page 13</li>
+                    <li>Other Static Hazards (Refueling and PEDs) – Page 14</li>
+                    <li>Practice Exercises (12 Questions) – Page 15</li>
+                    <li>Continuing Exercises – Page 16</li>
+                    <li>🎉 Congratulations (End of Part 4) – Page 17</li>
+                </ol>
+            </div>`,
+
+            // Page 3
+            `<h3>1. Introduction to the Electromagnetic Environment</h3>
+            <p>Modern aviation depends heavily on electronic systems. However, these systems operate in an environment full of electromagnetic radiation, both generated internally by the aircraft itself and externally by radars, radio stations, and natural phenomena.</p>
+            
+            <h4>1.1 EMC (Electromagnetic Compatibility)</h4>
+            <p>It is the ability of equipment to operate satisfactorily in its electromagnetic environment, without introducing intolerable disturbances to other devices in that same environment.</p>
+            <ul>
+                <li>EMC tests evaluate <strong>emissions</strong> (how much the equipment "pollutes" the environment) and <strong>immunity</strong> (how much it resists external pollution).</li>
+                <li>Tests are carried out in anechoic or reverberating chambers.</li>
+            </ul>
+
+            <h4>1.2 EMI (Electromagnetic Interference)</h4>
+            <p>It is the unwanted interference caused by electromagnetic radiation. It can manifest as static in audio systems, "snow" on CRT screens, or data loss.</p>
+            <p>EMI can be <strong>conducted</strong> (traveling through cables) or <strong>radiated</strong> (traveling through the air).</p>`,
+
+            // Page 4
+            `<h3>2. Sources of EMI</h3>
+            
+            <h4>2.1 Internal Sources</h4>
+            <p>They are generated by the aircraft's own equipment:</p>
+            <ul>
+                <li><strong>Motors and Generators:</strong> Sparks (arcing) between brushes and the commutator generate noise spikes.</li>
+                <li><strong>Ignition System:</strong> Magnetos and spark plugs generate high-energy pulses.</li>
+                <li><strong>Anti-Collision Lights:</strong> Energy pulses that can induce noise.</li>
+                <li><strong>Inverters and Power Supplies:</strong> High-frequency switching generates noise.</li>
+            </ul>
+
+            <h4>2.2 External Sources</h4>
+            <ul>
+                <li><strong>Cosmic Noise:</strong> Radiation from space (most noticeable above 12 MHz).</li>
+                <li><strong>Atmospheric Noise:</strong> Electrical discharges during storms.</li>
+                <li><strong>Static Electricity (P-Static):</strong> The friction of the aircraft with air particles, rain, or hail accumulates charge on the fuselage. "St. Elmo's Fire" is an example of corona discharge. The <em>static dischargers</em> (wick dischargers) on the wingtips serve to dissipate this charge in a controlled manner.</li>
+                <li><strong>External Transmitters:</strong> Radars, radio, and TV stations.</li>
+            </ul>`,
+
+            // Page 5
+            `<h3>3. HIRF (High Intensity Radiated Fields)</h3>
+            <p>HIRF is a high-intensity external (non-ionizing) electromagnetic field that can cause adverse effects on the aircraft's electrical and electronic systems, affecting flight safety.</p>
+            
+            <h4>3.1 Definition and Frequency Range</h4>
+            <ul>
+                <li>The spectrum from <strong>10 kHz to 18 GHz</strong> is considered.</li>
+                <li>It includes licensed intentional emitters (radars, communications, broadcasting).</li>
+                <li>It does not include internally generated EMI (EMC) or electrostatic discharges (ESD).</li>
+            </ul>
+
+            <h4>3.2 Spectrum Characteristics</h4>
+            <ul>
+                <li><strong>Below 400 MHz:</strong> Communication and broadcasting systems predominate (AM/FM radio, TV). The waves are wider and the signals are continuous.</li>
+                <li><strong>Above 400 MHz:</strong> Radars, microwave systems, and satellites predominate. The beams are very narrow and the power peaks (pulses) are extremely high.</li>
+            </ul>`,
+
+            // Page 6
+            `<h3>4. Effects of HIRF on Digital Systems</h3>
+            <p>HIRF signals can penetrate the aircraft through windows, the radome (which is transparent to radar), and gaps in the fuselage.</p>
+
+            <h4>4.1 Coupling and Effects</h4>
+            <ul>
+                <li><strong>Coupling into Cables:</strong> The electromagnetic field induces currents and voltages in the wires. This can lead to voltage spikes that "fool" integrated circuits.</li>
+                <li><strong>Effects on Digital Circuits:</strong> HIRF pulses can be rectified by internal diodes, creating a DC offset that changes the logic state (0 to 1 or vice versa), causing "upsets" (momentary failures).</li>
+                <li><strong>Effects on Analog Circuits:</strong> They are more sensitive (on the order of 50 mV). They can cause incorrect sensor readings.</li>
+                <li><strong>Effects on CRT:</strong> It can cause blurring or momentary screen blackout.</li>
+            </ul>
+
+            <h4>4.2 Importance of Shielding</h4>
+            <p>The cockpit windows are the main "entry doors" for HIRF, as they are openings in the metallic shielding. The aluminum fuselage offers excellent shielding, but composites require the incorporation of metallic meshes to ensure the same protection.</p>`,
+
+            // Page 7
+            `<h3>5. EMI/HIRF Protection Methods</h3>
+            
+            <h4>5.1 Bonding</h4>
+            <p>All equipment, mounting trays, and the aircraft structure must be electrically bonded to ensure a low-impedance path to "ground". The bonding resistance must not exceed 0.05 ohms.</p>
+
+            <h4>5.2 Screening</h4>
+            <ul>
+                <li>Use of shielded cables (with copper or aluminum braid).</li>
+                <li>Cable screens must be grounded, often at only one end, to avoid <strong>ground loops</strong> that act as antennas.</li>
+                <li>Conductive gaskets on LRU covers to ensure electrical continuity.</li>
+            </ul>
+
+            <h4>5.3 Filters</h4>
+            <p>Low-pass filters (capacitors) are placed at the inputs and outputs of LRUs to block high frequencies, allowing the desired low-frequency signals to pass.</p>
+
+            <h4>5.4 Transparent Conductive Windows</h4>
+            <p>Cockpit windows can have a thin layer of metal oxide that allows vision but blocks electromagnetic radiation.</p>`,
+
+            // Page 8
+            `<h3>6. Lightning Protection</h3>
+            <p>A commercial aircraft is struck by lightning, on average, once a year. Protection aims to ensure that the discharge passes through the external structure and exits without causing damage to internal systems or igniting fuel.</p>
+
+            <h4>6.1 Strike Zones (SAE ARP 5414)</h4>
+            <ul>
+                <li><strong>Zone 1:</strong> Areas with a high probability of initial strike (radome, wingtips, nacelles, tail tip).</li>
+                <li><strong>Zone 2:</strong> Areas susceptible to being swept (swept stroke) by the lightning channel after the initial strike (mid-fuselage).</li>
+                <li><strong>Zone 3:</strong> Areas that rarely receive a direct strike but may conduct current (internal parts, lower structure).</li>
+            </ul>
+
+            <h4>6.2 Effects and Damage</h4>
+            <ul>
+                <li><strong>Metallic Structure:</strong> Holes, burn marks, melting, distortion.</li>
+                <li><strong>Composite Structure:</strong> Delamination, fiber burning, puncture. Requires metallic meshes (copper or aluminum foil) and metal strips (diverter strips) on the surface to conduct the current.</li>
+                <li><strong>Systems:</strong> Can cause magnetization of components, burning of wires, and damage to LRUs.</li>
+            </ul>`,
+
+            // Page 9
+            `<h3>7. Lightning Inspection and Protection</h3>
+            
+            <h4>7.1 After a Strike</h4>
+            <p>If lightning strikes the aircraft, a special inspection (Lightning Strike Conditional Inspection) must be performed to find the entry and exit points.</p>
+            <ul>
+                <li>Examine Zone 1 and Zone 2 for burns, holes, and composite damage.</li>
+                <li>Check the static dischargers and bonding straps.</li>
+                <li>Inspect the antennas and radomes.</li>
+                <li>Test the radio, navigation, and radar systems if damage is suspected.</li>
+            </ul>
+
+            <h4>7.2 Protection in Composites</h4>
+            <ul>
+                <li>The Boeing 787 uses a copper or aluminum mesh on the surface of the carbon fiber fuselage to conduct the lightning current.</li>
+                <li>The radome has <strong>diverter strips</strong> (metal strips) that act as lightning rods, protecting the radar antenna inside.</li>
+            </ul>`,
+
+            // Page 10
+            `<h3>8. Introduction to ESD (Electrostatic Discharge)</h3>
+            <p>Electrostatic Discharge (ESD) is the sudden transfer of electrical charge between two objects with different potentials. It is one of the main causes of component failure during maintenance.</p>
+
+            <h4>8.1 Triboelectric Effect</h4>
+            <p>Static charge is generated when two different materials come into contact and are separated (friction). The human body can accumulate voltages of up to 15,000 volts (when walking on a nylon carpet), which is enough to destroy an integrated circuit.</p>
+
+            <h4>8.2 Device Sensitivity (ESDS)</h4>
+            <p>Electronic devices, especially MOSFETs and CMOS circuits, are extremely sensitive. A discharge that is invisible and painless to humans (e.g., 100V) can puncture the silicon oxide of a chip and render it useless.</p>
+            <p>The <strong>Triboelectric Series</strong> table shows the tendency of materials to gain or lose electrons. The human body is at the top (tends to become positive) when in contact with nylon.</p>`,
+
+            // Page 11
+            `<h3>9. ESD Test Models</h3>
+            <p>To classify component sensitivity and test their robustness, standardized models are used.</p>
+            
+            <h4>9.1 Human Body Model (HBM)</h4>
+            <ul>
+                <li>The most common. Simulates the discharge of a person touching the component.</li>
+                <li>Model: A <strong>100 pF</strong> capacitor (representing the body) discharges through a <strong>1.5 kΩ</strong> resistor (skin resistance).</li>
+                <li>It is the oldest model and serves as the basis for many classifications.</li>
+            </ul>
+
+            <h4>9.2 Charged Device Model (CDM)</h4>
+            <ul>
+                <li>Simulates the component moving (e.g., sliding down a feeder) and then coming into contact with a grounded metal surface.</li>
+                <li>The device itself is charged and discharges rapidly. It can be more destructive than the HBM.</li>
+            </ul>
+
+            <h4>9.3 Machine Model (MM)</h4>
+            <ul>
+                <li>Simulates the discharge from a metal tool or automated equipment.</li>
+                <li>Model: A 200 pF capacitor discharged without a series resistor (very fast, high-current discharge).</li>
+            </ul>`,
+
+            // Page 12
+            `<h3>10. Failure Types and ESD Precautions</h3>
+            
+            <h4>10.1 Hard Failures vs Soft Failures</h4>
+            <ul>
+                <li><strong>Hard Failure (Catastrophic Failure):</strong> The component is destroyed immediately. It is easily detected.</li>
+                <li><strong>Soft Failure (Latent Failure):</strong> The component is damaged but continues to function. It may fail intermittently days or months later, causing mysterious problems.</li>
+            </ul>
+
+            <h4>10.2 Precautions and Protective Equipment</h4>
+            <ul>
+                <li><strong>Wrist Strap:</strong> Must be worn in contact with bare skin and connected to a ground point. It contains a resistor of <strong>> 1 MΩ</strong> to protect the user from electric shocks.</li>
+                <li><strong>Conductive Packaging:</strong> Pink or silver bags (quasi-conductive) for storing PCBs.</li>
+                <li><strong>Anti-Static Workstations:</strong> Conductive mats connected to ground and wrist straps.</li>
+                <li><strong>Ionizers:</strong> Blow ionized air to neutralize charges in the air.</li>
+            </ul>`,
+
+            // Page 13
+            `<h3>11. Handling Sensitive PCBs and LRUs</h3>
+            
+            <h4>11.1 Removing PCBs</h4>
+            <ol>
+                <li>Turn off power and check the AMM (Aircraft Maintenance Manual).</li>
+                <li>Connect the anti-static wrist strap to the equipment chassis (not to the floor, to avoid potential differences) and to the wrist.</li>
+                <li>Remove the board using the extractors (do not touch the pins or connectors).</li>
+                <li>Immediately place it in the conductive bag and seal it (with proper tape or cord, never with staples).</li>
+            </ol>
+
+            <h4>11.2 Installing PCBs</h4>
+            <ol>
+                <li>Check the documentation (JAA Form 1, etc.).</li>
+                <li>Connect the wrist strap to the equipment chassis.</li>
+                <li>Remove the board from the bag and inspect it (without touching the contacts).</li>
+                <li>Insert gently into the slots and lock the extractors.</li>
+                <li>Do not touch the connectors with your fingers.</li>
+            </ol>
+
+            <h4>11.3 Metallic LRUs</h4>
+            <p>When removing/installing a complete LRU (metal box), the wrist strap is not strictly necessary, as the metal casing and aircraft structure act as a safe discharge path. However, protective caps (dust caps) should be used on the connectors.</p>`,
+
+            // Page 14
+            `<h3>12. Other Static Hazards</h3>
+            
+            <h4>12.1 Refueling/Defueling</h4>
+            <p>The movement of fuel inside the tanks and the friction of the aircraft with the air generate static charge. If not dissipated, it can cause a spark and ignite fuel vapors.</p>
+            <ul>
+                <li><strong>Bonding:</strong> A ground cable must connect the fuel truck (or hydrant) to the aircraft before opening the caps.</li>
+                <li>Bonding must never be done to an underground hydrant, but to the aircraft.</li>
+                <li>Static Dissipater Additives are added to the fuel to increase its conductivity.</li>
+            </ul>
+
+            <h4>12.2 Personal Electronic Devices (PEDs)</h4>
+            <p>Although the risk of igniting vapors is remote, PEDs (cell phones, laptops) can interfere with navigation and communication systems. During refueling, the use of PEDs in the vicinity should be restricted.</p>`,
+
+            // Page 15 - Questions
+            `<h3>13. Practice Exercises</h3>
+            <p>Below are 12 objective questions with answers and explanations integrated, as requested.</p>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 1</span>
+                    <p>What is the fundamental difference between EMC and EMI?</p>
+                    <ul>
+                        <li>a) EMC is the interference, EMI is the compatibility.</li>
+                        <li>b) EMC is the ability to operate without interfering; EMI is the interference itself.</li>
+                        <li>c) They are synonyms.</li>
+                        <li>d) EMC applies to radios, EMI to radars.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) EMC is the ability to operate without interfering; EMI is the interference itself.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> EMC (Electromagnetic Compatibility) is the ability of the equipment to function correctly in its environment. EMI (Electromagnetic Interference) is the unwanted disturbance that causes the failure.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 2</span>
+                    <p>Which of the following is an INTERNAL source of EMI in an aircraft?</p>
+                    <ul>
+                        <li>a) Air traffic control radar.</li>
+                        <li>b) AM radio station.</li>
+                        <li>c) Sparks in the commutator of an electric motor.</li>
+                        <li>d) Atmospheric discharges (lightning).</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> c) Sparks in the commutator of an electric motor.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> Internal motors and generators generate electrical arcs (sparks) between the brushes and the commutator, which are classic sources of internal EMI.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 3</span>
+                    <p>What does the acronym HIRF stand for?</p>
+                    <ul>
+                        <li>a) High Intensity Radio Frequency</li>
+                        <li>b) High Intensity Radiated Fields</li>
+                        <li>c) Hazardous Internal Radiation Field</li>
+                        <li>d) High Interference Rejection Filter</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) High Intensity Radiated Fields
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> HIRF stands for High Intensity Radiated Fields, which are external electromagnetic fields capable of affecting aircraft systems.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 4</span>
+                    <p>What frequency range is considered for HIRF?</p>
+                    <ul>
+                        <li>a) 10 kHz to 18 GHz</li>
+                        <li>b) 100 MHz to 40 GHz</li>
+                        <li>c) 1 MHz to 10 GHz</li>
+                        <li>d) 10 GHz to 100 GHz</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> a) 10 kHz to 18 GHz
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> The SAE committee defined the range from 10 kHz to 18 GHz as the spectrum of concern for HIRF, covering broadcasting, TV, communications, and radars.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 5</span>
+                    <p>How can HIRF cause "upsets" in digital circuits?</p>
+                    <ul>
+                        <li>a) By increasing the voltage of the power supply.</li>
+                        <li>b) By being rectified by internal diodes and creating DC offsets that alter the logic state.</li>
+                        <li>c) By melting the copper wires.</li>
+                        <li>d) By increasing the temperature of the chip.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) By being rectified by internal diodes and creating DC offsets that alter the logic state.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> HIRF RF spikes can be rectified by the protection diodes of the integrated circuits, generating a DC offset that "fools" the circuit, forcing a change of state.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 6</span>
+                    <p>What is the maximum recommended resistance for bonding connections (grounding)?</p>
+                    <ul>
+                        <li>a) 1 ohm</li>
+                        <li>b) 10 ohms</li>
+                        <li>c) 0.05 ohms</li>
+                        <li>d) 100 ohms</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> c) 0.05 ohms
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> To ensure a low-impedance path for EMI, HIRF, and lightning currents, bonding connections must not exceed 0.05 ohms.
+                </div>
+            </div>`,
+
+            // Page 16 - Continuing Questions
+            `<div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 7</span>
+                    <p>Which lightning protection zone indicates the area with the highest probability of an initial strike?</p>
+                    <ul>
+                        <li>a) Zone 1</li>
+                        <li>b) Zone 2</li>
+                        <li>c) Zone 3</li>
+                        <li>d) Zone 4</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> a) Zone 1
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> Zone 1 includes the aircraft extremities (radome, wingtips, tail) where the probability of an initial lightning strike is highest.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 8</span>
+                    <p>How are composite structures (carbon fiber) protected against lightning?</p>
+                    <ul>
+                        <li>a) They do not need protection because they are insulators.</li>
+                        <li>b) By incorporating metallic meshes (copper/aluminum) on the surface.</li>
+                        <li>c) By being painted with insulating paint.</li>
+                        <li>d) By using exclusive lightning rods on the wingtips.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) By incorporating metallic meshes (copper/aluminum) on the surface.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> Composites are less conductive than metal. To conduct lightning current and prevent delamination damage, metallic meshes (foil) are incorporated into the surface.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 9</span>
+                    <p>What is ESD (Electrostatic Discharge)?</p>
+                    <ul>
+                        <li>a) Radio interference.</li>
+                        <li>b) The sudden transfer of electrical charge between two objects with different potentials.</li>
+                        <li>c) A type of atmospheric discharge.</li>
+                        <li>d) A data bus standard.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) The sudden transfer of electrical charge between two objects with different potentials.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> ESD is static discharge, usually caused by the triboelectric effect, which can damage sensitive electronic components.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 10</span>
+                    <p>In the Human Body Model (HBM), what capacitance and resistance are used to simulate the human body?</p>
+                    <ul>
+                        <li>a) 100 pF and 1.5 kΩ</li>
+                        <li>b) 200 pF and 0 Ω</li>
+                        <li>c) 150 pF and 500 Ω</li>
+                        <li>d) 1 μF and 10 kΩ</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> a) 100 pF and 1.5 kΩ
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> HBM standardizes the discharge of a human body through a 100 pF capacitor (representing body capacitance) and a 1.5 kΩ resistor (skin resistance).
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 11</span>
+                    <p>What is the main difference between a "Hard Failure" and a "Soft Failure" caused by ESD?</p>
+                    <ul>
+                        <li>a) Hard Failure is permanent and detectable; Soft Failure is latent and intermittent.</li>
+                        <li>b) Soft Failure destroys the component; Hard Failure does not.</li>
+                        <li>c) Hard Failure only occurs in analog devices.</li>
+                        <li>d) There is no practical difference.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> a) Hard Failure is permanent and detectable; Soft Failure is latent and intermittent.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> Hard Failure is an immediate catastrophic failure. Soft Failure causes internal damage that may not be detected immediately but causes intermittent failures in the future.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 12</span>
+                    <p>What is the minimum resistance value recommended for an anti-static wrist strap to protect the user?</p>
+                    <ul>
+                        <li>a) 0 Ω</li>
+                        <li>b) 1 kΩ</li>
+                        <li>c) 1 MΩ (1,000,000 Ω)</li>
+                        <li>d) 10 MΩ</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> c) 1 MΩ (1,000,000 Ω)
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> The 1 MΩ resistance allows static charge to flow slowly to ground but limits the electrical current to safe levels if the user accidentally touches a high-voltage source.
+                </div>
+            </div>`,
+
+            // Page 17 - Congratulations
+            `<div class="congrats-page">
+                <h2>🎉 Congratulations!</h2>
+                <p style="margin-top: 20px;">You have completed <strong>Part 4: Electromagnetic Environment and ESD</strong>.</p>
+                <div class="congrats-image">
+                    <img src="https://media.tenor.com/1Gq9HnEJ5wMAAAAM/shih-tzu-shihtzu.gif" alt="Congratulations">
+                </div>
+                <p style="margin-top: 20px;">Good studies! Let me know when you are ready for Part 5 (Typical Electronic/Digital Systems: ACARS, EICAS, FBW, FMS, IRS, ECAM, EFIS, GPS, TCAS, IMA).</p>
+            </div>`
+        ];
+
+        const totalPages = pageContents.length;
+        let currentPage = 0;
+        let fontSizeIndex = 4;
+        const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 38, 42];
+
+        const pageContent = document.getElementById('pageContent');
+        const pageXofY = document.getElementById('pageXofY');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const fontMinus = document.getElementById('fontMinusBtn');
+        const fontPlus = document.getElementById('fontPlusBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const prevBtn = document.getElementById('prevBtnInline');
+        const nextBtn = document.getElementById('nextBtnInline');
+        const speakBtn = document.getElementById('speakBtn');
+        const lerSelecaoBtn = document.getElementById('lerSelecaoBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const rateSelect = document.getElementById('rateSelect');
+        const encerrarBtn = document.getElementById('encerrarBtn');
+
+        const synth = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+        let isPaused = false;
+        let speechToken = null;
+        let previousActiveSpan = null;
+        let wordSpans = [];
+        let charIndexToSpanMap = [];
+        let currentCharIndex = 0;
+
+        let selectionUtterance = null;
+        let isReadingSelection = false;
+        let isSelectionPaused = false;
+        let selectionToken = null;
+        let selectionWordSpans = [];
+        let selectionCharMap = [];
+        let selectionPrevSpan = null;
+        let lastSelectionRange = null;
+        let lastSelectionText = '';
+
+        document.addEventListener('selectionchange', function() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    lastSelectionRange = range.cloneRange();
+                    lastSelectionText = sel.toString().trim();
+                }
+            }
+        });
+
+        function getActiveSelectionRange() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    return range.cloneRange();
+                }
+            }
+            if (lastSelectionRange && lastSelectionText) return lastSelectionRange;
+            return null;
+        }
+
+        function getFemaleVoice() {
+            const voices = synth.getVoices();
+            const enVoices = voices.filter(v => v.lang === 'en-US' || v.lang === 'en-GB' || v.lang.startsWith('en'));
+            const female = enVoices.find(v =>
+                v.name.toLowerCase().includes('female') ||
+                v.name.toLowerCase().includes('woman') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Zira') ||
+                v.name.includes('Jenny') ||
+                v.name.includes('Google US English')
+            );
+            return female || enVoices[0] || voices[0];
+        }
+
+        function tokenizeTextNodes(root) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            const textNodes = [];
+            while (walker.nextNode()) {
+                textNodes.push(walker.currentNode);
+            }
+            textNodes.forEach(node => {
+                const text = node.textContent;
+                if (!text.trim()) return;
+                if (node.parentNode && (node.parentNode.tagName === 'PRE' || node.parentNode.tagName === 'CODE')) return;
+                const fragment = document.createDocumentFragment();
+                const parts = text.split(/(\s+)/);
+                parts.forEach(part => {
+                    if (part.trim()) {
+                        const span = document.createElement('span');
+                        span.className = 'speech-word';
+                        span.textContent = part;
+                        fragment.appendChild(span);
+                    } else {
+                        fragment.appendChild(document.createTextNode(part));
+                    }
+                });
+                node.parentNode.replaceChild(fragment, node);
+            });
+        }
+
+        function buildCharMapForSpans(spans) {
+            const map = [];
+            spans.forEach((span, idx) => {
+                const len = span.textContent.length;
+                for (let i = 0; i < len; i++) map.push(idx);
+                if (idx < spans.length - 1) map.push(idx);
+            });
+            return map;
+        }
+
+        function buildCharMap() {
+            wordSpans = Array.from(pageContent.querySelectorAll('.speech-word'));
+            charIndexToSpanMap = buildCharMapForSpans(wordSpans);
+        }
+
+        function highlightWordSpan(spanIndex) {
+            if (previousActiveSpan !== null) {
+                const prevSpan = wordSpans[previousActiveSpan];
+                if (prevSpan) {
+                    prevSpan.classList.remove('active');
+                    prevSpan.classList.remove('upcoming');
+                }
+            }
+            if (spanIndex >= 0 && spanIndex < wordSpans.length) {
+                const currentSpan = wordSpans[spanIndex];
+                currentSpan.classList.add('active');
+                currentSpan.classList.remove('upcoming');
+                previousActiveSpan = spanIndex;
+                currentSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function markUpcoming(spanIndex) {
+            wordSpans.forEach(s => s.classList.remove('upcoming'));
+            for (let i = 1; i <= 3; i++) {
+                const nextIdx = spanIndex + i;
+                if (nextIdx < wordSpans.length) {
+                    wordSpans[nextIdx].classList.add('upcoming');
+                }
+            }
+        }
+
+        function clearAllWordHighlights() {
+            wordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            previousActiveSpan = null;
+        }
+
+        function syncHighlightFromCharIndex() {
+            if (currentCharIndex >= charIndexToSpanMap.length) return;
+            const spanIdx = charIndexToSpanMap[currentCharIndex];
+            if (spanIdx !== undefined && spanIdx !== previousActiveSpan) {
+                highlightWordSpan(spanIdx);
+                markUpcoming(spanIdx);
+            }
+        }
+
+        function highlightSelectionWord(spanIdx) {
+            if (selectionPrevSpan !== null) {
+                const prev = selectionWordSpans[selectionPrevSpan];
+                if (prev) {
+                    prev.classList.remove('active');
+                    prev.classList.remove('upcoming');
+                }
+            }
+            if (spanIdx >= 0 && spanIdx < selectionWordSpans.length) {
+                const curr = selectionWordSpans[spanIdx];
+                curr.classList.add('active');
+                curr.classList.remove('upcoming');
+                selectionPrevSpan = spanIdx;
+                curr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            selectionWordSpans.forEach((s, i) => {
+                if (i !== spanIdx) s.classList.remove('upcoming');
+            });
+            for (let i = 1; i <= 3; i++) {
+                const next = selectionWordSpans[spanIdx + i];
+                if (next) next.classList.add('upcoming');
+            }
+        }
+
+        function clearSelectionHighlights() {
+            selectionWordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            selectionPrevSpan = null;
+        }
+
+        function showPlayingUI() {
+            speakBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            stopBtn.classList.remove('hidden');
+            resumeBtn.classList.add('hidden');
+        }
+
+        function showPausedUI() {
+            pauseBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+            resumeBtn.classList.remove('hidden');
+            speakBtn.classList.add('hidden');
+        }
+
+        function showStoppedUI() {
+            speakBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+        }
+
+        function setSelectionBtnState(state) {
+            lerSelecaoBtn.classList.remove('reading', 'paused');
+            if (state === 'reading') {
+                lerSelecaoBtn.textContent = '⏸️ Pause';
+                lerSelecaoBtn.title = 'Pause selection reading';
+                lerSelecaoBtn.classList.add('reading');
+            } else if (state === 'paused') {
+                lerSelecaoBtn.textContent = '▶️ Resume';
+                lerSelecaoBtn.title = 'Resume selection reading';
+                lerSelecaoBtn.classList.add('paused');
+            } else {
+                lerSelecaoBtn.textContent = '📖 Read Selection';
+                lerSelecaoBtn.title = 'Read only the selected text';
+            }
+        }
+
+        function startReading() {
+            if (!synth) { alert('Your browser does not support speech synthesis.'); return; }
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+
+            if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+                return;
+            }
+            if (isSpeaking) { stopReading(); return; }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+            }
+            buildCharMap();
+            if (wordSpans.length === 0) return;
+
+            const text = wordSpans.map(s => s.textContent).join(' ');
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) currentUtterance.voice = voice;
+            currentUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            speechToken = token;
+            currentCharIndex = 0;
+
+            currentUtterance.onboundary = function(event) {
+                if (speechToken !== token) return;
+                if (event.name === 'word') {
+                    currentCharIndex = event.charIndex;
+                    syncHighlightFromCharIndex();
+                }
+            };
+            currentUtterance.onstart = function() {
+                if (speechToken !== token) return;
+                isSpeaking = true;
+                isPaused = false;
+                showPlayingUI();
+            };
+            currentUtterance.onend = function() {
+                if (speechToken !== token) return;
+                resetSpeechState();
+            };
+            currentUtterance.onerror = function(e) {
+                if (speechToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Speech error:', e.error);
+                resetSpeechState();
+            };
+
+            synth.speak(currentUtterance);
+        }
+
+        function pauseReading() {
+            if (synth && isSpeaking && !isPaused) {
+                synth.pause();
+                isPaused = true;
+                showPausedUI();
+            }
+        }
+
+        function resumeReading() {
+            if (synth && isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+            }
+        }
+
+        function stopReading() {
+            if (synth) synth.cancel();
+            resetSpeechState();
+        }
+
+        function resetSpeechState() {
+            if (synth && synth.speaking) synth.cancel();
+            if (currentUtterance) {
+                currentUtterance.onboundary = null;
+                currentUtterance.onstart = null;
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+                currentUtterance = null;
+            }
+            isSpeaking = false;
+            isPaused = false;
+            speechToken = null;
+            currentCharIndex = 0;
+            clearAllWordHighlights();
+            showStoppedUI();
+        }
+
+        function startSelectionReading() {
+            if (!synth) { alert('Your browser does not support speech synthesis.'); return; }
+            if (isSpeaking || isPaused) stopReading();
+
+            const range = getActiveSelectionRange();
+            if (!range) {
+                alert('No text selected. Please select a passage and click "Read Selection".');
+                return;
+            }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+                const newRange = getActiveSelectionRange();
+                if (!newRange) {
+                    alert('Please select the desired passage again.');
+                    return;
+                }
+                return startSelectionReadingWithRange(newRange);
+            }
+
+            startSelectionReadingWithRange(range);
+        }
+
+        function startSelectionReadingWithRange(range) {
+            const spans = [];
+            pageContent.querySelectorAll('.speech-word').forEach(span => {
+                try {
+                    if (range.intersectsNode(span)) spans.push(span);
+                } catch(e) {}
+            });
+
+            if (spans.length === 0) {
+                alert('No text selected. Please select a passage and click "Read Selection".');
+                return;
+            }
+
+            selectionWordSpans = spans;
+            selectionCharMap = buildCharMapForSpans(selectionWordSpans);
+            clearSelectionHighlights();
+
+            const text = spans.map(s => s.textContent).join(' ');
+            selectionUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) selectionUtterance.voice = voice;
+            selectionUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            selectionToken = token;
+
+            selectionUtterance.onboundary = function(event) {
+                if (selectionToken !== token) return;
+                if (event.name === 'word') {
+                    const charIdx = event.charIndex;
+                    if (charIdx < selectionCharMap.length) {
+                        const spanIdx = selectionCharMap[charIdx];
+                        if (spanIdx !== undefined) highlightSelectionWord(spanIdx);
+                    }
+                }
+            };
+            selectionUtterance.onstart = function() {
+                if (selectionToken !== token) return;
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+                stopBtn.classList.remove('hidden');
+            };
+            selectionUtterance.onend = function() {
+                if (selectionToken !== token) return;
+                resetSelectionState();
+            };
+            selectionUtterance.onerror = function(e) {
+                if (selectionToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Selection speech error:', e.error);
+                resetSelectionState();
+            };
+
+            synth.speak(selectionUtterance);
+        }
+
+        function toggleSelectionReading() {
+            if (isReadingSelection) {
+                synth.pause();
+                isReadingSelection = false;
+                isSelectionPaused = true;
+                setSelectionBtnState('paused');
+            } else if (isSelectionPaused) {
+                synth.resume();
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+            } else {
+                startSelectionReading();
+            }
+        }
+
+        function stopSelectionReading() {
+            if (synth && (isReadingSelection || isSelectionPaused)) synth.cancel();
+            resetSelectionState();
+        }
+
+        function resetSelectionState() {
+            if (selectionUtterance) {
+                selectionUtterance.onboundary = null;
+                selectionUtterance.onstart = null;
+                selectionUtterance.onend = null;
+                selectionUtterance.onerror = null;
+                selectionUtterance = null;
+            }
+            isReadingSelection = false;
+            isSelectionPaused = false;
+            selectionToken = null;
+            clearSelectionHighlights();
+            setSelectionBtnState('idle');
+            stopBtn.classList.add('hidden');
+        }
+
+        function updateUI() {
+            resetSpeechState();
+            resetSelectionState();
+            pageContent.innerHTML = pageContents[currentPage];
+            tokenizeTextNodes(pageContent);
+            lastSelectionRange = null;
+            lastSelectionText = '';
+
+            const num = currentPage + 1;
+            pageXofY.textContent = `Page ${num} of ${totalPages}`;
+            const pct = (num / totalPages) * 100;
+            progressFill.style.width = pct + '%';
+            progressPercent.textContent = Math.round(pct) + '%';
+            prevBtn.disabled = (currentPage === 0);
+            nextBtn.disabled = (currentPage === totalPages - 1);
+
+            if (currentPage === totalPages - 1) {
+                encerrarBtn.classList.remove('hidden');
+            } else {
+                encerrarBtn.classList.add('hidden');
+            }
+
+            if (pageContent.scrollTop) pageContent.scrollTop = 0;
+        }
+
+        function applyFontSize() {
+            const size = fontSizes[fontSizeIndex] + 'px';
+            pageContent.style.fontSize = size;
+            fontMinus.disabled = (fontSizeIndex === 0);
+            fontPlus.disabled = (fontSizeIndex === fontSizes.length - 1);
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 0 && newPage < totalPages) {
+                currentPage = newPage;
+                updateUI();
+            }
+        }
+
+        fontMinus.addEventListener('click', () => {
+            if (fontSizeIndex > 0) fontSizeIndex--;
+            applyFontSize();
+        });
+        fontPlus.addEventListener('click', () => {
+            if (fontSizeIndex < fontSizes.length - 1) fontSizeIndex++;
+            applyFontSize();
+        });
+        fullscreenBtn.addEventListener('click', () => {
+            if (document.fullscreenElement) document.exitFullscreen();
+            else document.documentElement.requestFullscreen();
+        });
+        prevBtn.addEventListener('click', () => changePage(-1));
+        nextBtn.addEventListener('click', () => changePage(1));
+
+        speakBtn.addEventListener('click', startReading);
+        pauseBtn.addEventListener('click', pauseReading);
+        resumeBtn.addEventListener('click', resumeReading);
+        stopBtn.addEventListener('click', () => {
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+            if (isSpeaking || isPaused) stopReading();
+        });
+
+        lerSelecaoBtn.addEventListener('click', toggleSelectionReading);
+
+        rateSelect.addEventListener('change', () => {
+            const rate = parseFloat(rateSelect.value);
+            if (currentUtterance && isSpeaking && !isPaused) currentUtterance.rate = rate;
+            if (selectionUtterance && isReadingSelection && !isSelectionPaused) selectionUtterance.rate = rate;
+        });
+
+        encerrarBtn.addEventListener('click', () => {
+            if (synth) synth.cancel();
+            window.open('about:blank', '_blank');
+        });
+
+        applyFontSize();
+        updateUI();
+        if (synth) synth.getVoices();
+    })();
+</script>
+</body>
+</html>
