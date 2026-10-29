@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>📘 Module 5B2 · Part 5: Typical Electronic/Digital Systems</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #f5f7f6;
+            color: #1a2e2a;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            margin: 0;
+        }
+        .reader-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            padding: 12px 18px;
+            border: 1px solid #dde5e0;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .fixed-header {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #dde5e0;
+            padding-bottom: 6px;
+        }
+        .fixed-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f3d2e;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .progress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a5e44;
+            margin-bottom: 4px;
+        }
+        .progress-bar-bg {
+            background: #dee6e1;
+            height: 6px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #1a7a58;
+            height: 6px;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.2s;
+        }
+
+        .text-content {
+            text-align: justify;
+            padding: 6px 0 12px;
+            max-height: 75vh;
+            overflow-y: auto;
+            font-size: 18px;
+            line-height: 1.8;
+            margin: 0 2px;
+            scroll-behavior: smooth;
+        }
+        .text-content p { margin-bottom: 0.8em; }
+        .text-content h2, .text-content h3, .text-content h4 {
+            margin: 1em 0 0.3em;
+            color: #154e3a;
+            font-weight: 600;
+        }
+        .text-content h3 { font-size: 1.15em; }
+        .text-content h4 { font-size: 1.02em; }
+        .text-content ul, .text-content ol {
+            padding-left: 1.8em;
+            margin: 0.4em 0;
+        }
+        .text-content li { margin-bottom: 0.3em; }
+
+        .text-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8em 0;
+            font-size: 0.85em;
+            text-align: left;
+        }
+        .text-content th, .text-content td {
+            border: 1px solid #b3cdbf;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .text-content th {
+            background: #ecf3ef;
+            color: #134531;
+            font-weight: 600;
+        }
+        .text-content tr:nth-child(even) { background: #f9fbfa; }
+
+        .text-content pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            overflow-x: auto;
+            font-size: 0.78em;
+            line-height: 1.5;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0.8em 0;
+            border: 1px solid #1e293b;
+        }
+        .text-content pre code { background: none; color: inherit; padding: 0; }
+        .text-content code {
+            background: #e8eefb;
+            color: #1e3a8a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.88em;
+        }
+
+        .speech-word {
+            transition: background-color 0.15s ease, color 0.15s ease;
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin: 0 1px;
+        }
+        .speech-word.active {
+            background-color: #ffeb3b;
+            color: #000;
+            font-weight: 600;
+        }
+        .speech-word.upcoming { background-color: #fff9c4; }
+
+        .toolbar-single {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            margin: 14px 0 10px;
+            padding: 4px 0 6px;
+            border-top: 1px solid #dde5e0;
+            border-bottom: 1px solid #dde5e0;
+        }
+        .tool-btn {
+            background: #ecf3ef;
+            border: 1px solid #b3cdbf;
+            color: #134531;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 48px;
+            min-width: 50px;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .tool-btn:active { background: #d0e0d7; transform: scale(0.96); }
+        .tool-btn:disabled { opacity: 0.4; background: #e0e8e3; border-color: #b6ccc1; pointer-events: none; }
+        .tool-btn.hidden { display: none; }
+        .tool-btn.encerrar {
+            background: #134531;
+            color: #fff;
+            border-color: #0f3d2e;
+        }
+        .tool-btn.encerrar:active { background: #0f3d2e; }
+        .tool-btn.ler-selecao {
+            background: #e0f2f1;
+            border-color: #80cbc4;
+            color: #00695c;
+        }
+        .tool-btn.ler-selecao:active { background: #b2dfdb; }
+        .tool-btn.ler-selecao.reading {
+            background: #ffeb3b;
+            border-color: #fbc02d;
+            color: #5d4037;
+        }
+        .tool-btn.ler-selecao.paused {
+            background: #ffe0b2;
+            border-color: #ffb74d;
+            color: #e65100;
+        }
+
+        .capa {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .capa h1 { font-size: 26px; margin-bottom: 16px; color: #0f3d2e; }
+        .capa h2 { font-size: 18px; margin-bottom: 30px; color: #1a5e44; }
+        .capa p { font-size: 19px; color: #2a5e4a; }
+
+        .congrats-page {
+            text-align: center;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 40vh;
+        }
+        .congrats-page h2 { color: #1a5e44; margin-bottom: 10px; font-size: 1.8rem; }
+        .congrats-image { text-align: center; margin: 15px auto; }
+        .congrats-image img {
+            transform: scale(1.2);
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        .gabarito-questao {
+            background: #f4f9f6;
+            border-left: 5px solid #1a7a58;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+        }
+        .questao-bloco {
+            background: #e0f2f1;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 0 0 8px 0;
+            border-left: 4px solid #00695c;
+        }
+        .rotulo-questao {
+            display: inline-block;
+            background: #00695c;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+        .questao-bloco p { margin: 0.3em 0; color: #1a2e2a; }
+        .questao-bloco ul, .questao-bloco ol {
+            padding-left: 1.6em;
+            margin: 0.3em 0;
+        }
+        .gabarito-questao .resposta-bloco {
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 8px 0 6px;
+            border-left: 4px solid #1b5e20;
+        }
+        .gabarito-questao .justificativa-bloco {
+            background: #fff3e0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 6px 0 0;
+            border-left: 4px solid #e65100;
+        }
+        .rotulo-resposta {
+            display: inline-block;
+            background: #1b5e20;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+        .rotulo-justificativa {
+            display: inline-block;
+            background: #e65100;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 700px) {
+            .reader-wrapper { padding: 8px 10px; border-radius: 16px; }
+            .tool-btn { padding: 6px 8px; min-width: 44px; font-size: 0.85rem; }
+            .text-content { max-height: 70vh; font-size: 16px; }
+            .fixed-header h1 { font-size: 1.2rem; }
+            .text-content table { font-size: 0.75em; }
+            .text-content th, .text-content td { padding: 4px 5px; }
+            .text-content pre { font-size: 0.7em; padding: 8px 10px; }
+            .capa h1 { font-size: 20px; }
+            .capa h2 { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="reader-wrapper">
+    <div id="readerScreen" class="screen active">
+        <div class="fixed-header">
+            <h1>📘 Module 5B2 · Part 5: Typical Electronic/Digital Systems</h1>
+            <div class="progress-row">
+                <span id="pageXofY">Page 1 of 15</span>
+                <span id="progressPercent">5%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="text-content" id="pageContent"></div>
+        <div class="toolbar-single">
+            <button class="tool-btn" id="fontMinusBtn" title="Decrease font">A−</button>
+            <button class="tool-btn" id="fontPlusBtn" title="Increase font">A+</button>
+            <button class="tool-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+            <button class="tool-btn" id="prevBtnInline" title="Previous page">◀</button>
+            <button class="tool-btn" id="nextBtnInline" title="Next page">▶</button>
+            <button class="tool-btn" id="speakBtn" title="Listen to the whole page from the beginning">🔊</button>
+            <button class="tool-btn ler-selecao" id="lerSelecaoBtn" title="Read only the selected text">📖 Read Selection</button>
+            <button class="tool-btn hidden" id="pauseBtn" title="Pause">⏸️</button>
+            <button class="tool-btn hidden" id="resumeBtn" title="Resume">▶️</button>
+            <button class="tool-btn hidden" id="stopBtn" title="Stop">⏹️</button>
+            <select id="rateSelect" class="tool-btn" style="width: auto; background: #ecf3ef; border: 1px solid #b3cdbf; padding: 8px 12px;">
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+            <button class="tool-btn encerrar hidden" id="encerrarBtn" title="End reading">✖ End Reading</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const pageContents = [
+            // Page 1 – Cover
+            `<div class="capa">
+                <h1>📘 Module 5B2 · Part 5</h1>
+                <h2>Typical Electronic/Digital Systems<br>
+                ACARS · EICAS · FBW · FMS · IRS · ECAM · EFIS · GPS · TCAS · IMA</h2>
+                <p>Study Material Summary (Final Part)</p>
+            </div>`,
+
+            // Page 2 – Index
+            `<div class="text-container" style="max-width:100%;">
+                <h3>📌 PART 5 INDEX</h3>
+                <ol>
+                    <li>ACARS (Aircraft Communications Addressing and Reporting System) – Page 3</li>
+                    <li>EICAS (Engine Indication and Crew Alerting System) – Page 4</li>
+                    <li>FBW (Fly-by-Wire) – Page 5</li>
+                    <li>FMS (Flight Management System) – Page 6</li>
+                    <li>IRS (Inertial Reference System) – Page 7</li>
+                    <li>ECAM (Electronic Centralized Aircraft Monitor) – Page 8</li>
+                    <li>EFIS (Electronic Flight Instrument System) – Page 9</li>
+                    <li>GPS (Global Positioning System) – Page 10</li>
+                    <li>TCAS (Traffic Alert and Collision Avoidance System) – Page 11</li>
+                    <li>IMA (Integrated Modular Avionics) – Page 12</li>
+                    <li>Practice Exercises (12 Questions) – Page 13</li>
+                    <li>Continuing Exercises – Page 14</li>
+                    <li>🎉 Congratulations (Course Completion) – Page 15</li>
+                </ol>
+            </div>`,
+
+            // Page 3
+            `<h3>1. ACARS</h3>
+            <p>ACARS (Aircraft Communications Addressing and Reporting System) is a digital datalink system for transmitting short messages between the aircraft and ground stations via VHF radio or satellite (SATCOM).</p>
+            
+            <h4>1.1 Main Functions</h4>
+            <ul>
+                <li><strong>OOOI Events:</strong> Automatically detects and reports flight phases (Out of the gate, Off the ground, On the ground, Into the gate).</li>
+                <li><strong>FMS Interface:</strong> Allows flight plans and weather information to be sent from the ground to the FMS.</li>
+                <li><strong>Equipment Health:</strong> Transmits fault and maintenance data in real-time to the ground (Health Monitoring).</li>
+                <li><strong>Text Messages:</strong> Allows the crew to send and receive text messages (such as weather requests or connecting flight information).</li>
+            </ul>
+
+            <h4>1.2 Transmission</h4>
+            <p>Data is transmitted via VHF (using FSK modulation) or via SATCOM (digital format). The system was designed by ARINC in 1978.</p>`,
+
+            // Page 4
+            `<h3>2. EICAS</h3>
+            <p>EICAS (Engine Indication and Crew Alerting System) is Boeing's system that replaces analog engine instruments and warning panels, presenting data on Display Units (DUs).</p>
+            
+            <h4>2.1 Display Units</h4>
+            <ul>
+                <li><strong>Upper DU:</strong> Permanently displays primary engine parameters (N1, EGT, EPR) and alert messages (warnings, cautions, advisories).</li>
+                <li><strong>Lower DU:</strong> Displays secondary engine parameters (N2, fuel flow, oil pressure) and system status pages (hydraulic, electrical, etc.).</li>
+            </ul>
+
+            <h4>2.2 Alert Levels</h4>
+            <ul>
+                <li><strong>Level A (Warning):</strong> Red. Requires immediate corrective action.</li>
+                <li><strong>Level B (Caution):</strong> Amber. Requires immediate crew awareness.</li>
+                <li><strong>Level C (Advisory):</strong> Amber. Requires crew awareness, but no immediate action.</li>
+            </ul>
+
+            <h4>2.3 Redundancy</h4>
+            <p>The system has two dedicated computers (left and right). One is active and the other is on standby (hot backup), assuming control automatically in case of failure.</p>`,
+
+            // Page 5
+            `<h3>3. FBW (Fly-by-Wire)</h3>
+            <p>Fly-by-Wire replaces mechanical cables and hydraulic flight control systems with electrical signals and computers. The pilot moves the sidestick or column, and the computers interpret the signal, moving the control surfaces.</p>
+            
+            <h4>3.1 Advantages</h4>
+            <ul>
+                <li>Reduction in weight and complexity (fewer cables and pulleys).</li>
+                <li><strong>Flight Envelope Protection:</strong> Computers prevent the pilot from exceeding speed limits, angle of attack (stall), or load factor (G).</li>
+                <li>Uniform handling between different aircraft models of the same family.</li>
+            </ul>
+
+            <h4>3.2 Architecture (Airbus A320 as an example)</h4>
+            <ul>
+                <li>Control computers: 2 ELACs (Elevator Aileron Computer), 3 SECs (Spoilers Elevator Computer), and 2 FACs (Flight Augmentation Computer).</li>
+                <li><strong>Redundancy:</strong> The architecture is quadruplex (4 independent channels) to ensure that no single failure causes loss of control.</li>
+                <li><strong>Direct Mode:</strong> If the computers fail, the system degrades to direct mode, where pilot inputs go directly to the actuators, without envelope protections.</li>
+            </ul>`,
+
+            // Page 6
+            `<h3>4. FMS (Flight Management System)</h3>
+            <p>The FMS is considered the "brain" of the aircraft's navigation. It calculates the most efficient route, manages flight performance, and commands the autopilot (AFS).</p>
+            
+            <h4>4.1 Main Functions</h4>
+            <ul>
+                <li><strong>Navigation:</strong> Automatically tunes radio aids (VOR, DME, ILS) and calculates the aircraft's position.</li>
+                <li><strong>Performance:</strong> Calculates the ideal vertical profile (climb, cruise, descent) to minimize fuel consumption and time.</li>
+                <li><strong>Guidance:</strong> Compares the actual position with the planned route and sends commands to the AFS to correct deviations.</li>
+            </ul>
+
+            <h4>4.2 Interface and Database</h4>
+            <ul>
+                <li>The pilot interacts via the CDU (Control Display Unit) or MCDU.</li>
+                <li>The navigation database (NavDB) contains routes, waypoints, and frequencies. It must be updated every <strong>28 days</strong>.</li>
+            </ul>`,
+
+            // Page 7
+            `<h3>5. IRS (Inertial Reference System)</h3>
+            <p>The IRS provides attitude, heading, and position data to the aircraft, without relying on external signals.</p>
+            
+            <h4>5.1 Operation</h4>
+            <ul>
+                <li>Uses <strong>Ring Laser Gyros</strong> and <strong>Accelerometers</strong> mounted directly to the structure (strap-down).</li>
+                <li>The sensors detect linear accelerations and angular rotation rates.</li>
+                <li>A computer integrates these signals to calculate velocity and position.</li>
+            </ul>
+
+            <h4>5.2 Alignment</h4>
+            <ul>
+                <li>Before flight, the IRS needs to be aligned. The process takes about <strong>10 minutes</strong>.</li>
+                <li>During alignment, the aircraft must be stationary.</li>
+                <li>The system detects gravity (to establish local vertical) and Earth's rotation (to establish initial heading).</li>
+                <li>The initial position (latitude and longitude) must be entered by the pilot.</li>
+            </ul>`,
+
+            // Page 8
+            `<h3>6. ECAM (Electronic Centralized Aircraft Monitor)</h3>
+            <p>ECAM is Airbus's equivalent to Boeing's EICAS. It monitors aircraft systems and presents information to the pilots via screens.</p>
+            
+            <h4>6.1 Characteristics</h4>
+            <ul>
+                <li>Displays engine data and alerts.</li>
+                <li>Shows <strong>synoptic diagrams</strong> of systems (hydraulic, electrical, fuel, etc.).</li>
+                <li>Provides <strong>checklists</strong> for corrective actions in case of failures.</li>
+            </ul>
+
+            <h4>6.2 Architecture (A380/A320)</h4>
+            <ul>
+                <li>Sensors send data to the <strong>SDACs</strong> (System Data Acquisition Concentrators).</li>
+                <li>SDACs process the data and send it to the <strong>FWCs</strong> (Flight Warning Computers).</li>
+                <li>FWCs generate alerts and send the images to the screens via the <strong>DMCs</strong> (Display Management Computers).</li>
+            </ul>`,
+
+            // Page 9
+            `<h3>7. EFIS (Electronic Flight Instrument System)</h3>
+            <p>EFIS is the electronic flight instrument system that replaces old mechanical displays (steam gauges). It consists of the screens on the instrument panel.</p>
+            
+            <h4>7.1 Main Components</h4>
+            <ul>
+                <li><strong>PFD (Primary Flight Display):</strong> The main flight screen. Displays attitude (attitude indicator), speed tape (left), altitude tape (right), vertical speed, and heading (bottom).</li>
+                <li><strong>ND (Navigation Display):</strong> The navigation screen. Displays the moving map, planned route, waypoints, radio aids (VOR, DME), and weather information (radar).</li>
+            </ul>
+
+            <h4>7.2 Advantages</h4>
+            <ul>
+                <li>Reduction in weight and space (replaces dozens of instruments).</li>
+                <li>Higher reliability (fewer moving parts).</li>
+                <li>Clearer and more integrated presentation of information.</li>
+            </ul>`,
+
+            // Page 10
+            `<h3>8. GPS (Global Positioning System)</h3>
+            <p>GPS is a satellite navigation system that provides three-dimensional position (latitude, longitude, altitude) and precise time.</p>
+            
+            <h4>8.1 Principle of Operation</h4>
+            <ul>
+                <li>The receiver measures the time it takes for the signal to travel from the satellite to it.</li>
+                <li>Using the speed of light, it calculates the distance (pseudorange).</li>
+                <li>At least <strong>4 satellites</strong> are required to calculate the 3D position and correct the receiver's clock error.</li>
+            </ul>
+
+            <h4>8.2 Segments</h4>
+            <ul>
+                <li><strong>Space:</strong> Satellite constellation (minimum 24).</li>
+                <li><strong>Control:</strong> Ground stations that monitor and correct the satellites.</li>
+                <li><strong>User:</strong> Receivers in the aircraft.</li>
+            </ul>
+
+            <h4>8.3 Augmentation</h4>
+            <p>To ensure integrity and precision for precision approaches, augmentation systems such as <strong>SBAS</strong> (satellite-based, e.g., EGNOS) and <strong>GBAS</strong> (ground-based stations) are used.</p>`,
+
+            // Page 11
+            `<h3>9. TCAS (Traffic Alert and Collision Avoidance System)</h3>
+            <p>TCAS is an onboard system that monitors the airspace around the aircraft, independent of air traffic control, to prevent collisions.</p>
+            
+            <h4>9.1 Operation</h4>
+            <ul>
+                <li>TCAS interrogates the transponders (Mode C or Mode S) of other aircraft nearby (frequencies 1030 MHz and 1090 MHz).</li>
+                <li>It calculates the range, bearing, and altitude of nearby aircraft.</li>
+                <li>If it detects a collision threat, it issues alerts.</li>
+            </ul>
+
+            <h4>9.2 Alert Types</h4>
+            <ul>
+                <li><strong>TA (Traffic Advisory):</strong> Alerts the crew to nearby traffic ("Traffic, Traffic"). Helps with visual search.</li>
+                <li><strong>RA (Resolution Advisory):</strong> Direct instruction for an evasive vertical maneuver (e.g., "Climb, Climb" or "Descend, Descend"). The crew must obey immediately, regardless of ATC instructions.</li>
+            </ul>`,
+
+            // Page 12
+            `<h3>10. IMA (Integrated Modular Avionics)</h3>
+            <p>IMA is a modern avionics architecture that replaces dozens of separate LRUs (Line Replaceable Units) with fewer, centralized, and shared processing modules.</p>
+            
+            <h4>10.1 IMA Advantages</h4>
+            <ul>
+                <li><strong>Weight Reduction:</strong> Fewer metal boxes, less wiring, and fewer connectors.</li>
+                <li><strong>Cost Reduction:</strong> Use of commercial hardware (COTS) and smaller parts inventory.</li>
+                <li><strong>Flexibility:</strong> Software updates can be made without changing the hardware.</li>
+            </ul>
+
+            <h4>10.2 Examples</h4>
+            <ul>
+                <li><strong>Airbus A380:</strong> Uses CPIOMs (Core Processing Input/Output Modules) and IOMs (Input/Output Modules) interconnected by an AFDX network.</li>
+                <li><strong>Boeing 787:</strong> Uses the CCS (Common Core System), with GPMs (General Processing Modules) and RDCs (Remote Data Concentrators).</li>
+            </ul>
+
+            <h4>10.3 AFDX (Avionics Full-Duplex Switched Ethernet)</h4>
+            <p>It is the communication backbone of IMA. It is based on the Ethernet standard, but with determinism (guaranteed bandwidth and maximum latency), essential for critical flight systems.</p>`,
+
+            // Page 13 - Questions
+            `<h3>11. Practice Exercises</h3>
+            <p>Below are 12 objective questions with answers and explanations integrated, as requested.</p>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 1</span>
+                    <p>What is the main function of the ACARS system?</p>
+                    <ul>
+                        <li>a) To automatically control the aircraft's flight.</li>
+                        <li>b) To transmit short digital messages between the aircraft and the ground.</li>
+                        <li>c) To measure the aircraft's altitude.</li>
+                        <li>d) To detect engine failures.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) To transmit short digital messages between the aircraft and the ground.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> ACARS (Aircraft Communications Addressing and Reporting System) is a datalink system dedicated to transmitting text messages, maintenance reports, and OOOI events between the aircraft and ground stations.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 2</span>
+                    <p>In the EICAS system, where are the primary engine parameters (N1, EGT) displayed?</p>
+                    <ul>
+                        <li>a) On the Lower DU.</li>
+                        <li>b) On the FMS MCDU.</li>
+                        <li>c) On the Upper DU.</li>
+                        <li>d) On the PFD.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> c) On the Upper DU.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> The EICAS upper display is permanently dedicated to presenting primary engine parameters (N1, EGT, EPR) and alert messages. The lower display shows secondary parameters and status pages.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 3</span>
+                    <p>What characterizes a Fly-by-Wire (FBW) system?</p>
+                    <ul>
+                        <li>a) Control of the surfaces is done by mechanical cables.</li>
+                        <li>b) Control is done by electrical signals processed by computers.</li>
+                        <li>c) It has no redundancy.</li>
+                        <li>d) It is used only in military aircraft.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) Control is done by electrical signals processed by computers.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> FBW replaces mechanical cables and rods with electrical wires. The pilot's movements are interpreted by computers, which send electrical signals to move the hydraulic actuators of the control surfaces.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 4</span>
+                    <p>What is the main function of the Flight Management System (FMS)?</p>
+                    <ul>
+                        <li>a) To control cabin pressure.</li>
+                        <li>b) To manage navigation, performance, and guidance of the aircraft.</li>
+                        <li>c) To actuate the landing gear.</li>
+                        <li>d) To regulate the air conditioning temperature.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) To manage navigation, performance, and guidance of the aircraft.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> The FMS is the "brain" of navigation. It calculates the ideal route, the vertical profile (performance), and sends commands to the autopilot (guidance) to follow the flight plan.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 5</span>
+                    <p>What sensors are used by the Inertial Reference System (IRS)?</p>
+                    <ul>
+                        <li>a) Ring laser gyros and accelerometers.</li>
+                        <li>b) Pitot tubes and static ports.</li>
+                        <li>c) GPS antennas.</li>
+                        <li>d) Temperature sensors.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> a) Ring laser gyros and accelerometers.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> The IRS uses ring laser gyros to measure angular rotation rates and accelerometers to measure linear accelerations, calculating the aircraft's attitude, heading, and position.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 6</span>
+                    <p>Which system is Airbus's equivalent to Boeing's EICAS and provides checklists and synoptic diagrams?</p>
+                    <ul>
+                        <li>a) EFIS</li>
+                        <li>b) ECAM</li>
+                        <li>c) FMS</li>
+                        <li>d) TCAS</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) ECAM
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> ECAM (Electronic Centralized Aircraft Monitor) is Airbus's system that, in addition to monitoring engines and systems, presents synoptic diagrams and checklists for corrective actions.
+                </div>
+            </div>`,
+
+            // Page 14 - Continuing Questions
+            `<div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 7</span>
+                    <p>What are the two main displays that make up the EFIS?</p>
+                    <ul>
+                        <li>a) PFD and ND.</li>
+                        <li>b) EICAS and ECAM.</li>
+                        <li>c) MCDU and CDU.</li>
+                        <li>d) TCAS and GPWS.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> a) PFD and ND.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> EFIS (Electronic Flight Instrument System) consists of the PFD (Primary Flight Display), which shows primary flight data (attitude, speed, altitude), and the ND (Navigation Display), which shows the navigation map.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 8</span>
+                    <p>How many satellites, at minimum, does a GPS receiver need to calculate a 3D position (latitude, longitude, and altitude)?</p>
+                    <ul>
+                        <li>a) 2</li>
+                        <li>b) 3</li>
+                        <li>c) 4</li>
+                        <li>d) 6</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> c) 4
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> 4 satellites are required to solve the 4 unknowns: the three spatial coordinates (x, y, z) and the receiver's internal clock error.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 9</span>
+                    <p>What is the difference between a TA (Traffic Advisory) and an RA (Resolution Advisory) from TCAS?</p>
+                    <ul>
+                        <li>a) TA is for imminent collision, RA is just a warning.</li>
+                        <li>b) TA warns of nearby traffic; RA gives a vertical maneuver instruction to avoid collision.</li>
+                        <li>c) Both are the same thing.</li>
+                        <li>d) RA only works on the ground.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) TA warns of nearby traffic; RA gives a vertical maneuver instruction to avoid collision.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> TA (Traffic Advisory) alerts the crew to visually search for the aircraft ("Traffic, Traffic"). RA (Resolution Advisory) is a direct vertical maneuver instruction (e.g., "Climb, Climb") that the crew must follow immediately.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 10</span>
+                    <p>What is the main advantage of the IMA (Integrated Modular Avionics) architecture?</p>
+                    <ul>
+                        <li>a) To increase the number of LRUs in the aircraft.</li>
+                        <li>b) To reduce weight, cost, and complexity through shared computing resources.</li>
+                        <li>c) To eliminate the need for software.</li>
+                        <li>d) To increase the voltage of the electrical system.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) To reduce weight, cost, and complexity through shared computing resources.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> IMA replaces dozens of dedicated LRUs with centralized modules (CPIOMs, GPMs) that share processing, memory, and network. This drastically reduces weight, power consumption, and maintenance costs.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 11</span>
+                    <p>How long does the IRS alignment take approximately before flight?</p>
+                    <ul>
+                        <li>a) 1 minute.</li>
+                        <li>b) 10 minutes.</li>
+                        <li>c) 30 minutes.</li>
+                        <li>d) 1 hour.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) 10 minutes.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> The IRS alignment process determines the local vertical and initial heading. It takes about 10 minutes and requires the aircraft to be stationary.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Question 12</span>
+                    <p>How often must the FMS navigation database (NavDB) be updated?</p>
+                    <ul>
+                        <li>a) Every 7 days.</li>
+                        <li>b) Every 28 days.</li>
+                        <li>c) Every 6 months.</li>
+                        <li>d) Only when the aircraft undergoes heavy maintenance.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Answer:</span> b) Every 28 days.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Explanation:</span> The FMS navigation database (NavDB) follows an AIRAC (Aeronautical Information Regulation And Control) cycle and is updated every 28 days to ensure routes, waypoints, and frequencies are current.
+                </div>
+            </div>`,
+
+            // Page 15 - Congratulations
+            `<div class="congrats-page">
+                <h2>🎉 Congratulations!</h2>
+                <p style="margin-top: 20px;">You have completed <strong>Part 5: Typical Electronic/Digital Systems</strong> and, with it, the entire summarized material of Module 5B2!</p>
+                <div class="congrats-image">
+                    <img src="https://media.tenor.com/1Gq9HnEJ5wMAAAAM/shih-tzu-shihtzu.gif" alt="Congratulations">
+                </div>
+                <p style="margin-top: 20px;">You have reviewed: Fundamentals, Data Buses, Fiber Optics, Computers, Microprocessors, Electromagnetic Environment, ESD, and the main Avionics Systems.</p>
+                <p style="margin-top: 10px;">Good studies and good luck on your exam!</p>
+            </div>`
+        ];
+
+        const totalPages = pageContents.length;
+        let currentPage = 0;
+        let fontSizeIndex = 4;
+        const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 38, 42];
+
+        const pageContent = document.getElementById('pageContent');
+        const pageXofY = document.getElementById('pageXofY');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const fontMinus = document.getElementById('fontMinusBtn');
+        const fontPlus = document.getElementById('fontPlusBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const prevBtn = document.getElementById('prevBtnInline');
+        const nextBtn = document.getElementById('nextBtnInline');
+        const speakBtn = document.getElementById('speakBtn');
+        const lerSelecaoBtn = document.getElementById('lerSelecaoBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const rateSelect = document.getElementById('rateSelect');
+        const encerrarBtn = document.getElementById('encerrarBtn');
+
+        const synth = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+        let isPaused = false;
+        let speechToken = null;
+        let previousActiveSpan = null;
+        let wordSpans = [];
+        let charIndexToSpanMap = [];
+        let currentCharIndex = 0;
+
+        let selectionUtterance = null;
+        let isReadingSelection = false;
+        let isSelectionPaused = false;
+        let selectionToken = null;
+        let selectionWordSpans = [];
+        let selectionCharMap = [];
+        let selectionPrevSpan = null;
+        let lastSelectionRange = null;
+        let lastSelectionText = '';
+
+        document.addEventListener('selectionchange', function() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    lastSelectionRange = range.cloneRange();
+                    lastSelectionText = sel.toString().trim();
+                }
+            }
+        });
+
+        function getActiveSelectionRange() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    return range.cloneRange();
+                }
+            }
+            if (lastSelectionRange && lastSelectionText) return lastSelectionRange;
+            return null;
+        }
+
+        function getFemaleVoice() {
+            const voices = synth.getVoices();
+            const enVoices = voices.filter(v => v.lang === 'en-US' || v.lang === 'en-GB' || v.lang.startsWith('en'));
+            const female = enVoices.find(v =>
+                v.name.toLowerCase().includes('female') ||
+                v.name.toLowerCase().includes('woman') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Zira') ||
+                v.name.includes('Jenny') ||
+                v.name.includes('Google US English')
+            );
+            return female || enVoices[0] || voices[0];
+        }
+
+        function tokenizeTextNodes(root) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            const textNodes = [];
+            while (walker.nextNode()) {
+                textNodes.push(walker.currentNode);
+            }
+            textNodes.forEach(node => {
+                const text = node.textContent;
+                if (!text.trim()) return;
+                if (node.parentNode && (node.parentNode.tagName === 'PRE' || node.parentNode.tagName === 'CODE')) return;
+                const fragment = document.createDocumentFragment();
+                const parts = text.split(/(\s+)/);
+                parts.forEach(part => {
+                    if (part.trim()) {
+                        const span = document.createElement('span');
+                        span.className = 'speech-word';
+                        span.textContent = part;
+                        fragment.appendChild(span);
+                    } else {
+                        fragment.appendChild(document.createTextNode(part));
+                    }
+                });
+                node.parentNode.replaceChild(fragment, node);
+            });
+        }
+
+        function buildCharMapForSpans(spans) {
+            const map = [];
+            spans.forEach((span, idx) => {
+                const len = span.textContent.length;
+                for (let i = 0; i < len; i++) map.push(idx);
+                if (idx < spans.length - 1) map.push(idx);
+            });
+            return map;
+        }
+
+        function buildCharMap() {
+            wordSpans = Array.from(pageContent.querySelectorAll('.speech-word'));
+            charIndexToSpanMap = buildCharMapForSpans(wordSpans);
+        }
+
+        function highlightWordSpan(spanIndex) {
+            if (previousActiveSpan !== null) {
+                const prevSpan = wordSpans[previousActiveSpan];
+                if (prevSpan) {
+                    prevSpan.classList.remove('active');
+                    prevSpan.classList.remove('upcoming');
+                }
+            }
+            if (spanIndex >= 0 && spanIndex < wordSpans.length) {
+                const currentSpan = wordSpans[spanIndex];
+                currentSpan.classList.add('active');
+                currentSpan.classList.remove('upcoming');
+                previousActiveSpan = spanIndex;
+                currentSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function markUpcoming(spanIndex) {
+            wordSpans.forEach(s => s.classList.remove('upcoming'));
+            for (let i = 1; i <= 3; i++) {
+                const nextIdx = spanIndex + i;
+                if (nextIdx < wordSpans.length) {
+                    wordSpans[nextIdx].classList.add('upcoming');
+                }
+            }
+        }
+
+        function clearAllWordHighlights() {
+            wordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            previousActiveSpan = null;
+        }
+
+        function syncHighlightFromCharIndex() {
+            if (currentCharIndex >= charIndexToSpanMap.length) return;
+            const spanIdx = charIndexToSpanMap[currentCharIndex];
+            if (spanIdx !== undefined && spanIdx !== previousActiveSpan) {
+                highlightWordSpan(spanIdx);
+                markUpcoming(spanIdx);
+            }
+        }
+
+        function highlightSelectionWord(spanIdx) {
+            if (selectionPrevSpan !== null) {
+                const prev = selectionWordSpans[selectionPrevSpan];
+                if (prev) {
+                    prev.classList.remove('active');
+                    prev.classList.remove('upcoming');
+                }
+            }
+            if (spanIdx >= 0 && spanIdx < selectionWordSpans.length) {
+                const curr = selectionWordSpans[spanIdx];
+                curr.classList.add('active');
+                curr.classList.remove('upcoming');
+                selectionPrevSpan = spanIdx;
+                curr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            selectionWordSpans.forEach((s, i) => {
+                if (i !== spanIdx) s.classList.remove('upcoming');
+            });
+            for (let i = 1; i <= 3; i++) {
+                const next = selectionWordSpans[spanIdx + i];
+                if (next) next.classList.add('upcoming');
+            }
+        }
+
+        function clearSelectionHighlights() {
+            selectionWordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            selectionPrevSpan = null;
+        }
+
+        function showPlayingUI() {
+            speakBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            stopBtn.classList.remove('hidden');
+            resumeBtn.classList.add('hidden');
+        }
+
+        function showPausedUI() {
+            pauseBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+            resumeBtn.classList.remove('hidden');
+            speakBtn.classList.add('hidden');
+        }
+
+        function showStoppedUI() {
+            speakBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+        }
+
+        function setSelectionBtnState(state) {
+            lerSelecaoBtn.classList.remove('reading', 'paused');
+            if (state === 'reading') {
+                lerSelecaoBtn.textContent = '⏸️ Pause';
+                lerSelecaoBtn.title = 'Pause selection reading';
+                lerSelecaoBtn.classList.add('reading');
+            } else if (state === 'paused') {
+                lerSelecaoBtn.textContent = '▶️ Resume';
+                lerSelecaoBtn.title = 'Resume selection reading';
+                lerSelecaoBtn.classList.add('paused');
+            } else {
+                lerSelecaoBtn.textContent = '📖 Read Selection';
+                lerSelecaoBtn.title = 'Read only the selected text';
+            }
+        }
+
+        function startReading() {
+            if (!synth) { alert('Your browser does not support speech synthesis.'); return; }
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+
+            if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+                return;
+            }
+            if (isSpeaking) { stopReading(); return; }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+            }
+            buildCharMap();
+            if (wordSpans.length === 0) return;
+
+            const text = wordSpans.map(s => s.textContent).join(' ');
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) currentUtterance.voice = voice;
+            currentUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            speechToken = token;
+            currentCharIndex = 0;
+
+            currentUtterance.onboundary = function(event) {
+                if (speechToken !== token) return;
+                if (event.name === 'word') {
+                    currentCharIndex = event.charIndex;
+                    syncHighlightFromCharIndex();
+                }
+            };
+            currentUtterance.onstart = function() {
+                if (speechToken !== token) return;
+                isSpeaking = true;
+                isPaused = false;
+                showPlayingUI();
+            };
+            currentUtterance.onend = function() {
+                if (speechToken !== token) return;
+                resetSpeechState();
+            };
+            currentUtterance.onerror = function(e) {
+                if (speechToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Speech error:', e.error);
+                resetSpeechState();
+            };
+
+            synth.speak(currentUtterance);
+        }
+
+        function pauseReading() {
+            if (synth && isSpeaking && !isPaused) {
+                synth.pause();
+                isPaused = true;
+                showPausedUI();
+            }
+        }
+
+        function resumeReading() {
+            if (synth && isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+            }
+        }
+
+        function stopReading() {
+            if (synth) synth.cancel();
+            resetSpeechState();
+        }
+
+        function resetSpeechState() {
+            if (synth && synth.speaking) synth.cancel();
+            if (currentUtterance) {
+                currentUtterance.onboundary = null;
+                currentUtterance.onstart = null;
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+                currentUtterance = null;
+            }
+            isSpeaking = false;
+            isPaused = false;
+            speechToken = null;
+            currentCharIndex = 0;
+            clearAllWordHighlights();
+            showStoppedUI();
+        }
+
+        function startSelectionReading() {
+            if (!synth) { alert('Your browser does not support speech synthesis.'); return; }
+            if (isSpeaking || isPaused) stopReading();
+
+            const range = getActiveSelectionRange();
+            if (!range) {
+                alert('No text selected. Please select a passage and click "Read Selection".');
+                return;
+            }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+                const newRange = getActiveSelectionRange();
+                if (!newRange) {
+                    alert('Please select the desired passage again.');
+                    return;
+                }
+                return startSelectionReadingWithRange(newRange);
+            }
+
+            startSelectionReadingWithRange(range);
+        }
+
+        function startSelectionReadingWithRange(range) {
+            const spans = [];
+            pageContent.querySelectorAll('.speech-word').forEach(span => {
+                try {
+                    if (range.intersectsNode(span)) spans.push(span);
+                } catch(e) {}
+            });
+
+            if (spans.length === 0) {
+                alert('No text selected. Please select a passage and click "Read Selection".');
+                return;
+            }
+
+            selectionWordSpans = spans;
+            selectionCharMap = buildCharMapForSpans(selectionWordSpans);
+            clearSelectionHighlights();
+
+            const text = spans.map(s => s.textContent).join(' ');
+            selectionUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) selectionUtterance.voice = voice;
+            selectionUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            selectionToken = token;
+
+            selectionUtterance.onboundary = function(event) {
+                if (selectionToken !== token) return;
+                if (event.name === 'word') {
+                    const charIdx = event.charIndex;
+                    if (charIdx < selectionCharMap.length) {
+                        const spanIdx = selectionCharMap[charIdx];
+                        if (spanIdx !== undefined) highlightSelectionWord(spanIdx);
+                    }
+                }
+            };
+            selectionUtterance.onstart = function() {
+                if (selectionToken !== token) return;
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+                stopBtn.classList.remove('hidden');
+            };
+            selectionUtterance.onend = function() {
+                if (selectionToken !== token) return;
+                resetSelectionState();
+            };
+            selectionUtterance.onerror = function(e) {
+                if (selectionToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Selection speech error:', e.error);
+                resetSelectionState();
+            };
+
+            synth.speak(selectionUtterance);
+        }
+
+        function toggleSelectionReading() {
+            if (isReadingSelection) {
+                synth.pause();
+                isReadingSelection = false;
+                isSelectionPaused = true;
+                setSelectionBtnState('paused');
+            } else if (isSelectionPaused) {
+                synth.resume();
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+            } else {
+                startSelectionReading();
+            }
+        }
+
+        function stopSelectionReading() {
+            if (synth && (isReadingSelection || isSelectionPaused)) synth.cancel();
+            resetSelectionState();
+        }
+
+        function resetSelectionState() {
+            if (selectionUtterance) {
+                selectionUtterance.onboundary = null;
+                selectionUtterance.onstart = null;
+                selectionUtterance.onend = null;
+                selectionUtterance.onerror = null;
+                selectionUtterance = null;
+            }
+            isReadingSelection = false;
+            isSelectionPaused = false;
+            selectionToken = null;
+            clearSelectionHighlights();
+            setSelectionBtnState('idle');
+            stopBtn.classList.add('hidden');
+        }
+
+        function updateUI() {
+            resetSpeechState();
+            resetSelectionState();
+            pageContent.innerHTML = pageContents[currentPage];
+            tokenizeTextNodes(pageContent);
+            lastSelectionRange = null;
+            lastSelectionText = '';
+
+            const num = currentPage + 1;
+            pageXofY.textContent = `Page ${num} of ${totalPages}`;
+            const pct = (num / totalPages) * 100;
+            progressFill.style.width = pct + '%';
+            progressPercent.textContent = Math.round(pct) + '%';
+            prevBtn.disabled = (currentPage === 0);
+            nextBtn.disabled = (currentPage === totalPages - 1);
+
+            if (currentPage === totalPages - 1) {
+                encerrarBtn.classList.remove('hidden');
+            } else {
+                encerrarBtn.classList.add('hidden');
+            }
+
+            if (pageContent.scrollTop) pageContent.scrollTop = 0;
+        }
+
+        function applyFontSize() {
+            const size = fontSizes[fontSizeIndex] + 'px';
+            pageContent.style.fontSize = size;
+            fontMinus.disabled = (fontSizeIndex === 0);
+            fontPlus.disabled = (fontSizeIndex === fontSizes.length - 1);
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 0 && newPage < totalPages) {
+                currentPage = newPage;
+                updateUI();
+            }
+        }
+
+        fontMinus.addEventListener('click', () => {
+            if (fontSizeIndex > 0) fontSizeIndex--;
+            applyFontSize();
+        });
+        fontPlus.addEventListener('click', () => {
+            if (fontSizeIndex < fontSizes.length - 1) fontSizeIndex++;
+            applyFontSize();
+        });
+        fullscreenBtn.addEventListener('click', () => {
+            if (document.fullscreenElement) document.exitFullscreen();
+            else document.documentElement.requestFullscreen();
+        });
+        prevBtn.addEventListener('click', () => changePage(-1));
+        nextBtn.addEventListener('click', () => changePage(1));
+
+        speakBtn.addEventListener('click', startReading);
+        pauseBtn.addEventListener('click', pauseReading);
+        resumeBtn.addEventListener('click', resumeReading);
+        stopBtn.addEventListener('click', () => {
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+            if (isSpeaking || isPaused) stopReading();
+        });
+
+        lerSelecaoBtn.addEventListener('click', toggleSelectionReading);
+
+        rateSelect.addEventListener('change', () => {
+            const rate = parseFloat(rateSelect.value);
+            if (currentUtterance && isSpeaking && !isPaused) currentUtterance.rate = rate;
+            if (selectionUtterance && isReadingSelection && !isSelectionPaused) selectionUtterance.rate = rate;
+        });
+
+        encerrarBtn.addEventListener('click', () => {
+            if (synth) synth.cancel();
+            window.open('about:blank', '_blank');
+        });
+
+        applyFontSize();
+        updateUI();
+        if (synth) synth.getVoices();
+    })();
+</script>
+</body>
+</html>
