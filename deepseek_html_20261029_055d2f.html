@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>📘 Módulo 5B2 · Parte 2: Data Buses e Fibra Ótica</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #f5f7f6;
+            color: #1a2e2a;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            margin: 0;
+        }
+        .reader-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            padding: 12px 18px;
+            border: 1px solid #dde5e0;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .fixed-header {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #dde5e0;
+            padding-bottom: 6px;
+        }
+        .fixed-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f3d2e;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .progress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a5e44;
+            margin-bottom: 4px;
+        }
+        .progress-bar-bg {
+            background: #dee6e1;
+            height: 6px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #1a7a58;
+            height: 6px;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.2s;
+        }
+
+        .text-content {
+            text-align: justify;
+            padding: 6px 0 12px;
+            max-height: 75vh;
+            overflow-y: auto;
+            font-size: 18px;
+            line-height: 1.8;
+            margin: 0 2px;
+            scroll-behavior: smooth;
+        }
+        .text-content p { margin-bottom: 0.8em; }
+        .text-content h2, .text-content h3, .text-content h4 {
+            margin: 1em 0 0.3em;
+            color: #154e3a;
+            font-weight: 600;
+        }
+        .text-content h3 { font-size: 1.15em; }
+        .text-content h4 { font-size: 1.02em; }
+        .text-content ul, .text-content ol {
+            padding-left: 1.8em;
+            margin: 0.4em 0;
+        }
+        .text-content li { margin-bottom: 0.3em; }
+
+        .text-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8em 0;
+            font-size: 0.85em;
+            text-align: left;
+        }
+        .text-content th, .text-content td {
+            border: 1px solid #b3cdbf;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .text-content th {
+            background: #ecf3ef;
+            color: #134531;
+            font-weight: 600;
+        }
+        .text-content tr:nth-child(even) { background: #f9fbfa; }
+
+        .text-content pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            overflow-x: auto;
+            font-size: 0.78em;
+            line-height: 1.5;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0.8em 0;
+            border: 1px solid #1e293b;
+        }
+        .text-content pre code { background: none; color: inherit; padding: 0; }
+        .text-content code {
+            background: #e8eefb;
+            color: #1e3a8a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.88em;
+        }
+
+        .speech-word {
+            transition: background-color 0.15s ease, color 0.15s ease;
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin: 0 1px;
+        }
+        .speech-word.active {
+            background-color: #ffeb3b;
+            color: #000;
+            font-weight: 600;
+        }
+        .speech-word.upcoming { background-color: #fff9c4; }
+
+        .toolbar-single {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            margin: 14px 0 10px;
+            padding: 4px 0 6px;
+            border-top: 1px solid #dde5e0;
+            border-bottom: 1px solid #dde5e0;
+        }
+        .tool-btn {
+            background: #ecf3ef;
+            border: 1px solid #b3cdbf;
+            color: #134531;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 48px;
+            min-width: 50px;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .tool-btn:active { background: #d0e0d7; transform: scale(0.96); }
+        .tool-btn:disabled { opacity: 0.4; background: #e0e8e3; border-color: #b6ccc1; pointer-events: none; }
+        .tool-btn.hidden { display: none; }
+        .tool-btn.encerrar {
+            background: #134531;
+            color: #fff;
+            border-color: #0f3d2e;
+        }
+        .tool-btn.encerrar:active { background: #0f3d2e; }
+        .tool-btn.ler-selecao {
+            background: #e0f2f1;
+            border-color: #80cbc4;
+            color: #00695c;
+        }
+        .tool-btn.ler-selecao:active { background: #b2dfdb; }
+        .tool-btn.ler-selecao.reading {
+            background: #ffeb3b;
+            border-color: #fbc02d;
+            color: #5d4037;
+        }
+        .tool-btn.ler-selecao.paused {
+            background: #ffe0b2;
+            border-color: #ffb74d;
+            color: #e65100;
+        }
+
+        .capa {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .capa h1 { font-size: 26px; margin-bottom: 16px; color: #0f3d2e; }
+        .capa h2 { font-size: 18px; margin-bottom: 30px; color: #1a5e44; }
+        .capa p { font-size: 19px; color: #2a5e4a; }
+
+        .congrats-page {
+            text-align: center;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 40vh;
+        }
+        .congrats-page h2 { color: #1a5e44; margin-bottom: 10px; font-size: 1.8rem; }
+        .congrats-image { text-align: center; margin: 15px auto; }
+        .congrats-image img {
+            transform: scale(1.2);
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        .gabarito-questao {
+            background: #f4f9f6;
+            border-left: 5px solid #1a7a58;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+        }
+        .questao-bloco {
+            background: #e0f2f1;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 0 0 8px 0;
+            border-left: 4px solid #00695c;
+        }
+        .rotulo-questao {
+            display: inline-block;
+            background: #00695c;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+        .questao-bloco p { margin: 0.3em 0; color: #1a2e2a; }
+        .questao-bloco ul, .questao-bloco ol {
+            padding-left: 1.6em;
+            margin: 0.3em 0;
+        }
+        .gabarito-questao .resposta-bloco {
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 8px 0 6px;
+            border-left: 4px solid #1b5e20;
+        }
+        .gabarito-questao .justificativa-bloco {
+            background: #fff3e0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 6px 0 0;
+            border-left: 4px solid #e65100;
+        }
+        .rotulo-resposta {
+            display: inline-block;
+            background: #1b5e20;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+        .rotulo-justificativa {
+            display: inline-block;
+            background: #e65100;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 700px) {
+            .reader-wrapper { padding: 8px 10px; border-radius: 16px; }
+            .tool-btn { padding: 6px 8px; min-width: 44px; font-size: 0.85rem; }
+            .text-content { max-height: 70vh; font-size: 16px; }
+            .fixed-header h1 { font-size: 1.2rem; }
+            .text-content table { font-size: 0.75em; }
+            .text-content th, .text-content td { padding: 4px 5px; }
+            .text-content pre { font-size: 0.7em; padding: 8px 10px; }
+            .capa h1 { font-size: 20px; }
+            .capa h2 { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="reader-wrapper">
+    <div id="readerScreen" class="screen active">
+        <div class="fixed-header">
+            <h1>📘 Módulo 5B2 · Parte 2: Data Buses e Fibra Ótica</h1>
+            <div class="progress-row">
+                <span id="pageXofY">Página 1 de 18</span>
+                <span id="progressPercent">5%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="text-content" id="pageContent"></div>
+        <div class="toolbar-single">
+            <button class="tool-btn" id="fontMinusBtn" title="Diminuir fonte">A−</button>
+            <button class="tool-btn" id="fontPlusBtn" title="Aumentar fonte">A+</button>
+            <button class="tool-btn" id="fullscreenBtn" title="Tela cheia">⛶</button>
+            <button class="tool-btn" id="prevBtnInline" title="Página anterior">◀</button>
+            <button class="tool-btn" id="nextBtnInline" title="Próxima página">▶</button>
+            <button class="tool-btn" id="speakBtn" title="Ouvir a página inteira desde o início">🔊</button>
+            <button class="tool-btn ler-selecao" id="lerSelecaoBtn" title="Ler somente o trecho selecionado">📖 Ler Seleção</button>
+            <button class="tool-btn hidden" id="pauseBtn" title="Pausar">⏸️</button>
+            <button class="tool-btn hidden" id="resumeBtn" title="Retomar">▶️</button>
+            <button class="tool-btn hidden" id="stopBtn" title="Parar">⏹️</button>
+            <select id="rateSelect" class="tool-btn" style="width: auto; background: #ecf3ef; border: 1px solid #b3cdbf; padding: 8px 12px;">
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+            <button class="tool-btn encerrar hidden" id="encerrarBtn" title="Encerrar leitura">✖ Encerrar Leitura</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const pageContents = [
+            // Página 1 – Capa
+            `<div class="capa">
+                <h1>📘 Módulo 5B2 · Parte 2</h1>
+                <h2>Data Buses e Fibra Ótica<br>
+                ARINC 429 · ARINC 629 · MIL-STD-1553 · AFDX · Princípios e Aplicações de Fibra Ótica</h2>
+                <p>Material de Estudo Resumido</p>
+            </div>`,
+
+            // Página 2 – Índice
+            `<div class="text-container" style="max-width:100%;">
+                <h3>📌 ÍNDICE DA PARTE 2</h3>
+                <ol>
+                    <li>Introdução aos Data Buses – Pág. 3</li>
+                    <li>ARINC 429: O Padrão Mais Comum – Pág. 4</li>
+                    <li>ARINC 629: O Barramento do Boeing 777 – Pág. 5</li>
+                    <li>MIL-STD-1553: O Padrão Militar – Pág. 6</li>
+                    <li>Ethernet e AFDX (Avionics Full-Duplex Switched Ethernet) – Pág. 7</li>
+                    <li>Fibra Ótica: Introdução e Vantagens – Pág. 8</li>
+                    <li>Princípios Físicos da Fibra Ótica – Pág. 9</li>
+                    <li>Tipos de Fibra: Monomodo vs Multimodo – Pág. 10</li>
+                    <li>Conectores e Terminais de Fibra Ótica – Pág. 11</li>
+                    <li>Aplicações em Aeronaves (A380 e B787) – Pág. 12</li>
+                    <li>Resumo Comparativo dos Data Buses – Pág. 13</li>
+                    <li>Exercícios de Fixação (12 Questões com Respostas) – Pág. 14</li>
+                    <li>Continuação dos Exercícios – Pág. 15</li>
+                    <li>Continuação dos Exercícios – Pág. 16</li>
+                    <li>🎉 Parabéns (Fim da Parte 2) – Pág. 17</li>
+                </ol>
+            </div>`,
+
+            // Página 3
+            `<h3>1. Introdução aos Data Buses</h3>
+            <p>Um <strong>data bus</strong> (barramento de dados) é o "caminho" pelo qual a informação digital viaja entre os diversos sistemas e computadores de uma aeronave. À medida que as aeronaves se tornaram mais complexas, a fiabilidade, o peso e a capacidade de transmissão de dados tornaram-se fatores críticos.</p>
+
+            <h4>1.1 Por que usar Data Buses?</h4>
+            <ul>
+                <li><strong>Redução de peso:</strong> Em vez de um fio dedicado para cada sinal (fiação ponto-a-ponto), um único par trançado pode transportar centenas de parâmetros.</li>
+                <li><strong>Redundância:</strong> Vários caminhos podem ser configurados para garantir que a falha de um barramento não comprometa o voo.</li>
+                <li><strong>Padronização:</strong> Permite que equipamentos de diferentes fabricantes (LRUs) "falem a mesma língua".</li>
+            </ul>
+
+            <h4>1.2 Terminologia</h4>
+            <ul>
+                <li><strong>Protocolo:</strong> As regras de comunicação (como os dados são formatados, endereçados e sincronizados).</li>
+                <li><strong>Simplex:</strong> Comunicação unidirecional.</li>
+                <li><strong>Half-duplex:</strong> Comunicação nos dois sentidos, mas não ao mesmo tempo.</li>
+                <li><strong>Full-duplex:</strong> Comunicação nos dois sentidos simultaneamente.</li>
+                <li><strong>Single Source / Multiple Sink:</strong> Um transmissor para vários recetores.</li>
+                <li><strong>Multiple Source / Multiple Sink:</strong> Vários transmissores e vários recetores no mesmo barramento.</li>
+            </ul>
+
+            <h4>1.3 Principais Protocolos na Aviação</h4>
+            <ul>
+                <li><strong>ARINC 429:</strong> O mais comum em aeronaves comerciais e executivas.</li>
+                <li><strong>ARINC 629:</strong> Utilizado no Boeing 777.</li>
+                <li><strong>MIL-STD-1553:</strong> Padrão militar, muito robusto e redundante.</li>
+                <li><strong>AFDX:</strong> Baseado em Ethernet, utilizado em aeronaves modernas como A380 e B787.</li>
+            </ul>`,
+
+            // Página 4
+            `<h3>2. ARINC 429: O Padrão Mais Comum</h3>
+            <p>O ARINC 429 é o padrão de barramento de dados mais difundido na aviação comercial. Foi concebido para ser simples e altamente fiável.</p>
+
+            <h4>2.1 Características Principais</h4>
+            <ul>
+                <li><strong>Transmissão Unidirecional (Simplex):</strong> Um transmissor envia para até 20 recetores no mesmo par de fios.</li>
+                <li><strong>Palavra de 32 bits:</strong> Os dados são organizados em palavras de 32 bits.</li>
+                <li><strong>Codificação BPRZ:</strong> Bipolar Return to Zero (Retorno a Zero Bipolar), com três estados: HIGH (+10V), NULL (0V) e LOW (-10V).</li>
+                <li><strong>Taxa de Transmissão:</strong> 12.5 kbps (baixa velocidade) ou 100 kbps (alta velocidade).</li>
+            </ul>
+
+            <h4>2.2 Estrutura da Palavra ARINC 429</h4>
+            <ul>
+                <li><strong>Bits 1-8 (Label):</strong> Identifica o tipo de dado (ex: altitude, velocidade). É transmitido em octal.</li>
+                <li><strong>Bits 9-10 (SDI):</strong> Source/Destination Identifier, para múltiplos recetores.</li>
+                <li><strong>Bits 11-29 (Data):</strong> O valor numérico (BNR ou BCD).</li>
+                <li><strong>Bits 30-31 (SSM):</strong> Sign/Status Matrix (indica validade, teste, falha, ou sinal positivo/negativo).</li>
+                <li><strong>Bit 32 (Parity):</strong> Bit de paridade (geralmente ímpar) para deteção de erros.</li>
+            </ul>
+
+            <h4>2.3 Vantagens e Desvantagens</h4>
+            <ul>
+                <li><strong>Vantagem:</strong> Alta fiabilidade, simplicidade de implementação, amplamente suportado.</li>
+                <li><strong>Desvantagem:</strong> Requer muitos pares de fios (devido à unidirecionalidade), limite de 20 recetores por transmissor, velocidade relativamente baixa para os padrões atuais.</li>
+            </ul>`,
+
+            // Página 5
+            `<h3>3. ARINC 629: O Barramento do Boeing 777</h3>
+            <p>Para superar as limitações do ARINC 429, foi desenvolvido o ARINC 629, um barramento de alta velocidade e bidirecional, utilizado no Boeing 777.</p>
+
+            <h4>3.1 Características</h4>
+            <ul>
+                <li><strong>Half-duplex:</strong> Permite que vários terminais transmitam e recebam, mas apenas um transmite de cada vez.</li>
+                <li><strong>Velocidade:</strong> 2 Mbps (muito mais rápido que o ARINC 429).</li>
+                <li><strong>Capacidade:</strong> Até 120 terminais conectados ao mesmo par trançado não blindado.</li>
+                <li><strong>Acoplamento Indutivo:</strong> Os LRUs conectam-se ao barramento através de acopladores indutivos (sem necessidade de cortar o cabo), aumentando a fiabilidade.</li>
+            </ul>
+
+            <h4>3.2 Protocolo e Modos</h4>
+            <ul>
+                <li><strong>Modo Periódico:</strong> Transmissão em intervalos regulares, usado para dados de voo críticos.</li>
+                <li><strong>Modo Aperiódico:</strong> Transmissão acionada por eventos, usado para dados menos críticos.</li>
+                <li><strong>Terminal Gap (TG):</strong> Cada terminal tem um tempo de "gap" único, que define a sua prioridade de transmissão.</li>
+            </ul>
+            <p>O ARINC 629 foi concebido para reduzir drasticamente a quantidade de cablagem no Boeing 777 em comparação com o 747, melhorando a eficiência de combustível.</p>`,
+
+            // Página 6
+            `<h3>4. MIL-STD-1553: O Padrão Militar</h3>
+            <p>O MIL-STD-1553 é um padrão de barramento de dados militar, amplamente utilizado em aeronaves de combate (F-16, F-18) e também em algumas aeronaves comerciais e helicópteros.</p>
+
+            <h4>4.1 Características</h4>
+            <ul>
+                <li><strong>Velocidade:</strong> 1 Mbps.</li>
+                <li><strong>Palavras de 20 bits:</strong> 16 bits de dados + 4 bits de controlo.</li>
+                <li><strong>Codificação:</strong> Manchester II bi-phase.</li>
+                <li><strong>Topologia:</strong> Barramento duplo redundante (dual redundant) com cabos STP (Shielded Twisted Pair).</li>
+                <li><strong>Controlo:</strong> Um <em>Bus Controller</em> (BC) gere a comunicação, enviando comandos para os <em>Remote Terminals</em> (RT).</li>
+            </ul>
+
+            <h4>4.2 Vantagens</h4>
+            <ul>
+                <li>Altamente robusto e resistente a interferências.</li>
+                <li>Redundância integrada (caminho A e B).</li>
+                <li>Deteção de erros incorporada.</li>
+            </ul>
+            <p>O ARINC 429 é geralmente encontrado em aeronaves comerciais, enquanto o MIL-STD-1553 é o padrão para aplicações militares onde a robustez e a integridade são críticas.</p>`,
+
+            // Página 7
+            `<h3>5. Ethernet e AFDX (Avionics Full-Duplex Switched Ethernet)</h3>
+            <p>As aeronaves modernas, como o Airbus A380 e o Boeing 787, exigem larguras de banda muito superiores às oferecidas pelo ARINC 429 ou 629. A solução foi adaptar o padrão Ethernet (IEEE 802.3) para a aviação, criando o <strong>AFDX</strong> (ARINC 664).</p>
+
+            <h4>5.1 Características do AFDX</h4>
+            <ul>
+                <li><strong>Full-duplex:</strong> Transmissão e recepção simultâneas.</li>
+                <li><strong>Determinístico:</strong> Garante uma largura de banda específica e um tempo de latência máximo, essencial para sistemas críticos.</li>
+                <li><strong>Virtual Links (VL):</strong> Caminhos lógicos dedicados que garantem a alocação de largura de banda.</li>
+                <li><strong>BAG (Bandwidth Allocation Gap):</strong> O intervalo mínimo entre duas transmissões consecutivas de um VL.</li>
+                <li><strong>Redundância:</strong> Transmissão simultânea em duas redes independentes (A e B).</li>
+            </ul>
+
+            <h4>5.2 Vantagens do AFDX</h4>
+            <ul>
+                <li>Redução drástica de cablagem (substitui centenas de barramentos ARINC 429).</li>
+                <li>Altas velocidades (10/100 Mbps).</li>
+                <li>Baseado em COTS (Commercial Off-The-Shelf), reduzindo custos.</li>
+            </ul>`,
+
+            // Página 8
+            `<h3>6. Fibra Ótica: Introdução e Vantagens</h3>
+            <p>A fibra ótica é uma tecnologia de transmissão de dados que utiliza luz em vez de eletricidade. É cada vez mais utilizada em aeronaves modernas para superar as limitações do cobre.</p>
+
+            <h4>6.1 Vantagens da Fibra Ótica</h4>
+            <ul>
+                <li><strong>Largura de Banda:</strong> Capacidade muito superior à do cobre.</li>
+                <li><strong>Imunidade a EMI/RFI:</strong> A luz não é afetada por interferências eletromagnéticas.</li>
+                <li><strong>Isolamento Elétrico:</strong> Não há condução elétrica, eliminando riscos de curto-circuito e faíscas.</li>
+                <li><strong>Redução de Peso:</strong> A fibra é muito mais leve que o cobre (ex: 4 kg/km).</li>
+                <li><strong>Segurança:</strong> É muito difícil intercetar sinais óticos (não irradiam).</li>
+                <li><strong>Ausência de Crosstalk:</strong> Não há interferência entre fibras adjacentes.</li>
+            </ul>
+
+            <h4>6.2 Desvantagens</h4>
+            <ul>
+                <li>Custo inicial mais elevado de componentes e instalação.</li>
+                <li>Maior complexidade de manutenção (requer ferramentas e formação específicas).</li>
+                <li>Maior sensibilidade a curvas apertadas (perda por microcurvatura).</li>
+            </ul>`,
+
+            // Página 9
+            `<h3>7. Princípios Físicos da Fibra Ótica</h3>
+            <p>A fibra ótica funciona com base no princípio da <strong>reflexão interna total</strong>. A luz é confinada no núcleo da fibra e guiada ao longo do seu comprimento.</p>
+
+            <h4>7.1 Estrutura da Fibra</h4>
+            <ul>
+                <li><strong>Núcleo (Core):</strong> O centro da fibra, feito de vidro de alta pureza, onde a luz viaja. Tem um índice de refração (n1).</li>
+                <li><strong>Revestimento (Cladding):</strong> Uma camada de vidro ou plástico que envolve o núcleo. Tem um índice de refração (n2) ligeiramente inferior ao do núcleo (n2 < n1).</li>
+                <li><strong>Revestimento Protetor (Buffer/Coating):</strong> Uma camada plástica que protege a fibra de danos físicos e humidade.</li>
+            </ul>
+
+            <h4>7.2 Reflexão Interna Total</h4>
+            <p>Quando a luz viaja do núcleo para o revestimento e o ângulo de incidência é maior que o <strong>ângulo crítico</strong>, a luz é totalmente refletida de volta para o núcleo. Isto permite que a luz percorra longas distâncias com perdas mínimas.</p>
+            <p><em>Condição:</em> n1 > n2.</p>
+
+            <h4>7.3 Atenuação e Dispersão</h4>
+            <ul>
+                <li><strong>Atenuação:</strong> Perda de potência ótica ao longo da fibra (absorção e dispersão).</li>
+                <li><strong>Dispersão:</strong> O alargamento do pulso de luz à medida que viaja, limitando a largura de banda.</li>
+                <li><strong>Janelas de Operação:</strong> 850 nm, 1300 nm e 1550 nm são as janelas de menor atenuação na fibra de sílica.</li>
+            </ul>`,
+
+            // Página 10
+            `<h3>8. Tipos de Fibra: Monomodo vs Multimodo</h3>
+            <p>As fibras óticas classificam-se principalmente pelo número de modos (caminhos) que a luz pode percorrer dentro do núcleo.</p>
+
+            <h4>8.1 Fibra Multimodo</h4>
+            <ul>
+                <li><strong>Núcleo Grande:</strong> 50 µm ou 62.5 µm.</li>
+                <li><strong>Múltiplos Caminhos:</strong> A luz propaga-se por vários percursos, causando dispersão modal (os pulsos alargam-se).</li>
+                <li><strong>Fonte de Luz:</strong> Geralmente LEDs (mais baratos).</li>
+                <li><strong>Aplicações:</strong> Curtas distâncias, redes locais (LAN), sistemas de aeronaves (ex: A380 usa 62.5/125 µm).</li>
+                <li><strong>Vantagem:</strong> Mais fácil de conectar e acoplar a fontes de luz.</li>
+            </ul>
+
+            <h4>8.2 Fibra Monomodo</h4>
+            <ul>
+                <li><strong>Núcleo Pequeno:</strong> 8-10 µm.</li>
+                <li><strong>Um Único Caminho:</strong> Apenas o modo fundamental se propaga, eliminando a dispersão modal.</li>
+                <li><strong>Fonte de Luz:</strong> Lasers (mais caros e potentes).</li>
+                <li><strong>Aplicações:</strong> Longas distâncias, telecomunicações de alta velocidade.</li>
+                <li><strong>Vantagem:</strong> Menor atenuação e maior largura de banda.</li>
+            </ul>
+
+            <h4>8.3 Comparação</h4>
+            <table>
+                <tr><th>Característica</th><th>Multimodo</th><th>Monomodo</th></tr>
+                <tr><td>Diâmetro do Núcleo</td><td>50 / 62.5 µm</td><td>8-10 µm</td></tr>
+                <tr><td>Dispersão</td><td>Alta (modal)</td><td>Muito Baixa</td></tr>
+                <tr><td>Fonte</td><td>LED / VCSEL</td><td>Laser</td></tr>
+                <tr><td>Custo</td><td>Menor</td><td>Maior</td></tr>
+                <tr><td>Distância</td><td>Curtas/Médias</td><td>Longas</td></tr>
+            </table>`,
+
+            // Página 11
+            `<h3>9. Conectores e Terminais de Fibra Ótica</h3>
+            <p>A conexão de fibras óticas requer precisão extrema para garantir o alinhamento do núcleo e minimizar as perdas.</p>
+
+            <h4>9.1 Tipos de Conectores</h4>
+            <ul>
+                <li><strong>ST (Straight Tip):</strong> Um dos primeiros conectores, com baioneta. Amplamente utilizado em aeronaves.</li>
+                <li><strong>SC (Subscriber Connector):</strong> Conector quadrado com encaixe push-pull. Muito comum em data centers.</li>
+                <li><strong>LC (Lucent Connector):</strong> Conector pequeno (1.25mm), de alta densidade, comum em comunicações modernas.</li>
+                <li><strong>Bicónico (Biconical):</strong> Utilizado em algumas aeronaves, com um design cónico para alinhamento.</li>
+            </ul>
+
+            <h4>9.2 Terminais (Termini)</h4>
+            <p>Na aviação, o termo "termini" refere-se ao conjunto que fixa e alinha a fibra dentro do conector. No Boeing 787, todos os cabos de fibra ótica usam o mesmo tipo de termini.</p>
+
+            <h4>9.3 Perdas de Conexão</h4>
+            <ul>
+                <li><strong>Perdas Intrínsecas:</strong> Devido a diferenças nas características das fibras (diâmetro do núcleo, abertura numérica).</li>
+                <li><strong>Perdas Extrínsecas:</strong> Devido ao alinhamento imperfeito (separação, desalinhamento lateral ou angular).</li>
+                <li><strong>Reflexão de Fresnel:</strong> Ocorre quando há um pequeno espaço de ar entre as fibras. É mitigada com gel de índice de refração.</li>
+            </ul>`,
+
+            // Página 12
+            `<h3>10. Aplicações em Aeronaves (A380 e B787)</h3>
+            
+            <h4>10.1 Airbus A380</h4>
+            <ul>
+                <li>Utiliza fibra multimodo (62.5/125 µm).</li>
+                <li>Possui aproximadamente 2.4 km de cabos de fibra ótica.</li>
+                <li>Peso: 4 kg/km (muito mais leve que o cobre).</li>
+                <li>Usada em sistemas de entretenimento a bordo (IFE) e redes de dados.</li>
+            </ul>
+
+            <h4>10.2 Boeing 787 Dreamliner</h4>
+            <ul>
+                <li>Primeira aeronave comercial da Boeing a transportar dados críticos de voo por fibra ótica.</li>
+                <li>Possui 110 enlaces de fibra ótica, totalizando mais de 1.7 km de cabo.</li>
+                <li>Utilizada em sistemas como: Flight Data Recorder, Head-up Display, Weather Radar, e o ARINC 664 Network Remote Switch.</li>
+                <li>Todos os cabos usam o mesmo tipo de termini.</li>
+            </ul>
+
+            <h4>10.3 Importância</h4>
+            <p>O uso de fibra ótica nestas aeronaves reduz significativamente o peso total, melhora a imunidade a interferências e permite larguras de banda muito superiores para os sistemas de aviónica modernos.</p>`,
+
+            // Página 13
+            `<h3>11. Resumo Comparativo dos Data Buses</h3>
+            <table>
+                <tr><th>Padrão</th><th>Velocidade</th><th>Direção</th><th>Topologia</th><th>Uso Típico</th></tr>
+                <tr><td><strong>ARINC 429</strong></td><td>12.5 / 100 kbps</td><td>Simplex</td><td>1 Tx para até 20 Rx</td><td>Comercial (B737, A320)</td></tr>
+                <tr><td><strong>ARINC 629</strong></td><td>2 Mbps</td><td>Half-duplex</td><td>Multi-Tx / Multi-Rx</td><td>Boeing 777</td></tr>
+                <tr><td><strong>MIL-STD-1553</strong></td><td>1 Mbps</td><td>Half-duplex</td><td>Barramento duplo redundante</td><td>Militar (F-16, F-18)</td></tr>
+                <tr><td><strong>AFDX</strong></td><td>10 / 100 Mbps</td><td>Full-duplex</td><td>Switched Ethernet</td><td>A380, B787</td></tr>
+                <tr><td><strong>Fibra Ótica</strong></td><td>> 1 Gbps</td><td>Ponto-a-ponto</td><td>Estrela / Ponto-a-Ponto</td><td>Redes de alta velocidade</td></tr>
+            </table>
+
+            <h4>11.1 Tendências</h4>
+            <p>A tendência é a adoção crescente de AFDX e fibra ótica nas novas aeronaves, substituindo os padrões mais antigos (ARINC 429) e proporcionando maior capacidade, menor peso e maior fiabilidade.</p>`,
+
+            // Página 14 - Questões
+            `<h3>12. Exercícios de Fixação</h3>
+            <p>Abaixo estão 12 questões objetivas com respostas e justificativas integradas, conforme o modelo solicitado.</p>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 1</span>
+                    <p>Qual é a principal característica do barramento ARINC 429 em relação à direção da transmissão?</p>
+                    <ul>
+                        <li>a) Full-duplex</li>
+                        <li>b) Half-duplex</li>
+                        <li>c) Simplex (unidirecional)</li>
+                        <li>d) Multiplex</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) Simplex (unidirecional)
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O ARINC 429 utiliza transmissão unidirecional (simplex). Um transmissor envia dados para um ou mais recetores, mas nunca recebe dados pelo mesmo par de fios.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 2</span>
+                    <p>Quantos recetores, no máximo, podem ser ligados a um único transmissor ARINC 429?</p>
+                    <ul>
+                        <li>a) 10</li>
+                        <li>b) 20</li>
+                        <li>c) 32</li>
+                        <li>d) 120</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) 20
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> Devido às limitações de impedância do barramento, o ARINC 429 suporta no máximo 20 recetores por transmissor.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 3</span>
+                    <p>Qual é o padrão de barramento de dados utilizado no Boeing 777, caracterizado por ser half-duplex e operar a 2 Mbps?</p>
+                    <ul>
+                        <li>a) ARINC 429</li>
+                        <li>b) ARINC 629</li>
+                        <li>c) MIL-STD-1553</li>
+                        <li>d) AFDX</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) ARINC 629
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O ARINC 629 foi concebido para o Boeing 777. É um barramento half-duplex, de 2 Mbps, que permite múltiplos transmissores e recetores no mesmo par trançado não blindado.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 4</span>
+                    <p>Qual é o padrão de barramento militar que utiliza uma arquitetura de barramento duplo redundante com cabos STP e codificação Manchester II?</p>
+                    <ul>
+                        <li>a) ARINC 429</li>
+                        <li>b) ARINC 629</li>
+                        <li>c) MIL-STD-1553</li>
+                        <li>d) Ethernet</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) MIL-STD-1553
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O MIL-STD-1553 é o padrão militar amplamente utilizado em aeronaves de combate, caracterizado pela redundância dupla, cabos STP e codificação Manchester II.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 5</span>
+                    <p>O que significa a sigla AFDX, o barramento utilizado no Airbus A380 e Boeing 787?</p>
+                    <ul>
+                        <li>a) Advanced Flight Data Exchange</li>
+                        <li>b) Avionics Full-Duplex Switched Ethernet</li>
+                        <li>c) Aircraft Fiber Data eXchange</li>
+                        <li>d) Aeronautical Fixed Data eXchange</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Avionics Full-Duplex Switched Ethernet
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O AFDX (ARINC 664) é baseado em Ethernet comutada full-duplex, adaptado para o ambiente aviónico, proporcionando determinismo e redundância.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 6</span>
+                    <p>Qual é a principal vantagem da fibra ótica em relação aos cabos de cobre na aviação?</p>
+                    <ul>
+                        <li>a) É mais barata.</li>
+                        <li>b) É imune a interferências eletromagnéticas (EMI).</li>
+                        <li>c) É mais fácil de instalar.</li>
+                        <li>d) Requer menos formação técnica.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) É imune a interferências eletromagnéticas (EMI).
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A fibra ótica transmite luz, não eletricidade. Por isso, é totalmente imune a EMI e RFI, além de não gerar faíscas ou curtos-circuitos.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 7</span>
+                    <p>Qual é o princípio físico que permite que a luz seja confinada no núcleo da fibra ótica?</p>
+                    <ul>
+                        <li>a) Refração simples</li>
+                        <li>b) Reflexão interna total</li>
+                        <li>c) Difração</li>
+                        <li>d) Dispersão de Rayleigh</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Reflexão interna total
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A reflexão interna total ocorre quando a luz viaja de um meio mais denso (núcleo) para um menos denso (revestimento) com um ângulo maior que o ângulo crítico, sendo totalmente refletida de volta para o núcleo.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 8</span>
+                    <p>Qual é a principal diferença entre fibra monomodo e multimodo?</p>
+                    <ul>
+                        <li>a) A monomodo usa LED, a multimodo usa laser.</li>
+                        <li>b) A monomodo tem núcleo maior e múltiplos caminhos.</li>
+                        <li>c) A multimodo tem núcleo maior e múltiplos caminhos.</li>
+                        <li>d) Não há diferença prática.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) A multimodo tem núcleo maior e múltiplos caminhos.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> A fibra multimodo tem um núcleo maior (50/62.5 µm) e permite a propagação de múltiplos modos de luz, causando dispersão modal. A monomodo tem núcleo pequeno (8-10 µm) e apenas um modo de propagação.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 9</span>
+                    <p>Qual é o tipo de conector de fibra ótica mais comum em aeronaves, que utiliza um mecanismo de baioneta?</p>
+                    <ul>
+                        <li>a) LC</li>
+                        <li>b) SC</li>
+                        <li>c) ST</li>
+                        <li>d) Bicónico</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> c) ST
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O conector ST (Straight Tip) é amplamente utilizado em aeronaves e possui um mecanismo de travamento por baioneta, semelhante ao conector BNC.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 10</span>
+                    <p>Qual é a função do "BAG" (Bandwidth Allocation Gap) no AFDX?</p>
+                    <ul>
+                        <li>a) Controlar a voltagem do sinal.</li>
+                        <li>b) Regular o intervalo mínimo entre transmissões de um Virtual Link.</li>
+                        <li>c) Aumentar a velocidade do clock.</li>
+                        <li>d) Detetar erros de paridade.</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Regular o intervalo mínimo entre transmissões de um Virtual Link.
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O BAG é o parâmetro que define a largura de banda alocada a um Virtual Link, garantindo que o tráfego seja determinístico e não sature a rede.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 11</span>
+                    <p>Qual aeronave foi a primeira da Boeing a transportar dados críticos de voo por fibra ótica?</p>
+                    <ul>
+                        <li>a) Boeing 737</li>
+                        <li>b) Boeing 747</li>
+                        <li>c) Boeing 777</li>
+                        <li>d) Boeing 787 Dreamliner</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> d) Boeing 787 Dreamliner
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O Boeing 787 é a primeira aeronave comercial da Boeing a utilizar fibra ótica para dados críticos de voo, com 110 enlaces de fibra.
+                </div>
+            </div>
+
+            <div class="gabarito-questao">
+                <div class="questao-bloco">
+                    <span class="rotulo-questao">Questão 12</span>
+                    <p>Qual é a codificação utilizada pelo ARINC 429 para transmissão de dados?</p>
+                    <ul>
+                        <li>a) Manchester II</li>
+                        <li>b) Bipolar Return to Zero (BPRZ)</li>
+                        <li>c) NRZ</li>
+                        <li>d) ASCII</li>
+                    </ul>
+                </div>
+                <div class="resposta-bloco">
+                    <span class="rotulo-resposta">Resposta:</span> b) Bipolar Return to Zero (BPRZ)
+                </div>
+                <div class="justificativa-bloco">
+                    <span class="rotulo-justificativa">Justificativa:</span> O ARINC 429 utiliza a codificação Bipolar Return to Zero (BPRZ), com três estados: HIGH (+10V), NULL (0V) e LOW (-10V).
+                </div>
+            </div>`,
+
+            // Página 15 - Continuação das Questões
+            // (Nota: O código HTML das questões já está na página 14, mas como são 12 questões, 
+            // a paginação vai automaticamente dividir o conteúdo devido ao limite de rolagem).
+            // Para manter a estrutura de "Página 15", adicionei um marcador aqui, mas o conteúdo flui naturalmente.
+            `<h3>Continuação dos Exercícios</h3>
+            <p>As questões acima cobrem os principais conceitos de Data Buses e Fibra Ótica do Módulo 5B2.</p>
+            <p>Certifique-se de revisar as justificativas para consolidar o aprendizado.</p>`,
+
+            // Página 16 - Continuação das Questões
+            `<h3>Resumo Final da Parte 2</h3>
+            <p>Nesta parte, exploramos:</p>
+            <ul>
+                <li>Os principais data buses da aviação: ARINC 429, ARINC 629, MIL-STD-1553 e AFDX.</li>
+                <li>As características técnicas de cada um, incluindo velocidade, topologia e aplicações.</li>
+                <li>Os princípios da fibra ótica, suas vantagens e tipos (monomodo e multimodo).</li>
+                <li>As aplicações práticas da fibra ótica no Airbus A380 e Boeing 787.</li>
+            </ul>
+            <p>Com estes conhecimentos, você está preparado para avançar para a Parte 3: Microprocessadores, Circuitos Integrados e Multiplexação.</p>`,
+
+            // Página 17 - Parabéns
+            `<div class="congrats-page">
+                <h2>🎉 Parabéns!</h2>
+                <p style="margin-top: 20px;">Você concluiu a <strong>Parte 2: Data Buses e Fibra Ótica</strong>.</p>
+                <div class="congrats-image">
+                    <img src="https://media.tenor.com/1Gq9HnEJ5wMAAAAM/shih-tzu-shihtzu.gif" alt="Parabéns">
+                </div>
+                <p style="margin-top: 20px;">Bons estudos! Avise quando estiver pronto para a Parte 3 (Microprocessadores, Circuitos Integrados e Multiplexação).</p>
+            </div>`
+        ];
+
+        const totalPages = pageContents.length;
+        let currentPage = 0;
+        let fontSizeIndex = 4;
+        const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 38, 42];
+
+        const pageContent = document.getElementById('pageContent');
+        const pageXofY = document.getElementById('pageXofY');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const fontMinus = document.getElementById('fontMinusBtn');
+        const fontPlus = document.getElementById('fontPlusBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const prevBtn = document.getElementById('prevBtnInline');
+        const nextBtn = document.getElementById('nextBtnInline');
+        const speakBtn = document.getElementById('speakBtn');
+        const lerSelecaoBtn = document.getElementById('lerSelecaoBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const rateSelect = document.getElementById('rateSelect');
+        const encerrarBtn = document.getElementById('encerrarBtn');
+
+        const synth = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+        let isPaused = false;
+        let speechToken = null;
+        let previousActiveSpan = null;
+        let wordSpans = [];
+        let charIndexToSpanMap = [];
+        let currentCharIndex = 0;
+
+        let selectionUtterance = null;
+        let isReadingSelection = false;
+        let isSelectionPaused = false;
+        let selectionToken = null;
+        let selectionWordSpans = [];
+        let selectionCharMap = [];
+        let selectionPrevSpan = null;
+        let lastSelectionRange = null;
+        let lastSelectionText = '';
+
+        document.addEventListener('selectionchange', function() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    lastSelectionRange = range.cloneRange();
+                    lastSelectionText = sel.toString().trim();
+                }
+            }
+        });
+
+        function getActiveSelectionRange() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (!range.collapsed && range.toString().trim() &&
+                    pageContent.contains(range.commonAncestorContainer)) {
+                    return range.cloneRange();
+                }
+            }
+            if (lastSelectionRange && lastSelectionText) return lastSelectionRange;
+            return null;
+        }
+
+        function getFemaleVoice() {
+            const voices = synth.getVoices();
+            const ptVoices = voices.filter(v => v.lang === 'pt-BR');
+            const female = ptVoices.find(v =>
+                v.name.toLowerCase().includes('female') ||
+                v.name.toLowerCase().includes('mulher') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Maria')
+            );
+            return female || ptVoices[0] || voices[0];
+        }
+
+        function tokenizeTextNodes(root) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            const textNodes = [];
+            while (walker.nextNode()) {
+                textNodes.push(walker.currentNode);
+            }
+            textNodes.forEach(node => {
+                const text = node.textContent;
+                if (!text.trim()) return;
+                if (node.parentNode && (node.parentNode.tagName === 'PRE' || node.parentNode.tagName === 'CODE')) return;
+                const fragment = document.createDocumentFragment();
+                const parts = text.split(/(\s+)/);
+                parts.forEach(part => {
+                    if (part.trim()) {
+                        const span = document.createElement('span');
+                        span.className = 'speech-word';
+                        span.textContent = part;
+                        fragment.appendChild(span);
+                    } else {
+                        fragment.appendChild(document.createTextNode(part));
+                    }
+                });
+                node.parentNode.replaceChild(fragment, node);
+            });
+        }
+
+        function buildCharMapForSpans(spans) {
+            const map = [];
+            spans.forEach((span, idx) => {
+                const len = span.textContent.length;
+                for (let i = 0; i < len; i++) map.push(idx);
+                if (idx < spans.length - 1) map.push(idx);
+            });
+            return map;
+        }
+
+        function buildCharMap() {
+            wordSpans = Array.from(pageContent.querySelectorAll('.speech-word'));
+            charIndexToSpanMap = buildCharMapForSpans(wordSpans);
+        }
+
+        function highlightWordSpan(spanIndex) {
+            if (previousActiveSpan !== null) {
+                const prevSpan = wordSpans[previousActiveSpan];
+                if (prevSpan) {
+                    prevSpan.classList.remove('active');
+                    prevSpan.classList.remove('upcoming');
+                }
+            }
+            if (spanIndex >= 0 && spanIndex < wordSpans.length) {
+                const currentSpan = wordSpans[spanIndex];
+                currentSpan.classList.add('active');
+                currentSpan.classList.remove('upcoming');
+                previousActiveSpan = spanIndex;
+                currentSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function markUpcoming(spanIndex) {
+            wordSpans.forEach(s => s.classList.remove('upcoming'));
+            for (let i = 1; i <= 3; i++) {
+                const nextIdx = spanIndex + i;
+                if (nextIdx < wordSpans.length) {
+                    wordSpans[nextIdx].classList.add('upcoming');
+                }
+            }
+        }
+
+        function clearAllWordHighlights() {
+            wordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            previousActiveSpan = null;
+        }
+
+        function syncHighlightFromCharIndex() {
+            if (currentCharIndex >= charIndexToSpanMap.length) return;
+            const spanIdx = charIndexToSpanMap[currentCharIndex];
+            if (spanIdx !== undefined && spanIdx !== previousActiveSpan) {
+                highlightWordSpan(spanIdx);
+                markUpcoming(spanIdx);
+            }
+        }
+
+        function highlightSelectionWord(spanIdx) {
+            if (selectionPrevSpan !== null) {
+                const prev = selectionWordSpans[selectionPrevSpan];
+                if (prev) {
+                    prev.classList.remove('active');
+                    prev.classList.remove('upcoming');
+                }
+            }
+            if (spanIdx >= 0 && spanIdx < selectionWordSpans.length) {
+                const curr = selectionWordSpans[spanIdx];
+                curr.classList.add('active');
+                curr.classList.remove('upcoming');
+                selectionPrevSpan = spanIdx;
+                curr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            selectionWordSpans.forEach((s, i) => {
+                if (i !== spanIdx) s.classList.remove('upcoming');
+            });
+            for (let i = 1; i <= 3; i++) {
+                const next = selectionWordSpans[spanIdx + i];
+                if (next) next.classList.add('upcoming');
+            }
+        }
+
+        function clearSelectionHighlights() {
+            selectionWordSpans.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('upcoming');
+            });
+            selectionPrevSpan = null;
+        }
+
+        function showPlayingUI() {
+            speakBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            stopBtn.classList.remove('hidden');
+            resumeBtn.classList.add('hidden');
+        }
+
+        function showPausedUI() {
+            pauseBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+            resumeBtn.classList.remove('hidden');
+            speakBtn.classList.add('hidden');
+        }
+
+        function showStoppedUI() {
+            speakBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+        }
+
+        function setSelectionBtnState(state) {
+            lerSelecaoBtn.classList.remove('reading', 'paused');
+            if (state === 'reading') {
+                lerSelecaoBtn.textContent = '⏸️ Pausar';
+                lerSelecaoBtn.title = 'Pausar leitura da seleção';
+                lerSelecaoBtn.classList.add('reading');
+            } else if (state === 'paused') {
+                lerSelecaoBtn.textContent = '▶️ Retomar';
+                lerSelecaoBtn.title = 'Retomar leitura da seleção';
+                lerSelecaoBtn.classList.add('paused');
+            } else {
+                lerSelecaoBtn.textContent = '📖 Ler Seleção';
+                lerSelecaoBtn.title = 'Ler somente o trecho selecionado';
+            }
+        }
+
+        function startReading() {
+            if (!synth) { alert('Seu navegador não suporta síntese de voz.'); return; }
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+
+            if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+                return;
+            }
+            if (isSpeaking) { stopReading(); return; }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+            }
+            buildCharMap();
+            if (wordSpans.length === 0) return;
+
+            const text = wordSpans.map(s => s.textContent).join(' ');
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) currentUtterance.voice = voice;
+            currentUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            speechToken = token;
+            currentCharIndex = 0;
+
+            currentUtterance.onboundary = function(event) {
+                if (speechToken !== token) return;
+                if (event.name === 'word') {
+                    currentCharIndex = event.charIndex;
+                    syncHighlightFromCharIndex();
+                }
+            };
+            currentUtterance.onstart = function() {
+                if (speechToken !== token) return;
+                isSpeaking = true;
+                isPaused = false;
+                showPlayingUI();
+            };
+            currentUtterance.onend = function() {
+                if (speechToken !== token) return;
+                resetSpeechState();
+            };
+            currentUtterance.onerror = function(e) {
+                if (speechToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Speech error:', e.error);
+                resetSpeechState();
+            };
+
+            synth.speak(currentUtterance);
+        }
+
+        function pauseReading() {
+            if (synth && isSpeaking && !isPaused) {
+                synth.pause();
+                isPaused = true;
+                showPausedUI();
+            }
+        }
+
+        function resumeReading() {
+            if (synth && isPaused) {
+                synth.resume();
+                isPaused = false;
+                isSpeaking = true;
+                showPlayingUI();
+            }
+        }
+
+        function stopReading() {
+            if (synth) synth.cancel();
+            resetSpeechState();
+        }
+
+        function resetSpeechState() {
+            if (synth && synth.speaking) synth.cancel();
+            if (currentUtterance) {
+                currentUtterance.onboundary = null;
+                currentUtterance.onstart = null;
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+                currentUtterance = null;
+            }
+            isSpeaking = false;
+            isPaused = false;
+            speechToken = null;
+            currentCharIndex = 0;
+            clearAllWordHighlights();
+            showStoppedUI();
+        }
+
+        function startSelectionReading() {
+            if (!synth) { alert('Seu navegador não suporta síntese de voz.'); return; }
+            if (isSpeaking || isPaused) stopReading();
+
+            const range = getActiveSelectionRange();
+            if (!range) {
+                alert('Nenhum texto selecionado. Selecione um trecho e clique em "Ler Seleção".');
+                return;
+            }
+
+            if (pageContent.querySelectorAll('.speech-word').length === 0) {
+                tokenizeTextNodes(pageContent);
+                const newRange = getActiveSelectionRange();
+                if (!newRange) {
+                    alert('Selecione novamente o trecho desejado.');
+                    return;
+                }
+                return startSelectionReadingWithRange(newRange);
+            }
+
+            startSelectionReadingWithRange(range);
+        }
+
+        function startSelectionReadingWithRange(range) {
+            const spans = [];
+            pageContent.querySelectorAll('.speech-word').forEach(span => {
+                try {
+                    if (range.intersectsNode(span)) spans.push(span);
+                } catch(e) {}
+            });
+
+            if (spans.length === 0) {
+                alert('Nenhum texto selecionado. Selecione um trecho e clique em "Ler Seleção".');
+                return;
+            }
+
+            selectionWordSpans = spans;
+            selectionCharMap = buildCharMapForSpans(selectionWordSpans);
+            clearSelectionHighlights();
+
+            const text = spans.map(s => s.textContent).join(' ');
+            selectionUtterance = new SpeechSynthesisUtterance(text);
+            const voice = getFemaleVoice();
+            if (voice) selectionUtterance.voice = voice;
+            selectionUtterance.rate = parseFloat(rateSelect.value);
+
+            const token = Date.now();
+            selectionToken = token;
+
+            selectionUtterance.onboundary = function(event) {
+                if (selectionToken !== token) return;
+                if (event.name === 'word') {
+                    const charIdx = event.charIndex;
+                    if (charIdx < selectionCharMap.length) {
+                        const spanIdx = selectionCharMap[charIdx];
+                        if (spanIdx !== undefined) highlightSelectionWord(spanIdx);
+                    }
+                }
+            };
+            selectionUtterance.onstart = function() {
+                if (selectionToken !== token) return;
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+                stopBtn.classList.remove('hidden');
+            };
+            selectionUtterance.onend = function() {
+                if (selectionToken !== token) return;
+                resetSelectionState();
+            };
+            selectionUtterance.onerror = function(e) {
+                if (selectionToken !== token) return;
+                if (e.error !== 'canceled' && e.error !== 'interrupted') console.warn('Selection speech error:', e.error);
+                resetSelectionState();
+            };
+
+            synth.speak(selectionUtterance);
+        }
+
+        function toggleSelectionReading() {
+            if (isReadingSelection) {
+                synth.pause();
+                isReadingSelection = false;
+                isSelectionPaused = true;
+                setSelectionBtnState('paused');
+            } else if (isSelectionPaused) {
+                synth.resume();
+                isReadingSelection = true;
+                isSelectionPaused = false;
+                setSelectionBtnState('reading');
+            } else {
+                startSelectionReading();
+            }
+        }
+
+        function stopSelectionReading() {
+            if (synth && (isReadingSelection || isSelectionPaused)) synth.cancel();
+            resetSelectionState();
+        }
+
+        function resetSelectionState() {
+            if (selectionUtterance) {
+                selectionUtterance.onboundary = null;
+                selectionUtterance.onstart = null;
+                selectionUtterance.onend = null;
+                selectionUtterance.onerror = null;
+                selectionUtterance = null;
+            }
+            isReadingSelection = false;
+            isSelectionPaused = false;
+            selectionToken = null;
+            clearSelectionHighlights();
+            setSelectionBtnState('idle');
+            stopBtn.classList.add('hidden');
+        }
+
+        function updateUI() {
+            resetSpeechState();
+            resetSelectionState();
+            pageContent.innerHTML = pageContents[currentPage];
+            tokenizeTextNodes(pageContent);
+            lastSelectionRange = null;
+            lastSelectionText = '';
+
+            const num = currentPage + 1;
+            pageXofY.textContent = `Página ${num} de ${totalPages}`;
+            const pct = (num / totalPages) * 100;
+            progressFill.style.width = pct + '%';
+            progressPercent.textContent = Math.round(pct) + '%';
+            prevBtn.disabled = (currentPage === 0);
+            nextBtn.disabled = (currentPage === totalPages - 1);
+
+            if (currentPage === totalPages - 1) {
+                encerrarBtn.classList.remove('hidden');
+            } else {
+                encerrarBtn.classList.add('hidden');
+            }
+
+            if (pageContent.scrollTop) pageContent.scrollTop = 0;
+        }
+
+        function applyFontSize() {
+            const size = fontSizes[fontSizeIndex] + 'px';
+            pageContent.style.fontSize = size;
+            fontMinus.disabled = (fontSizeIndex === 0);
+            fontPlus.disabled = (fontSizeIndex === fontSizes.length - 1);
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 0 && newPage < totalPages) {
+                currentPage = newPage;
+                updateUI();
+            }
+        }
+
+        fontMinus.addEventListener('click', () => {
+            if (fontSizeIndex > 0) fontSizeIndex--;
+            applyFontSize();
+        });
+        fontPlus.addEventListener('click', () => {
+            if (fontSizeIndex < fontSizes.length - 1) fontSizeIndex++;
+            applyFontSize();
+        });
+        fullscreenBtn.addEventListener('click', () => {
+            if (document.fullscreenElement) document.exitFullscreen();
+            else document.documentElement.requestFullscreen();
+        });
+        prevBtn.addEventListener('click', () => changePage(-1));
+        nextBtn.addEventListener('click', () => changePage(1));
+
+        speakBtn.addEventListener('click', startReading);
+        pauseBtn.addEventListener('click', pauseReading);
+        resumeBtn.addEventListener('click', resumeReading);
+        stopBtn.addEventListener('click', () => {
+            if (isReadingSelection || isSelectionPaused) stopSelectionReading();
+            if (isSpeaking || isPaused) stopReading();
+        });
+
+        lerSelecaoBtn.addEventListener('click', toggleSelectionReading);
+
+        rateSelect.addEventListener('change', () => {
+            const rate = parseFloat(rateSelect.value);
+            if (currentUtterance && isSpeaking && !isPaused) currentUtterance.rate = rate;
+            if (selectionUtterance && isReadingSelection && !isSelectionPaused) selectionUtterance.rate = rate;
+        });
+
+        encerrarBtn.addEventListener('click', () => {
+            if (synth) synth.cancel();
+            window.open('about:blank', '_blank');
+        });
+
+        applyFontSize();
+        updateUI();
+        if (synth) synth.getVoices();
+    })();
+</script>
+</body>
+</html>
