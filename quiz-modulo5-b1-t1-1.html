@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Quiz 1 · Módulo 5 B1.1 — Sistemas Eletrónicos Aeronáuticos</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            background: #eef2f7;
+            color: #2d3748;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            margin: 0;
+        }
+        .quiz-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(45, 55, 72, 0.08);
+            padding: 14px 18px;
+            border: 1px solid #cbd5e0;
+            min-height: 60vh;
+            transition: all 0.2s;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .blank-screen {
+            display: none;
+            width: 100%;
+            min-height: 60vh;
+            background: transparent;
+        }
+        .blank-screen.active { display: block; }
+        .wrapper-blank {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2b6cb0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .sub {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 16px;
+            font-style: italic;
+            font-size: 0.95rem;
+        }
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .opt-btn {
+            background: #edf2f7;
+            border: 1px solid #a0aec0;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #2d3748;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .opt-btn:hover {
+            background: #e2e8f0;
+            border-color: #718096;
+        }
+        .opt-btn.selected {
+            background: #2b6cb0;
+            color: #ffffff;
+            border-color: #2b6cb0;
+        }
+        .opt-btn.correct-answer {
+            background: #c6f6d5;
+            border-color: #38a169;
+            color: #22543d;
+        }
+        .opt-btn.wrong-answer {
+            background: #fed7d7;
+            border-color: #e53e3e;
+            color: #742a2a;
+        }
+        .feedback {
+            margin-top: 18px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: none;
+        }
+        .feedback.correct { background: #f0fff4; border-left: 6px solid #38a169; }
+        .feedback.wrong { background: #fff5f5; border-left: 6px solid #e53e3e; }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 16px 0 8px;
+        }
+        .tool-btn {
+            background: #edf2f7;
+            border: 1px solid #a0aec0;
+            padding: 10px 12px;
+            font-size: 1rem;
+            border-radius: 48px;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            color: #2d3748;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+        .tool-btn:hover:not(:disabled) {
+            background: #e2e8f0;
+            border-color: #718096;
+        }
+        .tool-btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .progress {
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: #2b6cb0;
+            text-align: right;
+            font-weight: 600;
+        }
+        .font-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .font-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 0.9rem;
+            transition: 0.15s;
+        }
+        .font-btn:hover { background: #cbd5e0; }
+        .result-screen { text-align: center; }
+        .result-box {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 24px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+        .action-btn {
+            background: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: 0.15s;
+        }
+        .action-btn:hover { background: #2c5282; }
+        .action-btn.end-btn { background: #dd6b20; }
+        .action-btn.end-btn:hover { background: #c05621; }
+        .stats { font-size: 1.1rem; line-height: 1.8; }
+
+        .capa {
+            text-align: center;
+            padding: 30px 10px;
+        }
+        .capa h1 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: #2b6cb0;
+        }
+        .capa h2 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #dd6b20;
+        }
+        .capa .subtitulo {
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+        .capa .autora {
+            font-size: 17px;
+            color: #718096;
+            margin-top: 24px;
+            font-style: italic;
+        }
+        .capa .info-quiz {
+            font-size: 15px;
+            color: #718096;
+            margin-top: 30px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .start-btn {
+            background: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 22px;
+            font-weight: bold;
+            transition: 0.15s;
+        }
+        .start-btn:hover { background: #2c5282; }
+
+        @media (max-width: 640px) {
+            .quiz-wrapper { padding: 10px 12px; border-radius: 18px; }
+            .opt-btn { padding: 10px 14px; font-size: 0.95rem; }
+            .capa h1 { font-size: 19px; }
+            .capa h2 { font-size: 14px; }
+            .title { font-size: 1.15rem; }
+            .question-text { font-size: 0.96rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-wrapper" id="mainWrapper">
+    <!-- TELA DE CAPA -->
+    <div id="capaScreen" class="screen active">
+        <div class="capa">
+            <h1>📝 Quiz de Revisão · Nº1</h1>
+            <h2>Módulo 5 (B1.1) — Sistemas Eletrónicos Aeronáuticos</h2>
+            <p class="subtitulo">
+                Conversão A/D e D/A · Lógica Digital · Numeração Binária/Hexadecimal<br>
+                Fibra Ótica (Monomodo/Multimodo, WDM/TDM, Abertura Numérica)<br>
+                Instrumentos Eletrónicos (EHSI, ND, EICAS, ECAM, MFD, Basic Six)<br>
+                TCAS · FMS · Fly-by-Wire · BITE · ARINC 429
+            </p>
+            <p class="autora">Material de Estudos · Manutenção Aeronáutica (TMA B1.1)</p>
+            <p class="info-quiz">20 questões de escolha múltipla (A / B / C)</p>
+            <button class="start-btn" id="startQuizBtn">▶ Iniciar Quiz</button>
+        </div>
+    </div>
+
+    <!-- TELA DO QUIZ -->
+    <div id="quizScreen" class="screen">
+        <div class="font-controls">
+            <button class="font-btn" id="fontMinus">A−</button>
+            <button class="font-btn" id="fontPlus">A+</button>
+            <button class="font-btn" id="fullscreenBtn">⛶ Tela cheia</button>
+        </div>
+        <div class="title">✈️ Módulo 5 — Sistemas Eletrónicos</div>
+        <div class="sub">20 questões de escolha múltipla</div>
+        <div class="progress" id="progressText">Questão 1 de 20</div>
+        <div id="questionArea">
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="optionsArea"></div>
+            <div class="feedback" id="feedbackArea" style="display: none;"></div>
+        </div>
+        <div class="toolbar">
+            <button class="tool-btn" id="prevBtn" disabled>◀ Anterior</button>
+            <button class="tool-btn" id="nextBtn" disabled>Próxima ▶</button>
+        </div>
+    </div>
+
+    <!-- TELA DE RESULTADO -->
+    <div id="resultScreen" class="screen result-screen">
+        <h2>🙏 Parabéns! Você concluiu o teste.</h2>
+        <div class="result-box" id="resultContent"></div>
+        <button class="action-btn" id="restartQuizBtn">🔄 Refazer quiz</button>
+        <button class="action-btn end-btn" id="endQuizBtn">🏁 Encerrar (página em branco)</button>
+    </div>
+
+    <!-- TELA EM BRANCO -->
+    <div class="blank-screen" id="blankScreen"></div>
+</div>
+
+<script>
+    const questions = [
+        // ==================== 1. CONVERSÃO A/D ====================
+        {
+            text: "Antes da quantificação num processo A/D, que sequência de tratamento é aplicada ao sinal analógico?",
+            options: [
+                "É filtrado por um passa-alto e aplicado imediatamente ao comparador/quantificador.",
+                "É limitado por um filtro passa-baixo e posteriormente amostrado e retido por um circuito Sample & Hold.",
+                "É condicionado por um filtro passa-banda e enviado diretamente para um circuito de retenção."
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. Antes da quantificação, o sinal analógico é limitado em banda por um filtro passa-baixo (anti-aliasing) para evitar aliasing, depois é amostrado e retido por um circuito Sample & Hold (S/H) para que o valor se mantenha estável durante a conversão. A opção A está errada porque um filtro passa-alto elimina as baixas frequências do sinal útil. A opção C está errada porque um filtro passa-banda não é a etapa padrão e a retenção não dispensa a amostragem prévia."
+        },
+        // ==================== 2. HEXADECIMAL → BINÁRIO ====================
+        {
+            text: "Ao converter o valor hexadecimal AF7 para binário, qual é o resultado obtido?",
+            options: [
+                "11101111",
+                "100011",
+                "101011110111"
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. Cada dígito hexadecimal corresponde a 4 bits: A = 1010, F = 1111, 7 = 0111. Logo, AF7 = 1010 1111 0111 = 101011110111₂. A opção A (11101111) corresponde apenas a EF em hexadecimal (8 bits), e a opção B (100011) é um valor binário de 6 bits sem relação com AF7."
+        },
+        // ==================== 3. SIMPLIFICAÇÃO LÓGICA ====================
+        {
+            text: "Qual é o resultado da simplificação da expressão lógica A + \\A.B, considerando \\A como “não A”?",
+            options: [
+                "A·B",
+                "A / A",
+                "A + B"
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. Pela lei da absorção (ou teorema de redundância): A + \\A·B = (A + \\A)·(A + B) = 1·(A + B) = A + B. A opção A (A·B) está errada porque não representa a simplificação correta. A opção B (A / A) não é uma expressão lógica válida no contexto (o símbolo / não é operador lógico padrão)."
+        },
+        // ==================== 4. WAYPOINT / EHSI ====================
+        {
+            text: "Em que instrumento pode ser apresentada informação relativa à identificação de um waypoint, incluindo distância e tempo até ser alcançado?",
+            options: [
+                "No Al.",
+                "No EHSI.",
+                "No VOR."
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. O EHSI (Electronic Horizontal Situation Indicator) apresenta a situação horizontal de voo e pode mostrar a identificação do waypoint, distância e tempo até o alcançar. A opção A (“No Al.”) está incompleta/incorreta. A opção C (VOR) é uma radioajuda terrestre, não um instrumento de apresentação de waypoints."
+        },
+        // ==================== 5. FIBRA MONOMODO vs MULTIMODO ====================
+        {
+            text: "Ao comparar fibras óticas monomodo e multimodo, qual característica favorece a utilização da fibra monomodo em transmissões de elevada capacidade?",
+            options: [
+                "O seu núcleo de maior diâmetro possibilita transportar vários percursos óticos sem limitar a largura de banda.",
+                "A propagação simultânea de vários modos permite-lhe reduzir as perdas causadas pela dispersão.",
+                "Permite trabalhar com uma largura de banda superior à da fibra multimodo."
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. A fibra monomodo tem um núcleo muito estreito (≈8–10 µm) que permite apenas um modo de propagação, reduzindo drasticamente a dispersão modal e permitindo larguras de banda muito superiores às da fibra multimodo. A opção A está errada: a fibra monomodo tem núcleo MENOR, não maior. A opção B está errada: é a fibra multimodo que propaga vários modos, e isso causa dispersão (não a reduz)."
+        },
+        // ==================== 6. DAC DE 4 BITS ====================
+        {
+            text: "Num conversor digital-analógico de 4 bits, quantos valores diferentes podem ser representados à saída?",
+            options: [
+                "5.",
+                "3.",
+                "16."
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. Um DAC de n bits pode representar 2ⁿ valores distintos. Para n = 4: 2⁴ = 16 valores (de 0000 a 1111). As opções A (5) e B (3) não correspondem a nenhuma potência de 2 e não têm relação com a resolução do conversor."
+        },
+        // ==================== 7. FLY-BY-WIRE ====================
+        {
+            text: "Em condições normais de operação de um sistema fly-by-wire, como funcionam os dois atuadores associados a cada superfície de comando?",
+            options: [
+                "Um atuador permanece em modo \"active\" e o outro em modo \"damping\".",
+                "Nenhuma das afirmações anteriores descreve corretamente o funcionamento dos atuadores.",
+                "Os dois atuadores funcionam simultaneamente em \"active\" ou em \"damping\", consoante o modo de operação."
+            ],
+            correct: 0,
+            justification: "A resposta correta é a A. Em operação normal de um sistema fly-by-wire, os dois atuadores de cada superfície funcionam em modos complementares: um em modo “active” (comanda a superfície) e o outro em modo “damping” (amortece oscilações e serve de reserva). A opção C está errada porque os atuadores não funcionam simultaneamente no mesmo modo em condições normais — isso contraria o princípio de redundância ativa/passiva."
+        },
+        // ==================== 8. BASIC SIX ====================
+        {
+            text: "Qual dos seguintes instrumentos não pertence ao conjunto conhecido como “basic six”?",
+            options: [
+                "Slip indicator.",
+                "Vertical Speed Indicator.",
+                "HRI."
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. O conjunto “basic six” (seis instrumentos básicos de voo) é composto por: Airspeed Indicator, Attitude Indicator, Altimeter, Turn Coordinator (ou Turn & Slip), Heading Indicator e Vertical Speed Indicator. O HRI (Horizontal Situation Indicator / Horizontal Reference Indicator) não faz parte desse conjunto básico. O Slip indicator e o VSI integram o “basic six”."
+        },
+        // ==================== 9. NAVIGATION DISPLAY ====================
+        {
+            text: "Que tipo de informação é normalmente apresentada no Navigation Display (ND)?",
+            options: [
+                "Informação relativa ao estado dos diferentes sistemas da aeronave.",
+                "Informação correspondente ao horizonte artificial.",
+                "Informação relacionada com a navegação da aeronave."
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. O ND (Navigation Display) apresenta informação de navegação: rota, waypoints, radioajudas (VOR/NDB), dados de vento, desvio de rota, etc. A opção A descreve a função típica de um ECAM/EICAS (estado de sistemas). A opção B descreve o PFD (Primary Flight Display), que mostra o horizonte artificial."
+        },
+        // ==================== 10. TCAS — NÍVEIS DE ALERTA ====================
+        {
+            text: "Quando outra aeronave representa uma potencial ameaça de colisão, que dois níveis de alerta podem ser gerados pelo TCAS?",
+            options: [
+                "Traffic Detection Alert (TDA) e Vertical Separation Warning (VSW).",
+                "Proximity Warning (PW) e Collision Avoidance Command (CAC).",
+                "Traffic Advisory (TA) e Resolution Advisory (RA)."
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. O TCAS gera dois níveis de alerta: Traffic Advisory (TA) — aviso de tráfego, e Resolution Advisory (RA) — recomendação de manobra vertical para evitar a colisão. As opções A e B usam designações que não correspondem aos alertas normalizados do TCAS."
+        },
+        // ==================== 11. FMS — MODO PERFORMANCE ====================
+        {
+            text: "Durante a gestão automática de um voo, que capacidade está associada ao modo “performance” do FMS?",
+            options: [
+                "Controlar diretamente as superfícies de voo para manter os parâmetros introduzidos pelo piloto.",
+                "Determinar, entre outros parâmetros, velocidades e altitudes ótimas para o voo.",
+                "Selecionar automaticamente a trajetória lateral exclusivamente a partir dos sinais recebidos das radioajudas terrestres."
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. O modo “performance” do FMS calcula e otimiza parâmetros de voo (velocidades, altitudes, consumos, perfis de subida/descida) com base na massa, vento, temperatura e custo operacional. A opção A descreve a função dos computadores de voo/fly-by-wire, não do FMS. A opção C descreve a navegação lateral (LNAV), não o modo performance."
+        },
+        // ==================== 12. TCAS — INDICAÇÃO DE RA ====================
+        {
+            text: "Qual das seguintes indicações do TCAS representa um Resolution Advisory (RA)?",
+            options: [
+                "Um círculo âmbar apresentado no ND.",
+                "Um quadrado âmbar apresentado no PFD.",
+                "Um símbolo em forma de quadrado vermelho apresentado no ND."
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. No ND, um RA é representado por um símbolo em forma de quadrado vermelho. Os Traffic Advisories (TA) são tipicamente apresentados como círculos âmbar (opção A). A opção B mistura a forma (quadrado) com a cor errada (âmbar) e o visor errado (PFD)."
+        },
+        // ==================== 13. MFD EM AERONAVES LIGEIRAS ====================
+        {
+            text: "Relativamente ao MFD (Multifunction Display) utilizado em aeronaves ligeiras, qual das seguintes afirmações está correta?",
+            options: [
+                "Pode apresentar parâmetros primários do motor juntamente com informação de navegação.",
+                "Funciona exclusivamente num único modo, não permitindo qualquer reversibilidade de operação.",
+                "As duas afirmações anteriores descrevem corretamente o funcionamento do MFD."
+            ],
+            correct: 0,
+            justification: "A resposta correta é a A. O MFD é um visor multifunções que pode apresentar, entre outros, parâmetros do motor e informação de navegação, permitindo ao piloto alternar entre modos. A opção B está errada porque o MFD é precisamente multifunções e reversível. A opção C está errada porque a opção B é falsa."
+        },
+        // ==================== 14. BITE ====================
+        {
+            text: "Qual das seguintes opções descreve de forma mais completa as funções normalmente desempenhadas pelo BITE?",
+            options: [
+                "Identificar uma falha, localizar a sua origem, guardar informação para diagnóstico posterior e executar testes ao sistema.",
+                "Registrar continuamente os parâmetros de voo para posterior análise e transmitir automaticamente esses dados às estações de manutenção.",
+                "Verificar apenas a continuidade elétrica dos componentes e substituir automaticamente os equipamentos que apresentem anomalias."
+            ],
+            correct: 0,
+            justification: "A resposta correta é a A. O BITE (Built-In Test Equipment) tem como funções: detetar/identificar falhas, localizar a sua origem (LRU), armazenar informação para diagnóstico e executar testes ao sistema. A opção B descreve funções de registo de voo (FDR/ACMS), não do BITE. A opção C está errada porque o BITE não substitui equipamentos automaticamente."
+        },
+        // ==================== 15. EICAS/ECAM — PROPULSÃO ====================
+        {
+            text: "A tripulação pretende verificar no sistema eletrónico de indicação o estado dos sistemas de propulsão. Em que visor deverá consultar essa informação?",
+            options: [
+                "No Primary Flight Display, integrada nas indicações de atitude e velocidade.",
+                "No EAD, também designado EWD.",
+                "No Navigation Display, juntamente com a informação da rota."
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. O EAD (Engine and Alert Display), também designado EWD (Engine/Warning Display), apresenta os parâmetros dos motores e avisos associados. O PFD (opção A) mostra atitude e velocidade. O ND (opção C) mostra navegação."
+        },
+        // ==================== 16. TRANSMISSÃO SÉRIE ====================
+        {
+            text: "Ao estabelecer a comunicação entre equipamentos aviónicos, qual é a forma de transmissão utilizada pela maioria dos sistemas?",
+            options: [
+                "Os dados são transferidos em paralelo.",
+                "A informação é obrigatoriamente enviada por transmissão redundante.",
+                "Os dados são enviados em série."
+            ],
+            correct: 2,
+            justification: "A resposta correta é a C. A maioria dos barramentos aviónicos (ARINC 429, ARINC 629, MIL-STD-1553, RS-422/485) utiliza transmissão série, por ser mais simples, leve e económica em cablagem. A transmissão paralela (opção A) é rara em aviónicos por exigir muitos condutores. A opção B está errada porque a redundância é uma técnica de fiabilidade, não a forma de transmissão em si."
+        },
+        // ==================== 17. FIBRA ÓTICA — REFLEXÃO ====================
+        {
+            text: "Quando a luz proveniente da fonte entra dentro do cone de aceitação de uma fibra ótica, o que ocorre na fronteira entre o núcleo e a bainha?",
+            options: [
+                "A luz é refratada através da fronteira entre o núcleo e a bainha.",
+                "A luz é refletida na fronteira entre o núcleo e a bainha.",
+                "A luz é absorvida pela bainha da fibra ótica."
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. O princípio da fibra ótica é a reflexão total interna: quando a luz incide na fronteira núcleo/bainha com um ângulo superior ao ângulo crítico, é refletida de volta para o núcleo. A opção A está errada porque a refração ocorreria apenas se o ângulo fosse inferior ao crítico (a luz escaparia). A opção C está errada porque a bainha não absorve a luz de forma útil — pelo contrário, confina-a no núcleo."
+        },
+        // ==================== 18. VANTAGENS DA FIBRA ÓTICA ====================
+        {
+            text: "Por que razão a fibra ótica é particularmente adequada para transmitir dados entre sistemas instalados numa aeronave?",
+            options: [
+                "Os sinais óticos podem ser transmitidos diretamente junto de cabos de potência porque a fibra funciona como blindagem elétrica.",
+                "A transmissão não é afetada por interferências eletromagnéticas nem por descargas atmosféricas.",
+                "As ligações por fibra dispensam cuidados especiais nas terminações, tornando a instalação mais simples do que a cablagem convencional."
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. A fibra ótica é imune a interferências eletromagnéticas (EMI) e a descargas atmosféricas, pois transmite luz e não corrente elétrica — daí ser ideal em ambientes aviónicos. A opção A está errada: a fibra não funciona como blindagem elétrica; é imune, mas não blinda. A opção C está errada: as terminações de fibra exigem cuidados especiais (polimento, alinhamento), sendo mais complexas do que a cablagem convencional."
+        },
+        // ==================== 19. DECIMAL → BINÁRIO ====================
+        {
+            text: "Ao escrever 139₁₀ num sistema de numeração de base 2, qual é a sequência correta?",
+            options: [
+                "1011₂",
+                "10001011₂",
+                "1001₂"
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. Convertendo 139 para binário: 139 = 128 + 8 + 2 + 1 = 2⁷ + 2³ + 2¹ + 2⁰ = 10001011₂. A opção A (1011₂) corresponde a 11 em decimal. A opção C (1001₂) corresponde a 9 em decimal."
+        },
+        // ==================== 20. DAC — LSD ====================
+        {
+            text: "Um conversor D/A possui 6 bits de resolução e trabalha entre 0 e 15 V. Qual é, aproximadamente, a menor variação correspondente ao seu LSD?",
+            options: [
+                "2,5 V.",
+                "0,23 V.",
+                "3,75 V."
+            ],
+            correct: 1,
+            justification: "A resposta correta é a B. O LSD (Least Significant Bit) corresponde ao passo mínimo do DAC: V_LSD = V_fundo_escala / (2ⁿ − 1) = 15 / (2⁶ − 1) = 15 / 63 ≈ 0,238 V ≈ 0,23 V. A opção A (2,5 V) resultaria de 15/6 (erro de fórmula). A opção C (3,75 V) resultaria de 15/4 (erro de potência de 2)."
+        }
+    ];
+
+    const total = questions.length;
+    let currentIndex = 0;
+    let userAnswers = new Array(total).fill(null);
+    let userJustification = new Array(total).fill(null);
+
+    const mainWrapper = document.getElementById('mainWrapper');
+    const capaScreen = document.getElementById('capaScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const blankScreen = document.getElementById('blankScreen');
+    const questionText = document.getElementById('questionText');
+    const optionsArea = document.getElementById('optionsArea');
+    const feedbackArea = document.getElementById('feedbackArea');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressText = document.getElementById('progressText');
+    const startQuizBtn = document.getElementById('startQuizBtn');
+    const restartQuizBtn = document.getElementById('restartQuizBtn');
+    const endQuizBtn = document.getElementById('endQuizBtn');
+    const resultContent = document.getElementById('resultContent');
+    const fontMinus = document.getElementById('fontMinus');
+    const fontPlus = document.getElementById('fontPlus');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    let currentFontSize = 16;
+
+    function setFontSize(size) {
+        mainWrapper.style.fontSize = size + 'px';
+        const els = document.querySelectorAll('.question-text, .feedback, .opt-btn, .tool-btn, .action-btn, .start-btn');
+        els.forEach(el => el.style.fontSize = size + 'px');
+        currentFontSize = size;
+    }
+
+    fontMinus.addEventListener('click', () => setFontSize(Math.max(12, currentFontSize - 2)));
+    fontPlus.addEventListener('click', () => setFontSize(Math.min(36, currentFontSize + 2)));
+    fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+    });
+
+    function renderQuestion() {
+        const q = questions[currentIndex];
+        questionText.innerHTML = '<strong>Questão ' + (currentIndex + 1) + ':</strong> ' + q.text;
+        feedbackArea.style.display = 'none';
+        feedbackArea.className = 'feedback';
+
+        // Render options
+        optionsArea.innerHTML = '';
+        const letters = ['A', 'B', 'C', 'D', 'E'];
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.setAttribute('data-index', idx);
+            btn.innerHTML = '<strong>' + letters[idx] + ')</strong> ' + opt;
+            optionsArea.appendChild(btn);
+        });
+
+        // Restore selection / feedback
+        const selected = userAnswers[currentIndex];
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('selected', 'correct-answer', 'wrong-answer');
+            if (selected !== null) {
+                const idx = parseInt(btn.getAttribute('data-index'));
+                if (idx === selected) {
+                    btn.classList.add('selected');
+                    if (selected !== q.correct) btn.classList.add('wrong-answer');
+                }
+                if (idx === q.correct) btn.classList.add('correct-answer');
+            }
+        });
+
+        if (selected !== null && userJustification[currentIndex]) {
+            const isCorrect = (selected === q.correct);
+            feedbackArea.classList.add(isCorrect ? 'correct' : 'wrong');
+            feedbackArea.style.display = 'block';
+            feedbackArea.innerHTML = userJustification[currentIndex];
+        }
+
+        progressText.innerText = 'Questão ' + (currentIndex + 1) + ' de ' + total;
+        prevBtn.disabled = (currentIndex === 0);
+        nextBtn.disabled = false;
+    }
+
+    function selectAnswer(index) {
+        const q = questions[currentIndex];
+        userAnswers[currentIndex] = index;
+        const isCorrect = (index === q.correct);
+        const letters = ['A', 'B', 'C', 'D', 'E'];
+        const correctLetter = letters[q.correct];
+        const explanation =
+            '<strong>' + (isCorrect ? '✓ Correto!' : '✗ Incorreto') + '</strong><br>' +
+            '<strong>Justificativa:</strong> ' + q.justification +
+            '<br><span style="font-size:0.9rem; opacity:0.8;">Resposta correta: ' + correctLetter + '.</span>';
+        userJustification[currentIndex] = explanation;
+        feedbackArea.classList.remove('correct', 'wrong');
+        feedbackArea.classList.add(isCorrect ? 'correct' : 'wrong');
+        feedbackArea.style.display = 'block';
+        feedbackArea.innerHTML = explanation;
+
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('selected', 'correct-answer', 'wrong-answer');
+            const idx = parseInt(btn.getAttribute('data-index'));
+            if (idx === index) btn.classList.add('selected');
+            if (idx === q.correct) btn.classList.add('correct-answer');
+            if (idx === index && index !== q.correct) btn.classList.add('wrong-answer');
+        });
+    }
+
+    optionsArea.addEventListener('click', (e) => {
+        const btn = e.target.closest('.opt-btn');
+        if (btn) selectAnswer(parseInt(btn.getAttribute('data-index')));
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (userAnswers[currentIndex] === null) {
+            alert('Por favor, responda a questão antes de avançar.');
+            return;
+        }
+        if (currentIndex < total - 1) {
+            currentIndex++;
+            renderQuestion();
+        } else {
+            mostrarResultado();
+        }
+    });
+
+    function mostrarResultado() {
+        let acertos = 0;
+        let erros = 0;
+        for (let i = 0; i < total; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] === questions[i].correct) acertos++;
+            else if (userAnswers[i] !== null) erros++;
+        }
+        const percentual = (acertos / total) * 100;
+        const nota = (acertos / total) * 10;
+
+        let mensagem = "";
+        if (percentual >= 85) mensagem = "⭐ Excelente! Você domina os sistemas eletrónicos aeronáuticos abordados neste quiz. Parabéns!";
+        else if (percentual >= 70) mensagem = "👍 Muito bom! Revise os pontos que errou e tente novamente.";
+        else if (percentual >= 50) mensagem = "📘 Bom, mas dá para melhorar. Releia o material sobre conversão A/D, fibra ótica, instrumentos e barramentos.";
+        else mensagem = "📚 Que tal revisar o conteúdo? Leia com calma e depois refaça o quiz.";
+
+        const resultadoHTML = `
+            <div class="stats">
+                <p><strong>✅ Acertos:</strong> ${acertos} (${percentual.toFixed(1)}%)</p>
+                <p><strong>❌ Erros:</strong> ${erros}</p>
+                <p><strong>🎓 Nota (0 a 10):</strong> ${nota.toFixed(1)}</p>
+                <p><strong>📊 Percentual de acerto:</strong> ${percentual.toFixed(1)}%</p>
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid #e2e8f0;">
+                <p>${mensagem}</p>
+            </div>
+        `;
+        resultContent.innerHTML = resultadoHTML;
+        quizScreen.classList.remove('active');
+        resultScreen.classList.add('active');
+    }
+
+    function mostrarBlank() {
+        capaScreen.classList.remove('active');
+        quizScreen.classList.remove('active');
+        resultScreen.classList.remove('active');
+        blankScreen.classList.remove('active');
+        blankScreen.classList.add('active');
+        mainWrapper.classList.add('wrapper-blank');
+        blankScreen.innerHTML = '';
+    }
+
+    function refazerQuiz() {
+        userAnswers = new Array(total).fill(null);
+        userJustification = new Array(total).fill(null);
+        currentIndex = 0;
+        mainWrapper.classList.remove('wrapper-blank');
+        blankScreen.classList.remove('active');
+        resultScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        renderQuestion();
+    }
+
+    startQuizBtn.addEventListener('click', () => {
+        capaScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        renderQuestion();
+    });
+
+    restartQuizBtn.addEventListener('click', refazerQuiz);
+    endQuizBtn.addEventListener('click', mostrarBlank);
+
+    setFontSize(16);
+</script>
+</body>
+</html>
